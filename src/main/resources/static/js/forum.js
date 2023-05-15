@@ -1,7 +1,8 @@
 'use strict';
 
 var stompClient = null;
-var commentHref = null;
+var commentAPI_URI = null;
+var commentWS_URI = null;
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
@@ -10,13 +11,9 @@ $(document).ready(function() {
     $(".card-body #subscribeBtn").on("click", function(event) {
         // SendTo URI
         var href = $(this).attr("href");
-        stompClient.subscribe(href); // Try to have callback function here
+        commentWS_URI = href; // Set the href of the comment to be use in web socket
+        stompClient.subscribe("/forum" + commentWS_URI, onMessageReceive);
 
-        // MessagaMapping URI
-        stompClient.send('/app' + href,
-           {},
-           JSON.stringify({body: "This is my comment"})
-        );
         getAllCommentsOf(href); // Get all comments of selected post
         event.preventDefault();
     });
@@ -47,14 +44,22 @@ function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
 
+function onMessageReceive(payload) {
+    var message = JSON.parse(payload.body);
+    commentSection.append("<li>" + message.body + "</li>");
+}
+
 function getAllCommentsOf(href) {
-    commentHref = '/forum/api' + href; // Set the href of the comment to comment in selected post
+    commentAPI_URI = '/forum/api' + href; // Set the href of the comment to comment in selected post
     $.ajax({
         type: "GET",
-        url: commentHref,
+        url: commentAPI_URI,
         success: function(commentDTOs, response) {
-            console.log("Comments of selected post fetch successfully");
-            console.table(commentDTOs);
+            var commentSection = $(".modal-body #commentSection");
+            commentSection.empty(); // Removes the recent comments in the modal
+            $.each(commentDTOs, function(index, value) {
+                commentSection.append("<li>" + value.body + "</li>");
+            });
         },
         error: function(xhr, status, error) {
             alert("Getting all comments failed!");
@@ -85,12 +90,16 @@ function createComment() {
     var body = $("#commentBody").val();
     $.ajax({
         type: "POST",
-        url: commentHref,
+        url: commentAPI_URI, // Sets when method getAllCommentsOf() is called when clicking the View Comments
         data: {
             body: body
         },
         success: function(response, status, xhr) {
             console.log(xhr.responseText);
+            // MessageMapping URI
+            stompClient.send("/app" + commentWS_URI, {}, JSON.stringify({body: body})); // Sets when user View Comments
+
+            $("#commentBody").val("");
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
