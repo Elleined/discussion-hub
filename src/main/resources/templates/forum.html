@@ -29,12 +29,42 @@
         <span th:text="${'posted at ' + post.formattedDateCreated}"></span>
       </h5>
       <p class="card-text" th:text="${post.body}"></p>
-      <ul id="commentSection">
-
-      </ul>
-      <a class="btn btn-primary" th:href="@{/posts/{postId}/comments (postId=${post.id}) }" role="button" id="subscribeBtn">Subscribe To This Post</a>
+      <a class="btn btn-primary"
+         th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
+         role="button"
+         data-bs-toggle="modal"
+         data-bs-target="#commentModal"
+         id="subscribeBtn">View Comments</a>
     </div>
   </div>
 </th:block>
+
+  <!-- Modal -->
+  <div class="commentModal modal fade" id="commentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="commentSection">
+
+          </ul>
+          <form id="commentForm" name="commentForm">
+            <div class="mb-3">
+              <label for="commentBody"></label>
+              <textarea class="form-control" id="commentBody" name="commentBody" placeholder="Write a comment..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Comment</button>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

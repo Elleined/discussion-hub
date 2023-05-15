@@ -1,8 +1,8 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
-import com.forum.application.service.UserService;
 import com.forum.application.service.ForumService;
+import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -32,13 +32,15 @@ public class PostController {
     public ResponseEntity<?> savePost(@RequestParam String body,
                                       HttpSession session) {
 
+        if (body == null || body.isEmpty() || body.isBlank()) return ResponseEntity.badRequest().body("Post body cannot be empty!");
+
         String loginEmailSession = (String) session.getAttribute("email");
 
         int authorId = userService.getIdByEmail(loginEmailSession);
 
         forumService.savePost(authorId, body);
         log.debug("Post saved successfully");
-        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body("Post Created Successfully");
+        return ResponseEntity.status(200).body("Post Created Successfully");
     }
 
     @DeleteMapping("/{postId}")

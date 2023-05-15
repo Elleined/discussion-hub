@@ -34,12 +34,14 @@ public class ReplyController {
                                        @RequestParam String body,
                                        HttpSession session) {
 
+        if (body == null || body.isEmpty() || body.isBlank()) return ResponseEntity.badRequest().body("Reply body cannot be empty!");
+
         String email = (String) session.getAttribute("email");
         int replierId = userService.getIdByEmail(email);
 
         forumService.saveReply(replierId, commentId, body);
         log.debug("Reply saved successfully");
-        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body("Replied Successfully");
+        return ResponseEntity.status(200).body("Replied Successfully");
     }
 
     @DeleteMapping("/{replyId}")

@@ -1,6 +1,7 @@
 'use strict';
 
 var stompClient = null;
+var commentHref = null;
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
@@ -9,23 +10,25 @@ $(document).ready(function() {
     $(".card-body #subscribeBtn").on("click", function(event) {
         // SendTo URI
         var href = $(this).attr("href");
-
-        console.log(href);
-        stompClient.subscribe(href, function(commentDTO) {
-            alert(commentDTO);
-        });
+        stompClient.subscribe(href); // Try to have callback function here
 
         // MessagaMapping URI
         stompClient.send('/app' + href,
            {},
            JSON.stringify({body: "This is my comment"})
         );
-
+        getAllCommentsOf(href); // Get all comments of selected post
         event.preventDefault();
     });
 
     $("#createPostBtn").on("submit", function() {
+        event.preventDefault();
         createPost();
+    });
+
+    $(".commentModal #commentForm").on("submit", function(event) {
+        event.preventDefault();
+        createComment();
     });
 });
 
@@ -37,11 +40,26 @@ function connect() {
 }
 
 function onConnected() {
-    console.log("Connected");
+    console.log("Web Socket Connected!!!");
 }
 
 function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
+}
+
+function getAllCommentsOf(href) {
+    commentHref = '/forum/api' + href; // Set the href of the comment to comment in selected post
+    $.ajax({
+        type: "GET",
+        url: commentHref,
+        success: function(commentDTOs, response) {
+            console.log("Comments of selected post fetch successfully");
+            console.table(commentDTOs);
+        },
+        error: function(xhr, status, error) {
+            alert("Getting all comments failed!");
+        }
+    });
 }
 
 function createPost() {
@@ -54,12 +72,29 @@ function createPost() {
             body: body
         },
         success: function(response, status, xhr) {
-            alert(xhr.responseText);
+            console.log(xhr.responseText);
             window.location.href = "/forum";
         },
         error: function(xhr, status, error) {
-            alert("Creating post failed!")
+            alert(xhr.responseText);
         }
+    });
+}
+
+function createComment() {
+    var body = $("#commentBody").val();
+    $.ajax({
+        type: "POST",
+        url: commentHref,
+        data: {
+            body: body
+        },
+        success: function(response, status, xhr) {
+            console.log(xhr.responseText);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+       }
     });
 }
 
