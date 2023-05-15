@@ -1,0 +1,66 @@
+package com.forum.application.service;
+
+import com.forum.application.dto.CommentDTO;
+import com.forum.application.model.Comment;
+import com.forum.application.model.Post;
+import com.forum.application.model.User;
+import com.forum.application.repository.CommentRepository;
+import com.forum.application.repository.PostRepository;
+import com.forum.application.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class CommentService {
+
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+
+    public CommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository) {
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+    }
+
+    @Transactional
+    public void save(int commenterId, int postId, String body) {
+        User commenter = userRepository.findById(commenterId).orElseThrow();
+        Post post = postRepository.findById(postId).orElseThrow();
+
+        Comment comment = Comment.builder()
+                .body(body)
+                .dateCreated(LocalDateTime.now())
+                .post(post)
+                .commenter(commenter)
+                .build();
+
+        commentRepository.save(comment);
+    }
+
+    @Transactional
+    public void delete(int commentId) {
+        commentRepository.deleteById(commentId);
+    }
+
+    public List<CommentDTO> getAllCommentsOf(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        return post.getComments()
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    private CommentDTO convertToDTO(Comment comment) {
+        return CommentDTO.builder()
+                .id(comment.getId())
+                .body(comment.getBody())
+                .dateCreated(comment.getDateCreated())
+                .postId(comment.getPost().getId())
+                .commenterId(comment.getCommenter().getId())
+                .build();
+    }
+}

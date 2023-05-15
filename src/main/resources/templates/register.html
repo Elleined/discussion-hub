@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Forum</title>
+   <div th:insert="~{fragments/links :: links-fragment}"></div>
+   <script src="/js/main.js"></script>
+</head>
+<body>
+<form th:action="@{/}" method="post">
+   <label for="email"></label>
+   <input type="email" name="email" id="email"/>
+   <input type="submit" value="Register" id="registerBtn"/>
+   <span th:if="${emailNotExists}" th:text="${emailErrorMessage}"></span>
+</form>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Forum Application</title>
+  <div th:replace="~{fragments/links :: links-fragment}"></div>
+  <script th:src="@{/js/forum.js}"></script>
+</head>
+<body>
+
+<a th:href="@{/logout}">
+  <button>Logout</button>
+</a>
+
+
+<form id="createPostBtn">
+  <label for="postBody">Create Post</label>
+  <input type="text" id="postBody" name="body" />
+  <input type="submit" value="Post" />
+</form>
+
+<div th:if="${posts.isEmpty()}">No Post Yet</div>
+<hr>
+<th:block th:each="post : ${posts}">
+  <div class="card w-75 mb-3">
+    <div class="card-body">
+      <h5 class="card-title">
+        <span th:text="${post.authorName}"></span>
+        <span th:text="${'posted at ' + post.formattedDateCreated}"></span>
+      </h5>
+      <p class="card-text" th:text="${post.body}"></p>
+      <ul id="commentSection">
+
+      </ul>
+      <a class="btn btn-primary" th:href="@{/posts/{postId}/comments (postId=${post.id}) }" role="button" id="subscribeBtn">Subscribe To This Post</a>
+    </div>
+  </div>
+</th:block>
+</body>
+</html>
