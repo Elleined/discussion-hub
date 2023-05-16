@@ -12,8 +12,10 @@ $(document).ready(function() {
         // SendTo URI
         var href = $(this).attr("href");
         commentWS_URI = href; // Set the href of the comment to be use in web socket
-        stompClient.subscribe("/forum" + commentWS_URI, function(payload) {
-            console.log(payload.body);
+        stompClient.subscribe("/forum" + href, function(commentDTO) {
+             var dto = JSON.parse(commentDTO.body);
+             var messageBody = dto.body;
+             commentSection.append("<li>" + messageBody + "</li>");
         });
 
         getAllCommentsOf(href); // Get all comments of selected post
