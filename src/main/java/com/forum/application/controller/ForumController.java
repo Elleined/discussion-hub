@@ -24,26 +24,13 @@ public class ForumController {
 
     private final ForumService forumService;
 
-    @GetMapping("/forum")
-    public String goToForum(HttpSession session,
-                            Model model) {
-
-        String email = (String) session.getAttribute("email");
-        if (email == null) return "redirect:/";
-
-        List<PostDTO> posts = forumService.getAllPost();
-        model.addAttribute("posts", posts);
-        return "forum";
-    }
-
     @MessageMapping("/posts/{postId}/comments")
-    @SendTo("/forum/posts/{postId}/comments")
+    @SendTo("/discussion/posts/{postId}/comments")
     public CommentDTO comment(@DestinationVariable int postId,
                               @Payload CommentDTO commentDTO) {
 
         log.debug("Post id: {} Comment Body: {}", postId, commentDTO.getBody());
-        // Return a full detailed commentDTO
         commentDTO.setBody(HtmlUtils.htmlEscape(commentDTO.getBody()));
-        return commentDTO; // Set the content of the DTO to be send in the clients
+        return commentDTO; // Return a full detailed commentDTO
     }
 }

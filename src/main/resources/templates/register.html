@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
    <meta charset="UTF-8">
    <title>Forum</title>
    <div th:insert="~{fragments/links :: links-fragment}"></div>
-   <script src="/js/main.js"></script>
+   <script th:src="@{/js/register.js}"></script>
 </head>
 <body>
 
@@ -17,11 +17,5 @@
       </div>
       <span th:if="${emailNotExists}" th:text="${emailErrorMessage}"></span>
    </form>
-
-   <script>
-      $(document).ready(function() {
-         $("#email").focus();
-      });
-   </script>
 </body>
 </html>

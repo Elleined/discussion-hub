@@ -30,6 +30,10 @@ public class ForumService {
         replyService.save(replierId, commentId, body);
     }
 
+    public boolean isEmpty(String body) {
+        return body == null || body.isEmpty() || body.isBlank();
+    }
+
     public void deletePost(int postId) {
         postService.delete(postId);
     }

@@ -12,7 +12,6 @@
     <button type="button" class="btn btn-primary">Logout</button>
   </a>
 
-
   <form id="createPostBtn">
     <label for="postBody">Create Post</label>
     <input type="text" id="postBody" name="body" />
@@ -35,10 +34,10 @@
            role="button"
            data-bs-toggle="modal"
            data-bs-target="#commentModal"
-           id="subscribeBtn">View Comments</a>
+           id="viewCommentsBtn">View Comments</a>
       </div>
     </div>
   </th:block>
-  <div th:replace="~{fragment/comment-form :: comment-form-fragment}"></div>
+  <div th:replace="~{fragments/comment-form :: comment-form-fragment}"></div>
 </body>
 </html>

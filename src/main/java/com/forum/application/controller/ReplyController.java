@@ -30,7 +30,7 @@ public class ReplyController {
                                        @RequestParam String body,
                                        HttpSession session) {
 
-        if (body == null || body.isEmpty() || body.isBlank()) return ResponseEntity.badRequest().body("Reply body cannot be empty!");
+        if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Reply body cannot be empty!");
 
         String email = (String) session.getAttribute("email");
         int replierId = userService.getIdByEmail(email);

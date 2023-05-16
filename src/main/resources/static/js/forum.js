@@ -1,6 +1,8 @@
 'use strict';
 
 var stompClient = null;
+var socket = null;
+
 var commentAPI_URI = null;
 var commentWS_URI = null;
 $(document).ready(function() {
@@ -8,11 +10,12 @@ $(document).ready(function() {
 
     connect();
 
-    $(".card-body #subscribeBtn").on("click", function(event) {
+    $(".card-body #viewCommentsBtn").on("click", function(event) {
         // SendTo URI
         var href = $(this).attr("href");
+        console.log("MESSAGE MAPPING URI" + href);
         commentWS_URI = href; // Set the href of the comment to be use in web socket
-        stompClient.subscribe("/forum" + href, function(commentDTO) {
+        stompClient.subscribe("/discussion" + href, function(commentDTO) {
              var dto = JSON.parse(commentDTO.body);
              var messageBody = dto.body;
              commentSection.append("<li>" + messageBody + "</li>");
@@ -24,19 +27,39 @@ $(document).ready(function() {
 
     $("#createPostBtn").on("submit", function() {
         event.preventDefault();
-        createPost();
+         var body = $("#postBody").val();
+
+        createPost(body);
     });
 
     $(".commentModal #commentForm").on("submit", function(event) {
         event.preventDefault();
-        createComment();
+        var body = $("#commentBody").val();
+
+        createComment(body);
+
+        console.log("WS URI " + commentWS_URI);
+        // MessageMapping URI
+        stompClient.send("/app" + commentWS_URI, {}, JSON.stringify({body: body})); // Sets when user View Comments
+        $("#commentBody").val("");
     });
+
+    // THIS IS USED TO PREVENT MEMORY LEAK WHEN PAGE IS RELOAD
+    $(window).on('beforeunload', function() {
+
+        if (stompClient) {
+            stompClient.disconnect();
+        }
+        if (socket) {
+            socket.close();
+        }
+    });
+    // insert here
 });
 
 function connect() {
-    var socket = new SockJS("/websocket");
+    socket = new SockJS("/websocket");
     stompClient = Stomp.over(socket);
-
     stompClient.connect({}, onConnected, onError);
 }
 
@@ -66,9 +89,7 @@ function getAllCommentsOf(href) {
     });
 }
 
-function createPost() {
-    var body = $("#postBody").val();
-
+function createPost(body) {
     $.ajax({
         type:"POST",
         url: "/forum/api/posts",
@@ -85,8 +106,7 @@ function createPost() {
     });
 }
 
-function createComment() {
-    var body = $("#commentBody").val();
+function createComment(body) {
     $.ajax({
         type: "POST",
         url: commentAPI_URI, // Sets when method getAllCommentsOf() is called when clicking the View Comments
@@ -95,10 +115,6 @@ function createComment() {
         },
         success: function(response, status, xhr) {
             console.log(xhr.responseText);
-            // MessageMapping URI
-            stompClient.send("/app" + commentWS_URI, {}, JSON.stringify({body: body})); // Sets when user View Comments
-
-            $("#commentBody").val("");
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);

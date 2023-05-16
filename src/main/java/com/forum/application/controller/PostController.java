@@ -29,7 +29,7 @@ public class PostController {
     public ResponseEntity<?> savePost(@RequestParam String body,
                                       HttpSession session) {
 
-        if (body == null || body.isEmpty() || body.isBlank()) return ResponseEntity.badRequest().body("Post body cannot be empty!");
+        if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Post body cannot be empty!");
 
         String loginEmailSession = (String) session.getAttribute("email");
 
