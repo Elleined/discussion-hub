@@ -12,7 +12,9 @@ $(document).ready(function() {
         // SendTo URI
         var href = $(this).attr("href");
         commentWS_URI = href; // Set the href of the comment to be use in web socket
-        stompClient.subscribe("/forum" + commentWS_URI, onMessageReceive);
+        stompClient.subscribe("/forum" + commentWS_URI, function(payload) {
+            console.log(payload.body);
+        });
 
         getAllCommentsOf(href); // Get all comments of selected post
         event.preventDefault();
@@ -42,11 +44,6 @@ function onConnected() {
 
 function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
-}
-
-function onMessageReceive(payload) {
-    var message = JSON.parse(payload.body);
-    commentSection.append("<li>" + message.body + "</li>");
 }
 
 function getAllCommentsOf(href) {

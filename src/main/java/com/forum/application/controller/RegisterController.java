@@ -2,6 +2,7 @@ package com.forum.application.controller;
 
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,15 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
+@RequiredArgsConstructor
 @Controller
 @RequestMapping
 public class RegisterController {
-
     private final UserService userService;
-
-    public RegisterController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping
     public String goToRegister(HttpSession session) {

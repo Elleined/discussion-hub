@@ -7,23 +7,21 @@ import com.forum.application.model.User;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.ReplyRepository;
 import com.forum.application.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class ReplyService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
-
-    public ReplyService(UserRepository userRepository, CommentRepository commentRepository, ReplyRepository replyRepository) {
-        this.userRepository = userRepository;
-        this.commentRepository = commentRepository;
-        this.replyRepository = replyRepository;
-    }
 
     @Transactional
     public void save(int replierId, int commentId, String body) {

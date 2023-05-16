@@ -3,22 +3,20 @@ package com.forum.application.service;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class ForumService {
 
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
-
-    public ForumService(PostService postService, CommentService commentService, ReplyService replyService) {
-        this.postService = postService;
-        this.commentService = commentService;
-        this.replyService = replyService;
-    }
 
     public void savePost(int authorId, String body) {
         postService.save(authorId, body);

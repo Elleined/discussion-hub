@@ -7,12 +7,16 @@ import com.forum.application.model.User;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
 import com.forum.application.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class CommentService {
 
@@ -20,11 +24,6 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
-    public CommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
-    }
 
     @Transactional
     public void save(int commenterId, int postId, String body) {

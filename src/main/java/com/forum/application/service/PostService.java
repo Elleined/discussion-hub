@@ -5,21 +5,20 @@ import com.forum.application.model.Post;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
 import com.forum.application.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-
-    public PostService(UserRepository userRepository, PostRepository postRepository) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-    }
 
     @Transactional
     public void save(int authorId, String body) {

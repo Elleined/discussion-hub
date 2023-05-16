@@ -4,24 +4,21 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/forum/api/posts")
 public class PostController {
     private final ForumService forumService;
     private final UserService userService;
 
-    public PostController(ForumService forumService, UserService userService) {
-        this.forumService = forumService;
-        this.userService = userService;
-    }
 
     @GetMapping
     public List<PostDTO> getAllPost() {
