@@ -7,11 +7,21 @@
    <script src="/js/main.js"></script>
 </head>
 <body>
-<form th:action="@{/}" method="post">
-   <label for="email"></label>
-   <input type="email" name="email" id="email"/>
-   <input type="submit" value="Register" id="registerBtn"/>
-   <span th:if="${emailNotExists}" th:text="${emailErrorMessage}"></span>
-</form>
+
+   <h1 class="display-1 text-primary-emphasis" align="center">Register Your Username</h1>
+   <hr>
+   <form th:action="@{/}" method="post">
+      <div class="input-group mb-3">
+         <input type="email" name="email" id="email" class="form-control" placeholder="Your registered username in database">
+         <button class="btn btn-primary" type="submit" id="registerBtn">Register</button>
+      </div>
+      <span th:if="${emailNotExists}" th:text="${emailErrorMessage}"></span>
+   </form>
+
+   <script>
+      $(document).ready(function() {
+         $("#email").focus();
+      });
+   </script>
 </body>
 </html>

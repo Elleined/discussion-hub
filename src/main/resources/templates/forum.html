@@ -8,63 +8,37 @@
 </head>
 <body>
 
-<a th:href="@{/logout}">
-  <button>Logout</button>
-</a>
+  <a th:href="@{/logout}">
+    <button type="button" class="btn btn-primary">Logout</button>
+  </a>
 
 
-<form id="createPostBtn">
-  <label for="postBody">Create Post</label>
-  <input type="text" id="postBody" name="body" />
-  <input type="submit" value="Post" />
-</form>
+  <form id="createPostBtn">
+    <label for="postBody">Create Post</label>
+    <input type="text" id="postBody" name="body" />
+    <input type="submit" value="Post" />
+  </form>
 
-<div th:if="${posts.isEmpty()}">No Post Yet</div>
-<hr>
-<th:block th:each="post : ${posts}">
-  <div class="card w-75 mb-3">
-    <div class="card-body">
-      <h5 class="card-title">
-        <span th:text="${post.authorName}"></span>
-        <span th:text="${'posted at ' + post.formattedDateCreated}"></span>
-      </h5>
-      <p class="card-text" th:text="${post.body}"></p>
-      <a class="btn btn-primary"
-         th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
-         role="button"
-         data-bs-toggle="modal"
-         data-bs-target="#commentModal"
-         id="subscribeBtn">View Comments</a>
-    </div>
-  </div>
-</th:block>
+  <div th:if="${posts.isEmpty()}">No Post Yet</div>
+  <hr>
 
-  <!-- Modal -->
-  <div class="commentModal modal fade" id="commentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <ul id="commentSection">
-
-          </ul>
-          <form id="commentForm" name="commentForm">
-            <div class="mb-3">
-              <label for="commentBody"></label>
-              <textarea class="form-control" id="commentBody" name="commentBody" placeholder="Write a comment..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Comment</button>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
+  <th:block th:each="post : ${posts}">
+    <div class="card w-75 mb-3">
+      <div class="card-body">
+        <h5 class="card-title">
+          <span th:text="${post.authorName}"></span>
+          <span th:text="${'posted at ' + post.formattedDateCreated}"></span>
+        </h5>
+        <p class="card-text" th:text="${post.body}"></p>
+        <a class="btn btn-primary"
+           th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
+           role="button"
+           data-bs-toggle="modal"
+           data-bs-target="#commentModal"
+           id="subscribeBtn">View Comments</a>
       </div>
     </div>
-  </div>
-
+  </th:block>
+  <div th:replace="~{fragment/comment-form :: comment-form-fragment}"></div>
 </body>
 </html>
