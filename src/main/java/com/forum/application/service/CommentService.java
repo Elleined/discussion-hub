@@ -58,6 +58,9 @@ public class CommentService {
                 .id(comment.getId())
                 .body(comment.getBody())
                 .dateCreated(comment.getDateCreated())
+                .formattedDate(Formatter.formatDateWithoutYear(comment.getDateCreated()))
+                .formattedTime(Formatter.formatTime(comment.getDateCreated()))
+                .commenterName(comment.getCommenter().getName())
                 .postId(comment.getPost().getId())
                 .commenterId(comment.getCommenter().getId())
                 .build();
