@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -42,6 +43,7 @@ public class PostService {
         return postRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
+                .sorted(Comparator.comparing(PostDTO::getDateCreated).reversed())
                 .toList();
     }
 
@@ -50,7 +52,8 @@ public class PostService {
                 .id(post.getId())
                 .body(post.getBody())
                 .dateCreated(post.getDateCreated())
-                .formattedDateCreated(Formatter.formatDate(post.getDateCreated()))
+                .formattedDateCreated(Formatter.formatDateWithoutYear(post.getDateCreated()))
+                .formattedTimeCreated(Formatter.formatTime(post.getDateCreated()))
                 .authorName(post.getAuthor().getName())
                 .authorId(post.getAuthor().getId())
                 .build();

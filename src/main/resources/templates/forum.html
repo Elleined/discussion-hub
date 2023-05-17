@@ -8,34 +8,47 @@
 </head>
 <body>
 
-  <a th:href="@{/logout}" id="logoutBtn">
-    <button type="button" class="btn btn-primary">Logout</button>
-  </a>
-
-  <form id="createPostBtn">
-    <label for="postBody">Create Post</label>
-    <input type="text" id="postBody" name="body" />
-    <input type="submit" value="Post" />
-  </form>
-
-  <div th:if="${posts.isEmpty()}">No Post Yet</div>
+  <div class="container mt-3 d-flex justify-content-center" >
+    <form id="createPostBtn">
+      <div class="row">
+        <div class="col-md-6 w-auto">
+          <div class="form-outline border m">
+            <input type="text" id="postBody" name="body" class="form-control" />
+            <label class="form-label" for="postBody">What's on your mind</label>
+          </div>
+        </div>
+        <div class="col-md-1 w-auto">
+          <button type="submit" class="btn btn-primary btn-rounded">Post</button>
+        </div>
+      </div>
+    </form>
+  </div>
   <hr>
 
+
+  <div th:if="${posts.isEmpty()}">No Post Yet</div>
   <th:block th:each="post : ${posts}">
-    <input type="hidden" id="authorId" name="authorId" />
     <div class="card w-75 mb-3">
       <div class="card-body">
         <h5 class="card-title">
-          <span th:text="${post.authorName}"></span>
-          <span th:text="${'posted at ' + post.formattedDateCreated}"></span>
+          <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp" />
+          <span class="md5 mb-5">
+            <strong th:text="${post.authorName}"></strong>
+          </span>
         </h5>
-        <p class="card-text" th:text="${post.body}"></p>
+        <span th:text="${post.formattedDateCreated}"></span>
+        <span th:text="${'at ' + post.formattedTimeCreated}"></span>
+
+        <p class="card-text mt-3" th:text="${post.body}"></p>
         <a class="btn btn-primary"
            th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
            role="button"
            data-bs-toggle="modal"
            data-bs-target="#commentModal"
-           id="viewCommentsBtn">View Comments</a>
+           id="commentBtn">
+          <i class="fas fa-message"></i>
+          Comment
+        </a>
       </div>
     </div>
   </th:block>

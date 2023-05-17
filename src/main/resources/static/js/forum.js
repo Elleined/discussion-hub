@@ -11,7 +11,7 @@ $(document).ready(function() {
 
     connect();
 
-    $(".card-body #viewCommentsBtn").on("click", function(event) {
+    $(".card-body #commentBtn").on("click", function(event) {
         commentURI = $(this).attr("href"); // The API URI to be used when saving a comment and getting all comments
 
         // SendTo URI
@@ -30,7 +30,7 @@ $(document).ready(function() {
     });
 
     $("#createPostBtn").on("submit", function() {
-        event.preventDefault();
+         event.preventDefault();
          var body = $("#postBody").val();
 
         createPost(body);

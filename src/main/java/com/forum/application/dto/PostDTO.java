@@ -12,6 +12,7 @@ public class PostDTO {
     private String body;
     private LocalDateTime dateCreated;
     private String formattedDateCreated;
+    private String formattedTimeCreated;
     private int authorId;
     private String authorName;
 }
