@@ -2,7 +2,6 @@ package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
 import com.forum.application.service.ForumService;
-import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2,27 +2,31 @@
 
 var stompClient = null;
 var socket = null;
+var subscription = null;
 
-var commentAPI_URI = null;
-var commentWS_URI = null;
+var commentURI = null;
+
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
     connect();
 
     $(".card-body #viewCommentsBtn").on("click", function(event) {
+        commentURI = $(this).attr("href"); // The API URI to be used when saving a comment and getting all comments
+
         // SendTo URI
-        var href = $(this).attr("href");
-        console.log("MESSAGE MAPPING URI" + href);
-        commentWS_URI = href; // Set the href of the comment to be use in web socket
-        stompClient.subscribe("/discussion" + href, function(commentDTO) {
-             var dto = JSON.parse(commentDTO.body);
-             var messageBody = dto.body;
-             commentSection.append("<li>" + messageBody + "</li>");
+        subscription = stompClient.subscribe("/discussion" + commentURI, function(commentResponse) {
+             var json = JSON.parse(commentResponse.body);
+             var body = json.body;
+             commentSection.append("<li>" + body + "</li>");
         });
 
-        getAllCommentsOf(href); // Get all comments of selected post
+        getAllCommentsOf(); // Get all comments of selected post
         event.preventDefault();
+    });
+
+    $("#commentModal").on("hidden.bs.modal", function() {
+        subscription.unsubscribe();
     });
 
     $("#createPostBtn").on("submit", function() {
@@ -34,28 +38,42 @@ $(document).ready(function() {
 
     $(".commentModal #commentForm").on("submit", function(event) {
         event.preventDefault();
-        var body = $("#commentBody").val();
 
-        createComment(body);
+        var body = $(".commentModal #commentBody").val();
+        addComment(body);
 
-        console.log("WS URI " + commentWS_URI);
         // MessageMapping URI
-        stompClient.send("/app" + commentWS_URI, {}, JSON.stringify({body: body})); // Sets when user View Comments
+        stompClient.send("/app" + commentURI, {}, JSON.stringify({body: body})); // Sets when user View Comments
         $("#commentBody").val("");
     });
 
-    // THIS IS USED TO PREVENT MEMORY LEAK WHEN PAGE IS RELOAD
-    $(window).on('beforeunload', function() {
+    // Below this making sure that socket and stompClient is closed
+    $("#logoutBtn").on("click", function() {
+        disconnect()
+    });
 
-        if (stompClient) {
-            stompClient.disconnect();
-        }
-        if (socket) {
-            socket.close();
-        }
+    $(window).on('beforeunload', function() {
+        disconnect()
+    });
+
+    $(document).on('close', function() {
+        disconnect()
+    });
+
+    $(window).on('unload', function() {
+        disconnect()
     });
     // insert here
 });
+
+function disconnect() {
+    if (stompClient) {
+        stompClient.disconnect();
+    }
+    if (socket) {
+        socket.close();
+    }
+}
 
 function connect() {
     socket = new SockJS("/websocket");
@@ -69,24 +87,6 @@ function onConnected() {
 
 function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
-}
-
-function getAllCommentsOf(href) {
-    commentAPI_URI = '/forum/api' + href; // Set the href of the comment to comment in selected post
-    $.ajax({
-        type: "GET",
-        url: commentAPI_URI,
-        success: function(commentDTOs, response) {
-            var commentSection = $(".modal-body #commentSection");
-            commentSection.empty(); // Removes the recent comments in the modal
-            $.each(commentDTOs, function(index, value) {
-                commentSection.append("<li>" + value.body + "</li>");
-            });
-        },
-        error: function(xhr, status, error) {
-            alert("Getting all comments failed!");
-        }
-    });
 }
 
 function createPost(body) {
@@ -106,10 +106,27 @@ function createPost(body) {
     });
 }
 
-function createComment(body) {
+function getAllCommentsOf() {
+    $.ajax({
+        type: "GET",
+        url: "/forum/api" + commentURI,
+        success: function(commentDTOs, response) {
+            var commentSection = $(".modal-body #commentSection");
+            commentSection.empty(); // Removes the recent comments in the modal
+            $.each(commentDTOs, function(index, commentDto) {
+                commentSection.append("<li>" + commentDto.body + "</li>");
+            });
+        },
+        error: function(xhr, status, error) {
+            alert("Getting all comments failed!");
+        }
+    });
+}
+
+function addComment(body) {
     $.ajax({
         type: "POST",
-        url: commentAPI_URI, // Sets when method getAllCommentsOf() is called when clicking the View Comments
+        url: "/forum/api" + commentURI,
         data: {
             body: body
         },
@@ -118,7 +135,7 @@ function createComment(body) {
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
-       }
+        }
     });
 }
 
