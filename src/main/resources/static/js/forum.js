@@ -40,6 +40,7 @@ $(document).ready(function() {
         event.preventDefault();
 
         var body = $(".commentModal #commentBody").val();
+        if (body.isBlank() || body === null) return;
         addComment(body);
 
         // MessageMapping URI

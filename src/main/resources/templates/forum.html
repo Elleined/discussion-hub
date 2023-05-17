@@ -25,6 +25,12 @@
   </div>
   <hr>
 
+  <a th:href="@{/logout}" id="logoutBtn">
+    <button type="button" class="btn btn-primary mb-3">
+      <i class="fas fa-right-from-bracket"></i>
+      Logout
+    </button>
+  </a>
 
   <div th:if="${posts.isEmpty()}">No Post Yet</div>
   <th:block th:each="post : ${posts}">
@@ -52,6 +58,31 @@
       </div>
     </div>
   </th:block>
+
   <div th:replace="~{fragments/comment-form :: comment-form-fragment}"></div>
+
+  <footer>
+    <div class="container d-flex justify-content-center">
+      <div class="row">
+        <div class="col-lg-4 col-md-12">
+          <a class="btn text-white" style="background-color: #3b5998;" target="_blank" href="https://www.facebook.com/DenielleMar03" role="button">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <a class="btn text-white" style="background-color: #0082ca;" target="_blank" href="https://www.linkedin.com/in/deniellemar/" role="button">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <a class="btn text-white" style="background-color: #333333;" target="_blank" href="https://github.com/Elleined" role="button">
+            <i class="fab fa-github"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
