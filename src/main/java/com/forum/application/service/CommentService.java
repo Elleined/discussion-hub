@@ -11,7 +11,6 @@ import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +36,7 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
-        log.debug("Comment {} saved successfully", comment.getBody());
+        log.debug("Comment with body of {} saved successfully", comment.getBody());
         return comment.getId();
     }
 

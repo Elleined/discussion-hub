@@ -18,16 +18,23 @@ public class ForumService {
     private final CommentService commentService;
     private final ReplyService replyService;
 
-    public void savePost(int authorId, String body) {
-        postService.save(authorId, body);
+    public int savePost(int authorId, String body) {
+        return postService.save(authorId, body);
     }
 
-    public void saveComment(int commenterId, int postId, String body) {
-        commentService.save(commenterId, postId, body);
+    public int saveComment(int commenterId, int postId, String body) {
+        return commentService.save(commenterId, postId, body);
     }
 
-    public void saveReply(int replierId, int commentId, String body) {
-        replyService.save(replierId, commentId, body);
+    public int saveReply(int replierId, int commentId, String body) {
+        return replyService.save(replierId, commentId, body);
+    }
+
+    public CommentDTO getCommentById(int commentId) {
+        return commentService.getById(commentId);
+    }
+    public ReplyDTO getReplyById(int replyId) {
+        return replyService.getById(replyId);
     }
 
     public boolean isEmpty(String body) {

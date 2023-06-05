@@ -1,6 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.PostDTO;
+import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Post;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
@@ -8,7 +9,6 @@ import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -21,9 +21,8 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    @Transactional
-    public void save(int authorId, String body) {
-        User author = userRepository.findById(authorId).orElseThrow();
+    public int save(int authorId, String body) {
+        User author = userRepository.findById(authorId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + authorId + " does not exists!"));
 
         Post post = Post.builder()
                 .body(body)
@@ -32,11 +31,13 @@ public class PostService {
                 .build();
 
         postRepository.save(post);
+        log.debug("Post with body of {} saved successfully!", post.getBody());
+        return post.getId();
     }
 
-    @Transactional
     public void delete(int postId) {
         postRepository.deleteById(postId);
+        log.debug("Post with id of {} deleted successfully", postId);
     }
 
     public List<PostDTO> getAll() {

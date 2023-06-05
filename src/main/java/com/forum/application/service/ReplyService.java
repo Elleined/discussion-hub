@@ -1,6 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Reply;
 import com.forum.application.model.User;
@@ -10,7 +11,6 @@ import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,10 +23,9 @@ public class ReplyService {
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
 
-    @Transactional
-    public void save(int replierId, int commentId, String body) {
-        User replier = userRepository.findById(replierId).orElseThrow();
-        Comment comment = commentRepository.findById(commentId).orElseThrow();
+    public int save(int replierId, int commentId, String body) {
+        User replier = userRepository.findById(replierId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + replierId + " does not exists!"));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
 
         Reply reply = Reply.builder()
                 .body(body)
@@ -36,11 +35,18 @@ public class ReplyService {
                 .build();
 
         replyRepository.save(reply);
+        log.debug("Reply with body of {} saved successfully!", reply.getBody());
+        return reply.getId();
     }
 
-    @Transactional
     public void delete(int replyId) {
         replyRepository.deleteById(replyId);
+        log.debug("Reply with id of {} deleted successfully!", replyId);
+    }
+
+    public ReplyDTO getById(int replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        return this.convertToDTO(reply);
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {

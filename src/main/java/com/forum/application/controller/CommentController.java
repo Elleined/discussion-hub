@@ -19,17 +19,16 @@ import java.util.List;
 public class CommentController {
 
     private final ForumService forumService;
-    private final CommentService commentService;
     private final UserService userService;
 
     @GetMapping
-    public List<CommentDTO> getAllCommentsOf(@PathVariable int postId) {
+    public List<CommentDTO> getAllCommentsOf(@PathVariable("postId") int postId) {
         return forumService.getAllCommentsOf(postId);
     }
 
     @PostMapping
-    public ResponseEntity<?> saveComment(@PathVariable int postId,
-                                         @RequestParam String body,
+    public ResponseEntity<?> saveComment(@PathVariable("postId") int postId,
+                                         @RequestParam("body") String body,
                                          HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Comment body cannot be empty!");
@@ -37,18 +36,19 @@ public class CommentController {
         String email = (String) session.getAttribute("email");
         int commenterId = userService.getIdByEmail(email);
 
-        forumService.saveComment(commenterId, postId, body);
+        int commentId = forumService.saveComment(commenterId, postId, body);
+        CommentDTO fetchedComment = forumService.getCommentById(commentId);
         log.debug("Comment saved successfully");
-        return ResponseEntity.status(200).body("Commented Successfully");
+        return ResponseEntity.ok(fetchedComment);
     }
 
-    @GetMapping("/{id}")
-    public CommentDTO getById(@PathVariable("id") int commentId) {
-        return commentService.getById(commentId);
+    @GetMapping("/{commentId}")
+    public CommentDTO getById(@PathVariable("commentId") int commentId) {
+        return forumService.getCommentById(commentId);
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> delete(@PathVariable int commentId) {
+    public ResponseEntity<?> delete(@PathVariable("commentId") int commentId) {
         forumService.deleteComment(commentId);
         log.debug("Comment deleted successfully");
         return ResponseEntity.status(204).body("Comment Deleted Successfully");
