@@ -25,7 +25,6 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
 
-    @Transactional
     public void save(int commenterId, int postId, String body) {
         User commenter = userRepository.findById(commenterId).orElseThrow();
         Post post = postRepository.findById(postId).orElseThrow();
@@ -40,7 +39,6 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    @Transactional
     public void delete(int commentId) {
         commentRepository.deleteById(commentId);
     }
@@ -51,6 +49,11 @@ public class CommentService {
                 .stream()
                 .map(this::convertToDTO)
                 .toList();
+    }
+
+    public CommentDTO getById(int commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        return this.convertToDTO(comment);
     }
 
     private CommentDTO convertToDTO(Comment comment) {

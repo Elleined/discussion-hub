@@ -15,8 +15,8 @@ $(document).ready(function() {
         commentURI = $(this).attr("href"); // The API URI to be used when saving a comment and getting all comments
 
         // SendTo URI
-        subscription = stompClient.subscribe("/discussion" + commentURI, function(commentResponse) {
-            var json = JSON.parse(commentResponse.body);
+        subscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
+            var json = JSON.parse(commentDto.body);
             var body = json.body;
             commentSection.append("<li>" + body + "</li>");
         });
@@ -33,15 +33,15 @@ $(document).ready(function() {
         event.preventDefault();
         var body = $("#postBody").val();
 
-        createPost(body);
+        savePost(body);
     });
 
     $(".commentModal #commentForm").on("submit", function(event) {
         event.preventDefault();
 
         var body = $(".commentModal #commentBody").val();
-        if (body.isBlank() || body === null) return;
-        addComment(body);
+        if (body === null) return;
+        saveComment(body);
 
         // MessageMapping URI
         stompClient.send("/app" + commentURI, {}, JSON.stringify({
@@ -92,7 +92,7 @@ function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
 
-function createPost(body) {
+function savePost(body) {
     $.ajax({
         type: "POST",
         url: "/forum/api/posts",
@@ -118,8 +118,6 @@ function getAllCommentsOf() {
             commentSection.empty(); // Removes the recent comments in the modal
             $.each(commentDTOs, function(index, commentDto) {
                 generateCommentBlock(commentDto);
-
-
             });
         },
         error: function(xhr, status, error) {
@@ -128,8 +126,25 @@ function getAllCommentsOf() {
     });
 }
 
+function saveComment(body) {
+    $.ajax({
+        type: "POST",
+        url: "/forum/api" + commentURI,
+        data: {
+            body: body
+        },
+        success: function(response, status, xhr) {
+            console.log(xhr.responseText);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+// Don't bother reading this code
+// The actual html structure of this the comment-body is in /templates/fragments/comment-body
 function generateCommentBlock(commentDto) {
-    // The actual html structure of this the comment-body in /templates/fragments/comment-body
     var commentSection = $(".modal-body #commentSection");
     var container = $("<div>")
         .attr("class", "container")
@@ -192,21 +207,5 @@ function generateCommentBlock(commentDto) {
     replyBtn.on("click", function() {
         var replyURI = $(this).attr("href");
         alert(replyURI);
-    });
-}
-
-function addComment(body) {
-    $.ajax({
-        type: "POST",
-        url: "/forum/api" + commentURI,
-        data: {
-            body: body
-        },
-        success: function(response, status, xhr) {
-            console.log(xhr.responseText);
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
     });
 }
