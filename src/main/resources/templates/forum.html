@@ -37,7 +37,7 @@
     <div class="card w-75 mb-3">
       <div class="card-body">
         <h5 class="card-title">
-          <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp" />
+          <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" th:src="${'/img/' + post.authorPicture}" />
           <span class="md5 mb-5">
             <strong th:text="${post.authorName}"></strong>
           </span>

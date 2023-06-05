@@ -68,6 +68,7 @@ public class CommentService {
                 .commenterName(comment.getCommenter().getName())
                 .postId(comment.getPost().getId())
                 .commenterId(comment.getCommenter().getId())
+                .commenterPicture(comment.getCommenter().getPicture())
                 .build();
     }
 }

@@ -15,4 +15,5 @@ public class PostDTO {
     private String formattedTimeCreated;
     private int authorId;
     private String authorName;
+    private String authorPicture;
 }

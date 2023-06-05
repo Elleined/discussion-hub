@@ -13,4 +13,5 @@ public class ReplyDTO {
     private LocalDateTime dateCreated;
     private int commentId;
     private int replierId;
+    private String replierPicture;
 }

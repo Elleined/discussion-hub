@@ -62,6 +62,7 @@ public class PostService {
                 .formattedTimeCreated(Formatter.formatTime(post.getDateCreated()))
                 .authorName(post.getAuthor().getName())
                 .authorId(post.getAuthor().getId())
+                .authorPicture(post.getAuthor().getPicture())
                 .build();
     }
 }

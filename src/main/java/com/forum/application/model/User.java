@@ -22,4 +22,7 @@ public class User {
 
     @Column(name = "email_address", unique = true)
     private String email;
+
+    @Column(name = "picture")
+    private String picture;
 }

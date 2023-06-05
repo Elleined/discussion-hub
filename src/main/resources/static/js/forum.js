@@ -129,7 +129,7 @@ function saveComment(body) {
             body: body
         },
         success: function(commentDto, response) {
-        // MessageMapping URI
+            // MessageMapping URI
             stompClient.send("/app" + commentURI, {}, JSON.stringify({
                 id: commentDto.id,
                 body: commentDto.body,
@@ -167,7 +167,7 @@ function generateCommentBlock(commentDto) {
         "class": "rounded-circle shadow-4-strong",
         "height": "50px",
         "width": "50px",
-        "src": "https://mdbcdn.b-cdn.net/img/new/avatars/1.webp"
+        "src": "/img/" + commentDto.commenterPicture
     }).appendTo(row1Col1);
 
     var commenterName = $("<span>")

@@ -16,4 +16,5 @@ public class CommentDTO {
     private String formattedTime;
     private int postId;
     private int commenterId;
+    private String commenterPicture;
 }
