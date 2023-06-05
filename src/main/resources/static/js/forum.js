@@ -17,8 +17,7 @@ $(document).ready(function() {
         // SendTo URI
         subscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
-            var body = json.body;
-            commentSection.append("<li>" + body + "</li>");
+            generateCommentBlock(json);
         });
 
         getAllCommentsOf(); // Get all comments of selected post
@@ -43,10 +42,6 @@ $(document).ready(function() {
         if (body === null) return;
         saveComment(body);
 
-        // MessageMapping URI
-        stompClient.send("/app" + commentURI, {}, JSON.stringify({
-            body: body
-        })); // Sets when user View Comments
         $("#commentBody").val("");
     });
 
@@ -133,8 +128,18 @@ function saveComment(body) {
         data: {
             body: body
         },
-        success: function(response, status, xhr) {
-            console.log(xhr.responseText);
+        success: function(commentDto, response) {
+        // MessageMapping URI
+            stompClient.send("/app" + commentURI, {}, JSON.stringify({
+                id: commentDto.id,
+                body: commentDto.body,
+                commenterName: commentDto.commenterName,
+                dateCreated: commentDto.dateCreated,
+                formattedDate: commentDto.formattedDate,
+                formattedTime: commentDto.formattedTime,
+                postId: commentDto.postId,
+                commenterId: commentDto.commenterId
+            })); // Sets when user View Comments
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);

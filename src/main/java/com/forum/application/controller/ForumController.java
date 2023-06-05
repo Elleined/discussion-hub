@@ -20,11 +20,11 @@ public class ForumController {
 
     @MessageMapping("/posts/{postId}/comments")
     @SendTo("/discussion/posts/{postId}/comments")
-    public String addComment(@Payload Message message,
-                             @DestinationVariable int postId) {
+    public CommentDTO addComment(@Payload CommentDTO commentDTO,
+                                 @DestinationVariable int postId) {
 
         // Return the saved commentDto here
-        log.debug("Post Id: {} Comment Body: {}", postId, message.getBody());
-        return "HI";
+        log.debug("{}", commentDTO);
+        return commentDTO;
     }
 }
