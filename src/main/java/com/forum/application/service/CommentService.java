@@ -1,6 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.User;
@@ -24,10 +25,9 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
-
-    public void save(int commenterId, int postId, String body) {
-        User commenter = userRepository.findById(commenterId).orElseThrow();
-        Post post = postRepository.findById(postId).orElseThrow();
+    public int save(int commenterId, int postId, String body) {
+        User commenter = userRepository.findById(commenterId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + commenterId + " does not exists!"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
         Comment comment = Comment.builder()
                 .body(body)
@@ -37,14 +37,17 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+        log.debug("Comment {} saved successfully", comment.getBody());
+        return comment.getId();
     }
 
     public void delete(int commentId) {
         commentRepository.deleteById(commentId);
+        log.debug("Comment with id of {} deleted successfully!", commentId);
     }
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
-        Post post = postRepository.findById(postId).orElseThrow();
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getComments()
                 .stream()
                 .map(this::convertToDTO)
@@ -52,7 +55,7 @@ public class CommentService {
     }
 
     public CommentDTO getById(int commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         return this.convertToDTO(comment);
     }
 

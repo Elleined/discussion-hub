@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.service.CommentService;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +19,7 @@ import java.util.List;
 public class CommentController {
 
     private final ForumService forumService;
+    private final CommentService commentService;
     private final UserService userService;
 
     @GetMapping
@@ -38,6 +40,11 @@ public class CommentController {
         forumService.saveComment(commenterId, postId, body);
         log.debug("Comment saved successfully");
         return ResponseEntity.status(200).body("Commented Successfully");
+    }
+
+    @GetMapping("/{id}")
+    public CommentDTO getById(@PathVariable("id") int commentId) {
+        return commentService.getById(commentId);
     }
 
     @DeleteMapping("/{commentId}")
