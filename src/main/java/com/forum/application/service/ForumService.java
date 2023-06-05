@@ -30,6 +30,9 @@ public class ForumService {
         return replyService.save(replierId, commentId, body);
     }
 
+    public PostDTO getPostById(int postId) {
+        return postService.getById(postId);
+    }
     public CommentDTO getCommentById(int commentId) {
         return commentService.getById(commentId);
     }

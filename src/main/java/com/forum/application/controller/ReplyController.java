@@ -21,13 +21,13 @@ public class ReplyController {
     private final UserService userService;
 
     @GetMapping
-    public List<ReplyDTO> getAllRepliesOf(@PathVariable int commentId) {
+    public List<ReplyDTO> getAllRepliesOf(@PathVariable("commentId") int commentId) {
         return forumService.getAllRepliesOf(commentId);
     }
 
     @PostMapping
-    public ResponseEntity<?> saveReply(@PathVariable int commentId,
-                                       @RequestParam String body,
+    public ResponseEntity<?> saveReply(@PathVariable("commentId") int commentId,
+                                       @RequestParam("body") String body,
                                        HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Reply body cannot be empty!");
@@ -35,15 +35,14 @@ public class ReplyController {
         String email = (String) session.getAttribute("email");
         int replierId = userService.getIdByEmail(email);
 
-        forumService.saveReply(replierId, commentId, body);
-        log.debug("Reply saved successfully");
-        return ResponseEntity.status(200).body("Replied Successfully");
+        int replyId = forumService.saveReply(replierId, commentId, body);
+        ReplyDTO replyDTO = forumService.getReplyById(replyId);
+        return ResponseEntity.ok(replyDTO);
     }
 
     @DeleteMapping("/{replyId}")
-    public ResponseEntity<?> delete(@PathVariable int replyId) {
+    public ResponseEntity<ReplyDTO> delete(@PathVariable("replyId") int replyId) {
         forumService.deleteReply(replyId);
-        log.debug("Reply deleted successfully");
-        return ResponseEntity.status(204).body("Reply Deleted Successfully");
+        return ResponseEntity.notFound().build();
     }
 }

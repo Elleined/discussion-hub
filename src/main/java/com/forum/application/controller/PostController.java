@@ -25,8 +25,13 @@ public class PostController {
         return forumService.getAllPost();
     }
 
+    @GetMapping("/{postId}")
+    public PostDTO getById(@PathVariable("postId") int postId) {
+        return forumService.getPostById(postId);
+    }
+
     @PostMapping
-    public ResponseEntity<?> savePost(@RequestParam String body,
+    public ResponseEntity<?> savePost(@RequestParam("body") String body,
                                       HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Post body cannot be empty!");
@@ -35,15 +40,14 @@ public class PostController {
 
         int authorId = userService.getIdByEmail(loginEmailSession);
 
-        forumService.savePost(authorId, body);
-        log.debug("Post saved successfully");
-        return ResponseEntity.status(200).body("Post Created Successfully");
+        int postId = forumService.savePost(authorId, body);
+        PostDTO postDTO = forumService.getPostById(postId);
+        return ResponseEntity.ok(postDTO);
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable int postId) {
+    public ResponseEntity<PostDTO> deletePost(@PathVariable("postId") int postId) {
         forumService.deletePost(postId);
-        log.debug("Post deleted successfully");
-        return ResponseEntity.status(204).body("Post Deleted Successfully");
+        return ResponseEntity.notFound().build();
     }
 }

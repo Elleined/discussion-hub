@@ -44,17 +44,17 @@ public class ReplyService {
         log.debug("Reply with id of {} deleted successfully!", replyId);
     }
 
-    public ReplyDTO getById(int replyId) {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
-        return this.convertToDTO(reply);
-    }
-
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()
                 .stream()
                 .map(this::convertToDTO)
                 .toList();
+    }
+
+    public ReplyDTO getById(int replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        return this.convertToDTO(reply);
     }
 
     private ReplyDTO convertToDTO(Reply reply) {

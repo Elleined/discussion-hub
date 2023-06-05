@@ -48,6 +48,11 @@ public class PostService {
                 .toList();
     }
 
+    public PostDTO getById(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        return this.convertToDTO(post);
+    }
+
     public PostDTO convertToDTO(Post post) {
         return PostDTO.builder()
                 .id(post.getId())

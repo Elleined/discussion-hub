@@ -26,6 +26,11 @@ public class CommentController {
         return forumService.getAllCommentsOf(postId);
     }
 
+    @GetMapping("/{commentId}")
+    public CommentDTO getById(@PathVariable("commentId") int commentId) {
+        return forumService.getCommentById(commentId);
+    }
+
     @PostMapping
     public ResponseEntity<?> saveComment(@PathVariable("postId") int postId,
                                          @RequestParam("body") String body,
@@ -38,19 +43,12 @@ public class CommentController {
 
         int commentId = forumService.saveComment(commenterId, postId, body);
         CommentDTO fetchedComment = forumService.getCommentById(commentId);
-        log.debug("Comment saved successfully");
         return ResponseEntity.ok(fetchedComment);
     }
 
-    @GetMapping("/{commentId}")
-    public CommentDTO getById(@PathVariable("commentId") int commentId) {
-        return forumService.getCommentById(commentId);
-    }
-
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> delete(@PathVariable("commentId") int commentId) {
+    public ResponseEntity<CommentDTO> delete(@PathVariable("commentId") int commentId) {
         forumService.deleteComment(commentId);
-        log.debug("Comment deleted successfully");
-        return ResponseEntity.status(204).body("Comment Deleted Successfully");
+        return ResponseEntity.notFound().build();
     }
 }
