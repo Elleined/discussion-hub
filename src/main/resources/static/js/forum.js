@@ -4,17 +4,15 @@ var stompClient = null;
 var socket = null;
 var subscription = null;
 
-var commentURI = null;
-
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
     connect();
 
     $(".card-body #commentBtn").on("click", function(event) {
-        commentURI = $(this).attr("href"); // The API URI to be used when saving a comment and getting all comments
 
         // SendTo URI
+        var commentURI = $(this).attr("href");
         subscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
             generateCommentBlock(json);
@@ -82,6 +80,7 @@ function savePost(body) {
 }
 
 function saveComment(body) {
+    var commentURI = $(".card-body #commentBtn").attr("href");
     $.ajax({
         type: "POST",
         url: "/forum/api" + commentURI,
@@ -98,6 +97,7 @@ function saveComment(body) {
 }
 
 function getAllCommentsOf() {
+    var commentURI = $(".card-body #commentBtn").attr("href");
     $.ajax({
         type: "GET",
         url: "/forum/api" + commentURI,
@@ -204,3 +204,47 @@ function generateCommentBlock(commentDto) {
         alert(replyURI);
     });
 }
+
+//function generateFormBody(container, commenterName) {
+//    container.find(".replyContainer").remove();
+//
+//    var form = $("<form>").appendTo(container);
+//
+//    var divContainer = $("<div>")
+//        .attr("class", "replyContainer container mt-4")
+//        .appendTo(form);
+//
+//    var row1 = $("<div>")
+//        .attr("class", "row")
+//        .appendTo(divContainer);
+//
+//    var span = $("<span>")
+//        .text("Replying to " + commenterName + "...")
+//        .appendTo(row1);
+//
+//    var row1Col1 = $("<div>")
+//        .attr("class", "col-md-9")
+//        .appendTo(row1);
+//
+//    var textArea = $("<textarea>").attr({
+//        "class": "form-control",
+//        "id": "replyBody",
+//        "name": "replyBody" ,
+//        "placeholder": "Write a reply..."
+//    }).appendTo(row1Col1);
+//
+//    var row1Col2 = $("<div>")
+//        .attr("class", "col-md-2")
+//        .appendTo(row1);
+//
+//    var button = $("<button>").attr({
+//        "type": "submit",
+//        "class": "btn btn-primary"
+//    })
+//    .text("Reply")
+//    .appendTo(row1Col2);
+//
+//    var icon = $("<i>")
+//        .attr("class", "far fa-paper-plane")
+//        .appendTo(button);
+//}

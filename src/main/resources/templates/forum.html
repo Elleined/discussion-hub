@@ -39,7 +39,7 @@
         <h5 class="card-title">
           <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" th:src="${'/img/' + post.authorPicture}" />
           <span class="md5 mb-5">
-            <strong th:text="${post.authorName}"></strong>
+            <strong th:text="${post.authorName}" id="authorName"></strong>
           </span>
         </h5>
         <span th:text="${post.formattedDateCreated}"></span>
