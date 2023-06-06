@@ -25,6 +25,12 @@ $(document).ready(function() {
         event.preventDefault();
     });
 
+    $("#replyModal").on("hidden.bs.modal", function(e) {
+        e.stopPropagation(); // Stop event propagation
+
+        // Open the first modal again
+        $('#commentModal').modal('show');
+    });
 
     $("#commentModal").on("hidden.bs.modal", function() {
         subscription.unsubscribe();
@@ -203,6 +209,8 @@ function generateCommentBlock(commentDto) {
         .appendTo(row3);
 
     var replyBtn = $("<button>").attr({
+        "data-bs-toggle": "modal",
+        "data-bs-target": "#replyModal",
         "type": "button",
         "id": "replyBtn",
         "href": "/forum/api/posts/comments/" + commentDto.id + "/replies",
