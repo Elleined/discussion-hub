@@ -27,13 +27,14 @@ public class ForumService {
         int commentId = commentService.save(commenterId, postId, body);
 
         CommentDTO commentDTO = commentService.getById(commentId);
-        wsService.comment(postId, commentDTO);
+        wsService.broadcastComment(postId, commentDTO);
 
-        return commenterId;
+        return commentId;
     }
 
     public int saveReply(int replierId, int commentId, String body) {
-        return replyService.save(replierId, commentId, body);
+        int replyId = replyService.save(replierId, commentId, body);
+        return replyId;
     }
 
     public PostDTO getPostById(int postId) {

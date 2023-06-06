@@ -24,6 +24,7 @@ $(document).ready(function() {
         event.preventDefault();
     });
 
+
     $("#commentModal").on("hidden.bs.modal", function() {
         subscription.unsubscribe();
     });
@@ -88,7 +89,7 @@ function saveComment(body) {
             body: body
         },
         success: function(response, status, xhr) {
-            alert(xhr.responseText);
+            console.log("Returned CommentDTO", xhr.responseText);
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
