@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 public class ReplyDTO {
     private int id;
     private String body;
+
+    private String replierName;
     private LocalDateTime dateCreated;
     private String formattedDate;
     private String formattedTime;

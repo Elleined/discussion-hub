@@ -19,7 +19,7 @@ $(document).ready(function() {
         console.log(commentURI);
 
         var postId = commentURI.split("/")[2];
-        getAuthorAndShowName(postId);
+        setCommentModalTitle(postId);
 
         // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
@@ -77,6 +77,11 @@ $(document).ready(function() {
 
     $("#replyModal").on("hidden.bs.modal", function() {
         replySubscription.unsubscribe();
+        // Resubscribe to SendTo Comment URI
+        commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
+            var json = JSON.parse(commentDto.body);
+            generateCommentBlock(json);
+        });
     });
 
     $("#logoutBtn").on("click", function() {
@@ -97,17 +102,31 @@ $(document).ready(function() {
     // insert here
 });
 
-function getAuthorAndShowName(postId) {
+function setCommentModalTitle(postId) {
     $.ajax({
         type: "GET",
         url: "/forum/api/posts/" + postId,
         success: function(commentDto, response) {
-            $("#commentModalHeader").text("Comments in " + commentDto.authorName + " post");
+            $("#commentModalTitle").text("Comments in " + commentDto.authorName + " post");
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
         }
     });
+}
+
+function setReplyModalTitle(commentId) {
+    $.ajax({
+        type: "GET",
+        url: "/forum/api" + commentURI + "/" + commentId,
+        success: function(commentDto, response) {
+            $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post");
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+    $("#replyModalTitle").text();
 }
 
 function savePost(body) {
@@ -287,6 +306,9 @@ function generateCommentBlock(commentDto) {
         replyURI = $(this).attr("href");
         console.log(replyURI);
 
+        var commentId = replyURI.split("/")[3];
+        setReplyModalTitle(commentId);
+
         // SendTo URI of Reply
         replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
             var json = JSON.parse(replyDto.body);
@@ -322,7 +344,7 @@ function generateReplyBlock(replyDto) {
 
     var replyName = $("<span>")
         .attr("class", "mb-5")
-        .text(replyDto.replyName)
+        .text(replyDto.replierName)
         .appendTo(row1Col1);
 
     var row2 = $("<div>")

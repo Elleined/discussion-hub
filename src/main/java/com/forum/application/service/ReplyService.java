@@ -61,6 +61,7 @@ public class ReplyService {
         return ReplyDTO.builder()
                 .id(reply.getId())
                 .body(reply.getBody())
+                .replierName(reply.getReplier().getName())
                 .dateCreated(reply.getDateCreated())
                 .formattedDate(Formatter.formatDate(reply.getDateCreated()))
                 .formattedTime(Formatter.formatTime(reply.getDateCreated()))

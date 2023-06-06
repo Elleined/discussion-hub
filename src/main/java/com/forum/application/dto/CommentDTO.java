@@ -17,4 +17,5 @@ public class CommentDTO {
     private int postId;
     private int commenterId;
     private String commenterPicture;
+    private String authorName;
 }
