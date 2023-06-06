@@ -2,7 +2,12 @@
 
 var stompClient = null;
 var socket = null;
-var subscription = null;
+
+var replySubscription = null;
+var commentSubscription = null;
+
+var replyURI = null;
+var commentURI = null;
 
 $(document).ready(function() {
     var commentSection = $("#commentSection");
@@ -10,21 +15,53 @@ $(document).ready(function() {
     connect();
 
     $(".card-body #commentBtn").on("click", function(event) {
-        var commentURI = $(this).attr("href");
+        commentURI = $(this).attr("href");
+        console.log(commentURI);
 
         var postId = commentURI.split("/")[2];
         getAuthorAndShowName(postId);
 
-        // SendTo URI
-        subscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
+        // SendTo URI of Comment
+        commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
             generateCommentBlock(json);
         });
 
-        getAllComments(); // Get all comments of selected post
+        getAllCommentsOf(commentURI);
         event.preventDefault();
     });
 
+    $("#createPostBtn").on("submit", function() {
+        event.preventDefault();
+
+        var body = $("#postBody").val();
+        if ($.trim(body) === '') return;
+        savePost(body);
+
+        $("#postBody").val("");
+    });
+
+    $(".commentModal #commentForm").on("submit", function(event) {
+        event.preventDefault();
+
+        var body = $("#commentBody").val();
+        if ($.trim(body) === '') return;
+        saveComment(body);
+
+        $("#commentBody").val("");
+    });
+
+    $(".replyModal #replyForm").on("submit", function(event) {
+        event.preventDefault();
+
+        var body = $("#replyBody").val();
+        if ($.trim(body) === '') return;
+        saveReply(body);
+
+        $("#replyBody").val("");
+    });
+
+    // Used to show the comments modal when the reply modal is closed
     $("#replyModal").on("hidden.bs.modal", function(e) {
         e.stopPropagation(); // Stop event propagation
 
@@ -32,27 +69,16 @@ $(document).ready(function() {
         $('#commentModal').modal('show');
     });
 
-    $("#commentModal").on("hidden.bs.modal", function() {
-        subscription.unsubscribe();
-    });
-
-    $("#createPostBtn").on("submit", function() {
-        event.preventDefault();
-        var body = $("#postBody").val();
-
-        savePost(body);
-    });
-
-    $(".commentModal #commentForm").on("submit", function(event) {
-        event.preventDefault();
-
-        var body = $(".commentModal #commentBody").val();
-        if (body === null) return;
-        saveComment(body);
-        $("#commentBody").val("");
-    });
 
     // Below this making sure that socket and stompClient is closed
+    $("#commentModal").on("hidden.bs.modal", function() {
+        commentSubscription.unsubscribe();
+    });
+
+    $("#replyModal").on("hidden.bs.modal", function() {
+        replySubscription.unsubscribe();
+    });
+
     $("#logoutBtn").on("click", function() {
         disconnect()
     });
@@ -102,7 +128,6 @@ function savePost(body) {
 }
 
 function saveComment(body) {
-    var commentURI = $(".card-body #commentBtn").attr("href");
     $.ajax({
         type: "POST",
         url: "/forum/api" + commentURI,
@@ -110,7 +135,7 @@ function saveComment(body) {
             body: body
         },
         success: function(response, status, xhr) {
-            console.log("Returned CommentDTO", xhr.responseText);
+            console.log("Returned CommentDTO" + xhr.responseText);
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
@@ -118,20 +143,54 @@ function saveComment(body) {
     });
 }
 
-function getAllComments() {
-    var commentURI = $(".card-body #commentBtn").attr("href");
+function saveReply(body) {
+    $.ajax({
+        type: "POST",
+        url: "/forum/api" + replyURI,
+        data: {
+            body: body
+        },
+        success: function(response, status, xhr) {
+            console.log("Returned ReplyDTO " + xhr.responseText);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function getAllCommentsOf(commentURI) {
     $.ajax({
         type: "GET",
         url: "/forum/api" + commentURI,
         success: function(commentDTOs, response) {
             var commentSection = $(".modal-body #commentSection");
             commentSection.empty(); // Removes the recent comments in the modal
+
             $.each(commentDTOs, function(index, commentDto) {
                 generateCommentBlock(commentDto);
             });
         },
         error: function(xhr, status, error) {
             alert("Getting all comments failed!");
+        }
+    });
+}
+
+function getAllReplies(replyURI) {
+    $.ajax({
+        type: "GET",
+        url: "/forum/api" + replyURI,
+        success: function(replyDtos, response) {
+            var replySection = $(".modal-body #replySection");
+            replySection.empty(); // Removes the recent comments in the modal
+
+            $.each(replyDtos, function(index, replyDto) {
+                generateReplyBlock(replyDto);
+            });
+        },
+        error: function(xhr, response, error) {
+            alert(xhr.responseText);
         }
     });
 }
@@ -164,7 +223,7 @@ function onError() {
 function generateCommentBlock(commentDto) {
     var commentSection = $(".modal-body #commentSection");
     var container = $("<div>")
-        .attr("class", "container")
+        .attr("class", "commentContainer")
         .appendTo(commentSection);
 
     var row1 = $("<div>")
@@ -211,9 +270,10 @@ function generateCommentBlock(commentDto) {
     var replyBtn = $("<button>").attr({
         "data-bs-toggle": "modal",
         "data-bs-target": "#replyModal",
+        "data-bs-dismiss": "modal",
         "type": "button",
         "id": "replyBtn",
-        "href": "/forum/api/posts/comments/" + commentDto.id + "/replies",
+        "href": "/posts/comments/" + commentDto.id + "/replies",
         "class": "btn btn-primary me-1"
     }).text("Reply").appendTo(row3Col1);
 
@@ -223,52 +283,60 @@ function generateCommentBlock(commentDto) {
 
     var hr = $("<hr>").appendTo(commentSection);
 
-    replyBtn.on("click", function() {
-        var replyURI = $(this).attr("href");
-        alert(replyURI);
+    replyBtn.on("click", function(event) {
+        replyURI = $(this).attr("href");
+        console.log(replyURI);
+
+        // SendTo URI of Reply
+        replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
+            var json = JSON.parse(replyDto.body);
+            generateReplyBlock(json);
+        });
+
+        getAllReplies(replyURI);
     });
 }
 
-//function generateFormBody(container, commenterName) {
-//    container.find(".replyContainer").remove();
-//
-//    var form = $("<form>").appendTo(container);
-//
-//    var divContainer = $("<div>")
-//        .attr("class", "replyContainer container mt-4")
-//        .appendTo(form);
-//
-//    var row1 = $("<div>")
-//        .attr("class", "row")
-//        .appendTo(divContainer);
-//
-//    var span = $("<span>")
-//        .text("Replying to " + commenterName + "...")
-//        .appendTo(row1);
-//
-//    var row1Col1 = $("<div>")
-//        .attr("class", "col-md-9")
-//        .appendTo(row1);
-//
-//    var textArea = $("<textarea>").attr({
-//        "class": "form-control",
-//        "id": "replyBody",
-//        "name": "replyBody" ,
-//        "placeholder": "Write a reply..."
-//    }).appendTo(row1Col1);
-//
-//    var row1Col2 = $("<div>")
-//        .attr("class", "col-md-2")
-//        .appendTo(row1);
-//
-//    var button = $("<button>").attr({
-//        "type": "submit",
-//        "class": "btn btn-primary"
-//    })
-//    .text("Reply")
-//    .appendTo(row1Col2);
-//
-//    var icon = $("<i>")
-//        .attr("class", "far fa-paper-plane")
-//        .appendTo(button);
-//}
+// Don't bother reading this code
+// The actual html structure of this the comment-body is in /templates/fragments/comment-body
+function generateReplyBlock(replyDto) {
+    var replySection = $(".modal-body #replySection");
+    var replyContainer = $("<div>")
+        .attr("class", "replyContainer")
+        .appendTo(replySection);
+
+    var row1 = $("<div>")
+        .attr("class", "row mb-2")
+        .appendTo(replyContainer);
+
+    var row1Col1 = $("<div>")
+        .attr("class", "md-col")
+        .appendTo(row1);
+
+    var replierImage = $("<img>").attr({
+        "class": "rounded-circle shadow-4-strong",
+        "height": "50px",
+        "width": "50px",
+        "src": "/img/" + replyDto.replierPicture
+    }).appendTo(row1Col1);
+
+    var replyName = $("<span>")
+        .attr("class", "mb-5")
+        .text(replyDto.replyName)
+        .appendTo(row1Col1);
+
+    var row2 = $("<div>")
+        .attr("class", "row")
+        .appendTo(replyContainer);
+
+    var row2Col1 = $("<div>")
+        .attr("class", "md-col")
+        .appendTo(row2);
+
+    var replyMessageBody = $("<p>")
+        .attr("class", "mt-2")
+        .text(replyDto.body)
+        .appendTo(row2);
+
+    var hr = $("<hr>").appendTo(replySection);
+}

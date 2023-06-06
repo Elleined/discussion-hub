@@ -62,6 +62,8 @@ public class ReplyService {
                 .id(reply.getId())
                 .body(reply.getBody())
                 .dateCreated(reply.getDateCreated())
+                .formattedDate(Formatter.formatDate(reply.getDateCreated()))
+                .formattedTime(Formatter.formatTime(reply.getDateCreated()))
                 .commentId(reply.getComment().getId())
                 .replierId(reply.getReplier().getId())
                 .replierPicture(reply.getReplier().getPicture())

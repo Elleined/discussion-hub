@@ -1,15 +1,36 @@
 <div th:fragment="reply-modal-fragment">
-  <div class="modal top fade" id="replyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="false" data-mdb-keyboard="true">
+  <div class="replyModal modal top fade" id="replyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="false" data-mdb-keyboard="true">
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
           <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">...</div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div class="modal-body">
+          <div id="replySection">
+
+          </div>
+          <form id="replyForm" name="replyForm">
+            <div class="container">
+              <div class="row ">
+                <div class="col-md-9">
+                  <textarea class="form-control" id="replyBody" name="replyBody" placeholder="Write a reply..."></textarea>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="far fa-paper-plane"></i>
+                    Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back to Comments</button>
+        </div>
+
       </div>
     </div>
   </div>
