@@ -10,15 +10,18 @@ $(document).ready(function() {
     connect();
 
     $(".card-body #commentBtn").on("click", function(event) {
+        var commentURI = $(this).attr("href");
+
+        var postId = commentURI.split("/")[2];
+        getAuthorAndShowName(postId);
 
         // SendTo URI
-        var commentURI = $(this).attr("href");
         subscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
             generateCommentBlock(json);
         });
 
-        getAllCommentsOf(); // Get all comments of selected post
+        getAllComments(); // Get all comments of selected post
         event.preventDefault();
     });
 
@@ -62,6 +65,19 @@ $(document).ready(function() {
     // insert here
 });
 
+function getAuthorAndShowName(postId) {
+    $.ajax({
+        type: "GET",
+        url: "/forum/api/posts/" + postId,
+        success: function(commentDto, response) {
+            $("#commentModalHeader").text("Comments in " + commentDto.authorName + " post");
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
 function savePost(body) {
     $.ajax({
         type: "POST",
@@ -96,7 +112,7 @@ function saveComment(body) {
     });
 }
 
-function getAllCommentsOf() {
+function getAllComments() {
     var commentURI = $(".card-body #commentBtn").attr("href");
     $.ajax({
         type: "GET",
