@@ -63,6 +63,7 @@ public class PostService {
                 .authorName(post.getAuthor().getName())
                 .authorId(post.getAuthor().getId())
                 .authorPicture(post.getAuthor().getPicture())
+                .totalComments(post.getComments().size())
                 .build();
     }
 }
