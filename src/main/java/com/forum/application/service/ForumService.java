@@ -34,6 +34,10 @@ public class ForumService {
 
     public int saveReply(int replierId, int commentId, String body) {
         int replyId = replyService.save(replierId, commentId, body);
+
+        ReplyDTO replyDTO = replyService.getById(replyId);
+        wsService.broadcastReply(commentId, replyDTO);
+
         return replyId;
     }
 

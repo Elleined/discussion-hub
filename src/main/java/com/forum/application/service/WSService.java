@@ -16,4 +16,10 @@ public class WSService {
         commentDTO.setBody(HtmlUtils.htmlEscape(commentDTO.getBody()));
         simpMessagingTemplate.convertAndSend(destination, commentDTO);
     }
+
+    public void broadcastReply(int commentId, ReplyDTO replyDTO) {
+        String destination = "/discussion/posts/comments/" + commentId + "/replies";
+        replyDTO.setBody(HtmlUtils.htmlEscape(replyDTO.getBody()));
+        simpMessagingTemplate.convertAndSend(destination, replyDTO);
+    }
 }
