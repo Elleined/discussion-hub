@@ -41,7 +41,6 @@ $(document).ready(function() {
         var body = $(".commentModal #commentBody").val();
         if (body === null) return;
         saveComment(body);
-
         $("#commentBody").val("");
     });
 
@@ -64,29 +63,6 @@ $(document).ready(function() {
     // insert here
 });
 
-function disconnect() {
-    if (stompClient) {
-        stompClient.disconnect();
-    }
-    if (socket) {
-        socket.close();
-    }
-}
-
-function connect() {
-    socket = new SockJS("/websocket");
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, onConnected, onError);
-}
-
-function onConnected() {
-    console.log("Web Socket Connected!!!");
-}
-
-function onError() {
-    console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
-}
-
 function savePost(body) {
     $.ajax({
         type: "POST",
@@ -97,6 +73,22 @@ function savePost(body) {
         success: function(response, status, xhr) {
             console.log(xhr.responseText);
             window.location.href = "/forum";
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function saveComment(body) {
+    $.ajax({
+        type: "POST",
+        url: "/forum/api" + commentURI,
+        data: {
+            body: body
+        },
+        success: function(response, status, xhr) {
+            alert(xhr.responseText);
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
@@ -121,30 +113,27 @@ function getAllCommentsOf() {
     });
 }
 
-function saveComment(body) {
-    $.ajax({
-        type: "POST",
-        url: "/forum/api" + commentURI,
-        data: {
-            body: body
-        },
-        success: function(commentDto, response) {
-            // MessageMapping URI
-            stompClient.send("/app" + commentURI, {}, JSON.stringify({
-                id: commentDto.id,
-                body: commentDto.body,
-                commenterName: commentDto.commenterName,
-                dateCreated: commentDto.dateCreated,
-                formattedDate: commentDto.formattedDate,
-                formattedTime: commentDto.formattedTime,
-                postId: commentDto.postId,
-                commenterId: commentDto.commenterId
-            })); // Sets when user View Comments
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
-    });
+function disconnect() {
+    if (stompClient) {
+        stompClient.disconnect();
+    }
+    if (socket) {
+        socket.close();
+    }
+}
+
+function connect() {
+    socket = new SockJS("/websocket");
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, onConnected, onError);
+}
+
+function onConnected() {
+    console.log("Web Socket Connected!!!");
+}
+
+function onError() {
+    console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
 
 // Don't bother reading this code

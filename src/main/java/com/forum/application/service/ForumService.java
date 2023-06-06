@@ -17,13 +17,19 @@ public class ForumService {
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final WSService wsService;
 
     public int savePost(int authorId, String body) {
         return postService.save(authorId, body);
     }
 
     public int saveComment(int commenterId, int postId, String body) {
-        return commentService.save(commenterId, postId, body);
+        int commentId = commentService.save(commenterId, postId, body);
+
+        CommentDTO commentDTO = commentService.getById(commentId);
+        wsService.comment(postId, commentDTO);
+
+        return commenterId;
     }
 
     public int saveReply(int replierId, int commentId, String body) {
