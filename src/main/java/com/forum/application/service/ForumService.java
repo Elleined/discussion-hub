@@ -78,4 +78,13 @@ public class ForumService {
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         return replyService.getAllRepliesOf(commentId);
     }
+
+    public CommentDTO updateUpvote(int commentId, int newUpvoteCount) {
+        return commentService.updateUpvote(commentId, newUpvoteCount);
+    }
+
+    public boolean isNotValidUpvoteValue(int commentId, int newUpvoteValue) {
+        CommentDTO commentDTO = commentService.getById(commentId);
+        return commentService.isNotValidUpvoteValue(commentDTO.getUpvote(), newUpvoteValue);
+    }
 }

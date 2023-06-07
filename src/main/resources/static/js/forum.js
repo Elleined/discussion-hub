@@ -214,6 +214,22 @@ function getAllReplies(replyURI) {
     });
 }
 
+function updateUpvote(commentId, newUpvoteCount) {
+    $.ajax({
+        type: "PATCH",
+        url: "/forum/api" + commentURI + "/" + commentId,
+        data: {
+            newUpvoteCount: newUpvoteCount
+        },
+        success: function(commentDto, response) {
+            alert("HI")
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
 function disconnect() {
     if (stompClient) {
         stompClient.disconnect();
@@ -391,8 +407,8 @@ function generateCommentUpvoteBlock(container, dto) {
         .appendTo(upvoteBtn);
 
     var upvoteCount = $("<span>")
-        .attr("class", "mt-2 mb-2")
-        .text("Upvote")
+        .attr("class", "d-flex justify-content-center mt-2 mb-2")
+        .text(dto.upvote)
         .appendTo(upvoteColumn);
 
     var downVoteContainer = $("<div>")

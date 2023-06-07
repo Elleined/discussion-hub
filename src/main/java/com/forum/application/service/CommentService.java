@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -49,6 +50,7 @@ public class CommentService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getComments()
                 .stream()
+                .sorted(Comparator.comparingInt(Comment::getUpvote).reversed())
                 .map(this::convertToDTO)
                 .toList();
     }
@@ -56,6 +58,20 @@ public class CommentService {
     public CommentDTO getById(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         return this.convertToDTO(comment);
+    }
+
+    public CommentDTO updateUpvote(int commentId, int newUpvoteCount) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        comment.setUpvote(newUpvoteCount);
+        commentRepository.save(comment);
+
+        return this.convertToDTO(comment);
+    }
+
+    public boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
+        int next = newUpvoteCount + 1;
+        int previous = newUpvoteCount - 1;
+        return oldUpvoteCount != next && oldUpvoteCount != previous;
     }
 
     private CommentDTO convertToDTO(Comment comment) {
@@ -70,6 +86,7 @@ public class CommentService {
                 .commenterId(comment.getCommenter().getId())
                 .commenterPicture(comment.getCommenter().getPicture())
                 .authorName(comment.getPost().getAuthor().getName())
+                .upvote(comment.getUpvote())
                 .build();
     }
 }

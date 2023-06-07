@@ -50,4 +50,14 @@ public class CommentController {
         forumService.deleteComment(commentId);
         return ResponseEntity.notFound().build();
     }
+
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<?> updateCommentUpvote(@PathVariable("commentId") int commentId,
+                                                 @RequestParam("newUpvoteCount") int newUpvoteCount) {
+
+        if (forumService.isNotValidUpvoteValue(commentId, newUpvoteCount)) return ResponseEntity.unprocessableEntity().body("Cannot update upvote count! Because new upvote count must only be + 1 or - 1 to the previous value!");
+
+        CommentDTO commentDTO = forumService.updateUpvote(commentId, newUpvoteCount);
+        return ResponseEntity.ok(commentDTO);
+    }
 }
