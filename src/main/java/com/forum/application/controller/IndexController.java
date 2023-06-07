@@ -2,6 +2,7 @@ package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
 import com.forum.application.service.ForumService;
+import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.util.List;
 public class IndexController {
 
     private final ForumService forumService;
+    private final UserService userService;
 
     @GetMapping
     public String goToForum(HttpSession session,
@@ -27,7 +29,10 @@ public class IndexController {
         String email = (String) session.getAttribute("email");
         if (email == null) return "redirect:/";
 
+        int userId = userService.getIdByEmail(email);
         List<PostDTO> posts = forumService.getAllPost();
+
+        model.addAttribute("userId", userId);
         model.addAttribute("posts", posts);
         return "forum";
     }

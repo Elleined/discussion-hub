@@ -47,8 +47,7 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<PostDTO> deletePost(@PathVariable("postId") int postId) {
-        log.debug("HI po {}", postId);
-        // forumService.deletePost(postId);
+         forumService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
 }
