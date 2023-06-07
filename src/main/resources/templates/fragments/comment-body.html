@@ -17,10 +17,27 @@
       </div>
 
       <div class="col-md-6">
-        <div class="row mb-2">
-          <div class="md-col">
-            <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp" />
-            <span class="mb-5">Commenter Name</span>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp"/>
+              <span class="md5 mb-5">
+                   <strong id="authorName">Commenter name</strong>
+              </span>
+            </div>
+
+            <div class="col-md-6">
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <!-- Ilagay mo sa a yung if commenter id == user id-->
+                <a class="btn btn-danger"
+                   role="button"
+                   href="#"
+                   id="postDeleteBtn">
+                  <i class="fas fa-trash"></i>
+                  Delete
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 

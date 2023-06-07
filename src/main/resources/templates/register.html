@@ -17,5 +17,9 @@
       </div>
       <span th:if="${emailNotExists}" th:text="${emailErrorMessage}"></span>
    </form>
+
+
+   <div th:insert="~{fragments/comment-body :: comment-body-fragment}"></div>
+
 </body>
 </html>

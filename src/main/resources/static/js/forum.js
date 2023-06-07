@@ -250,6 +250,19 @@ function deletePost(postURI) {
     });
 }
 
+function deleteComment(commentURI) {
+    $.ajax({
+        type: "DELETE",
+        url: commentURI,
+        success: function(commentDto, response) {
+            console.log("Comment deleted successfully");
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Deletion of post failed!");
+        }
+    });
+}
+
 function disconnect() {
     if (stompClient) {
         stompClient.disconnect();
@@ -291,25 +304,7 @@ function generateCommentBlock(commentDto) {
         .attr("class", "col-md-6")
         .appendTo(childContainer);
 
-    var row1 = $("<div>")
-        .attr("class", "row mb-2")
-        .appendTo(commentColumn);
-
-    var row1Col1 = $("<div>")
-        .attr("class", "md-col")
-        .appendTo(row1);
-
-    var commenterImage = $("<img>").attr({
-        "class": "rounded-circle shadow-4-strong",
-        "height": "50px",
-        "width": "50px",
-        "src": "/img/" + commentDto.commenterPicture
-    }).appendTo(row1Col1);
-
-    var commenterName = $("<span>")
-        .attr("class", "mb-5")
-        .text(commentDto.commenterName)
-        .appendTo(row1Col1);
+    generateCommentHeader(commentColumn, commentDto);
 
     var row2 = $("<div>")
         .attr("class", "row")
@@ -469,5 +464,60 @@ function generateCommentUpvoteBlock(container, dto) {
         $("#upvoteValue" + dto.id).text(newUpvoteValue);
         updateUpvote(dto.id, newUpvoteValue);
         isClicked = true;
+    });
+}
+
+function generateCommentHeader(container, dto) {
+    var parentContainer = $("<div>")
+        .attr("class", "container")
+        .appendTo(container);
+
+    var row1 = $("<div>")
+        .attr("class", "row")
+        .appendTo(parentContainer);
+
+    var row1Col1 = $("<div>")
+        .attr("class", "col-md-6")
+        .appendTo(row1);
+
+    var commenterImage = $("<img>").attr({
+        "class": "rounded-circle shadow-4-strong",
+        "height": "50px",
+        "width": "50px",
+        "src": "/img/" + dto.commenterPicture
+    }).appendTo(row1Col1);
+
+    var commenterName = $("<span>")
+        .attr("class", "md5 mb-5")
+        .text(dto.commenterName)
+        .appendTo(row1Col1);
+
+    var row1Col2 = $("<div>")
+        .attr("class", "col-md-6")
+        .appendTo(row1);
+
+    var row1Col1Container = $("<div>")
+        .attr("class", "d-grid gap-2 d-md-flex justify-content-md-end")
+        .appendTo(row1Col2);
+
+    var deleteCommentBtn = $("<a>")
+        .attr({
+            "href": "/forum/api" + commentURI + "/" + dto.id,
+            "role": "button",
+            "class": "btn btn-danger",
+            "id": "commentDeleteBtn" + dto.id
+        })
+        .text("Delete")
+        .appendTo(row1Col1Container);
+
+    var deleteIcon = $("<i>")
+        .attr("class", "fas fa-trash")
+        .appendTo(deleteCommentBtn);
+
+    deleteCommentBtn.on("click", function(event) {
+        event.preventDefault();
+
+        var deleteCommentURI = $(this).attr("href");
+        deleteComment(deleteCommentURI);
     });
 }
