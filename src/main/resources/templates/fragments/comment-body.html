@@ -1,25 +1,41 @@
 <div th:fragment="comment-body-fragment">
   <div class="commentContainer">
 
-    <div class="row mb-2">
-      <div class="md-col">
-        <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp" />
-        <span class="mb-5">Commenter Name</span>
+    <div class="container">
+      <div class="row gx-5 ">
+
+        <div class="col-md-1">
+          <div class="row gx-5">
+            <i class="fas fa-angle-up fa-3x"></i>
+          </div>
+          <div class="mt-2 mb-2">Upvote Count</div>
+          <div class="row gx-5">
+            <i class="fas fa-angle-down fa-3x"></i>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="row mb-2">
+            <div class="md-col">
+              <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp" />
+              <span class="mb-5">Commenter Name</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="md-col">
+              <p class="mt-2">This is the comment</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="md-col">
+              <button type="button" id="replyBtn" class="btn btn-primary" href="/forum/api/blah/blah">Reply</button>
+              <span>Time here</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="row">
-      <div class="md-col">
-        <p class="mt-2">This is the comment</p>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="md-col">
-        <button type="button" id="replyBtn" class="btn btn-primary" href="/forum/api/blah/blah">Reply</button>
-        <span>Time here</span>
-      </div>
-    </div>
-
   </div>
 </div>
