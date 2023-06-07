@@ -493,7 +493,7 @@ function generateCommentHeader(container, dto) {
         .appendTo(row1Col1);
 
     var userId = $("#userId").val();
-    if (dto.commenterId === userId) {
+    if (dto.commenterId == userId) {
         var row1Col2 = $("<div>")
             .attr("class", "col-md-6")
             .appendTo(row1);
