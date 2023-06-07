@@ -47,7 +47,7 @@ class PostRepositoryTest {
 
     @Test
     void delete() {
-        int postId = 1;
+        int postId = 11;
         postRepository.deleteById(postId);
         log.info("Post Deleted Successfully");
     }

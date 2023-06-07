@@ -48,7 +48,7 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<CommentDTO> delete(@PathVariable("commentId") int commentId) {
         forumService.deleteComment(commentId);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{commentId}")

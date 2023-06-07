@@ -61,6 +61,13 @@ $(document).ready(function() {
         $("#replyBody").val("");
     });
 
+    $(".card-title #postDeleteBtn").on("click", function(event) {
+        event.preventDefault();
+
+        var href = $(this).attr("href");
+        deletePost(href);
+    });
+
     // Used to show the comments modal when the reply modal is closed
     $("#replyModal").on("hidden.bs.modal", function(e) {
         e.stopPropagation(); // Stop event propagation
@@ -226,6 +233,19 @@ function updateUpvote(commentId, newUpvoteCount) {
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
+        }
+    });
+}
+
+function deletePost(postURI) {
+    $.ajax({
+        type: "DELETE",
+        url: "/forum/api" + postURI,
+        success: function(postDto, response) {
+            window.location.href = "/forum";
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Deletion of post failed!");
         }
     });
 }

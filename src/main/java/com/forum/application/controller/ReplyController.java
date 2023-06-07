@@ -48,6 +48,6 @@ public class ReplyController {
     @DeleteMapping("/{replyId}")
     public ResponseEntity<ReplyDTO> delete(@PathVariable("replyId") int replyId) {
         forumService.deleteReply(replyId);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
     }
 }

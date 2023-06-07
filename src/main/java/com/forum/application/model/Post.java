@@ -38,6 +38,5 @@ public class Post {
             mappedBy = "post",
             cascade = CascadeType.REMOVE
     )
-    @Setter(AccessLevel.NONE)
     private List<Comment> comments;
 }
