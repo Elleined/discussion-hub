@@ -242,12 +242,22 @@ function onError() {
 function generateCommentBlock(commentDto) {
     var commentSection = $(".modal-body #commentSection");
     var container = $("<div>")
-        .attr("class", "commentContainer")
+        .attr("class", "commentContainer container ms-5")
         .appendTo(commentSection);
+
+    var childContainer = $("<div>")
+        .attr("class", "row gx-5 ")
+        .appendTo(container);
+
+    generateCommentUpvoteBlock(childContainer);
+
+    var commentColumn = $("<div>")
+        .attr("class", "col-md-6")
+        .appendTo(childContainer);
 
     var row1 = $("<div>")
         .attr("class", "row mb-2")
-        .appendTo(container);
+        .appendTo(commentColumn);
 
     var row1Col1 = $("<div>")
         .attr("class", "md-col")
@@ -267,7 +277,7 @@ function generateCommentBlock(commentDto) {
 
     var row2 = $("<div>")
         .attr("class", "row")
-        .appendTo(container);
+        .appendTo(commentColumn);
 
     var row2Col1 = $("<div>")
         .attr("class", "md-col")
@@ -276,11 +286,11 @@ function generateCommentBlock(commentDto) {
     var commenterMessageBody = $("<p>")
         .attr("class", "mt-2")
         .text(commentDto.body)
-        .appendTo(row2);
+        .appendTo(row2Col1);
 
     var row3 = $("<div>")
         .attr("class", "row")
-        .appendTo(container);
+        .appendTo(commentColumn);
 
     var row3Col1 = $("<div>")
         .attr("class", "md-col")
@@ -361,4 +371,35 @@ function generateReplyBlock(replyDto) {
         .appendTo(row2);
 
     var hr = $("<hr>").appendTo(replySection);
+}
+
+function generateCommentUpvoteBlock(container) {
+    var upvoteColumn = $("<div>")
+        .attr("class", "col-md-1")
+        .appendTo(container);
+
+    var upvoteContainer = $("<div>")
+        .attr("class", "row gx-5")
+        .appendTo(upvoteColumn);
+
+    var upvoteIcon = $("<i>")
+        .attr("class", "fas fa-angle-up fa-3x")
+        .appendTo(upvoteContainer);
+
+    var upvoteCount = $("<span>")
+        .attr("class", "mt-2 mb-2")
+        .text("Upvote")
+        .appendTo(upvoteColumn);
+
+    var downVoteContainer = $("<div>")
+        .attr("class", "col-md-1")
+        .appendTo(upvoteColumn);
+
+    var downVoteContainer = $("<div>")
+        .attr("class", "row gx-5")
+        .appendTo(downVoteContainer);
+
+    var downVoteIcon = $("<i>")
+        .attr("class", "fas fa-angle-down fa-3x")
+        .appendTo(downVoteContainer);
 }
