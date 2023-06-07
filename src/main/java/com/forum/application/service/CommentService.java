@@ -65,6 +65,7 @@ public class CommentService {
         comment.setUpvote(newUpvoteCount);
         commentRepository.save(comment);
 
+        log.debug("Comment with id of {} updated successfully with new upvote count of {} ", commentId, comment.getUpvote());
         return this.convertToDTO(comment);
     }
 

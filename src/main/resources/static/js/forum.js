@@ -222,7 +222,7 @@ function updateUpvote(commentId, newUpvoteCount) {
             newUpvoteCount: newUpvoteCount
         },
         success: function(commentDto, response) {
-            alert("HI")
+            console.log("Upvote count updated successfully!");
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
@@ -409,7 +409,7 @@ function generateCommentUpvoteBlock(container, dto) {
     var upvoteValue = $("<span>")
         .attr({
             "class": "d-flex justify-content-center mt-2 mb-2",
-            "id": "upvoteValue"
+            "id": "upvoteValue" + dto.id
         })
         .text(dto.upvote)
         .appendTo(upvoteColumn);
@@ -431,22 +431,37 @@ function generateCommentUpvoteBlock(container, dto) {
         .appendTo(downVoteBtn);
 
     let isClicked = false;
-    upvoteBtn.on("click", function() {
-        if (isClicked) return;
-        let upvoteValue = parseInt($("#upvoteValue").text());
+    upvoteBtn.on("click", function(event) {
+        event.preventDefault();
+        if (isClicked) {
+            console.log("You already clicked this...");
+            return;
+        }
+
+        let upvoteValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = upvoteValue + 1;
-        $("#upvoteValue").text(newUpvoteValue);
+        $("#upvoteValue" + dto.id).text(newUpvoteValue);
+        updateUpvote(dto.id, newUpvoteValue);
+
+        console.log("Comment upvote " + newUpvoteValue);
 
         isClicked = true;
     });
 
-    downVoteBtn.on("click", function() {
-        if(isClicked) return;
-        let upvoteValue = parseInt($("#upvoteValue").text());
+    downVoteBtn.on("click", function(event) {
+        event.preventDefault();
+        if (isClicked) {
+            console.log("You already clicked this...");
+            return;
+        }
+
+        let upvoteValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = upvoteValue - 1;
-        $("#upvoteValue").text(newUpvoteValue);
+        $("#upvoteValue" + dto.id).text(newUpvoteValue);
+        updateUpvote(dto.id, newUpvoteValue);
+
+        console.log("Comment upvote " + newUpvoteValue);
 
         isClicked = true;
     });
-
 }
