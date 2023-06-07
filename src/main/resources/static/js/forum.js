@@ -249,7 +249,7 @@ function generateCommentBlock(commentDto) {
         .attr("class", "row gx-5 ")
         .appendTo(container);
 
-    generateCommentUpvoteBlock(childContainer);
+    generateCommentUpvoteBlock(childContainer, commentDto);
 
     var commentColumn = $("<div>")
         .attr("class", "col-md-6")
@@ -373,7 +373,7 @@ function generateReplyBlock(replyDto) {
     var hr = $("<hr>").appendTo(replySection);
 }
 
-function generateCommentUpvoteBlock(container) {
+function generateCommentUpvoteBlock(container, dto) {
     var upvoteColumn = $("<div>")
         .attr("class", "col-md-1")
         .appendTo(container);
@@ -382,9 +382,13 @@ function generateCommentUpvoteBlock(container) {
         .attr("class", "row gx-5")
         .appendTo(upvoteColumn);
 
+    var upvoteBtn = $("<a>")
+        .attr("href", "#")
+        .appendTo(upvoteContainer);
+
     var upvoteIcon = $("<i>")
         .attr("class", "fas fa-angle-up fa-3x")
-        .appendTo(upvoteContainer);
+        .appendTo(upvoteBtn);
 
     var upvoteCount = $("<span>")
         .attr("class", "mt-2 mb-2")
@@ -399,7 +403,20 @@ function generateCommentUpvoteBlock(container) {
         .attr("class", "row gx-5")
         .appendTo(downVoteContainer);
 
+    var downVoteBtn = $("<a>")
+        .attr("href", "#")
+        .appendTo(downVoteContainer);
+
     var downVoteIcon = $("<i>")
         .attr("class", "fas fa-angle-down fa-3x")
-        .appendTo(downVoteContainer);
+        .appendTo(downVoteBtn);
+
+    upvoteBtn.on("click", function() {
+            alert("HI");
+    });
+
+    downVoteBtn.on("click", function() {
+        alert("HI");
+    });
+
 }
