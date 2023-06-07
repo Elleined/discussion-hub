@@ -222,7 +222,7 @@ function updateUpvote(commentId, newUpvoteCount) {
             newUpvoteCount: newUpvoteCount
         },
         success: function(commentDto, response) {
-            console.log("Upvote count updated successfully!");
+            console.log("Comment with id of " + commentId + "updated successfully with new upvote count of " + newUpvoteCount);
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
@@ -433,35 +433,21 @@ function generateCommentUpvoteBlock(container, dto) {
     let isClicked = false;
     upvoteBtn.on("click", function(event) {
         event.preventDefault();
-        if (isClicked) {
-            console.log("You already clicked this...");
-            return;
-        }
-
+        if (isClicked) return;
         let upvoteValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = upvoteValue + 1;
         $("#upvoteValue" + dto.id).text(newUpvoteValue);
         updateUpvote(dto.id, newUpvoteValue);
-
-        console.log("Comment upvote " + newUpvoteValue);
-
         isClicked = true;
     });
 
     downVoteBtn.on("click", function(event) {
         event.preventDefault();
-        if (isClicked) {
-            console.log("You already clicked this...");
-            return;
-        }
-
+        if (isClicked) return;
         let upvoteValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = upvoteValue - 1;
         $("#upvoteValue" + dto.id).text(newUpvoteValue);
         updateUpvote(dto.id, newUpvoteValue);
-
-        console.log("Comment upvote " + newUpvoteValue);
-
         isClicked = true;
     });
 }
