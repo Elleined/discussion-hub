@@ -406,8 +406,11 @@ function generateCommentUpvoteBlock(container, dto) {
         .attr("class", "fas fa-angle-up fa-3x")
         .appendTo(upvoteBtn);
 
-    var upvoteCount = $("<span>")
-        .attr("class", "d-flex justify-content-center mt-2 mb-2")
+    var upvoteValue = $("<span>")
+        .attr({
+            "class": "d-flex justify-content-center mt-2 mb-2",
+            "id": "upvoteValue"
+        })
         .text(dto.upvote)
         .appendTo(upvoteColumn);
 
@@ -427,12 +430,23 @@ function generateCommentUpvoteBlock(container, dto) {
         .attr("class", "fas fa-angle-down fa-3x")
         .appendTo(downVoteBtn);
 
+    let isClicked = false;
     upvoteBtn.on("click", function() {
-            alert("HI");
+        if (isClicked) return;
+        let upvoteValue = parseInt($("#upvoteValue").text());
+        var newUpvoteValue = upvoteValue + 1;
+        $("#upvoteValue").text(newUpvoteValue);
+
+        isClicked = true;
     });
 
     downVoteBtn.on("click", function() {
-        alert("HI");
+        if(isClicked) return;
+        let upvoteValue = parseInt($("#upvoteValue").text());
+        var newUpvoteValue = upvoteValue - 1;
+        $("#upvoteValue").text(newUpvoteValue);
+
+        isClicked = true;
     });
 
 }
