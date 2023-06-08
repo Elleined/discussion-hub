@@ -43,7 +43,7 @@ public class ReplyService {
 
     public void delete(int replyId) {
         this.setStatus(replyId);
-        log.debug("Reply with id of {} deleted successfully!", replyId);
+        log.debug("Reply with id of {} are now inactive!", replyId);
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {

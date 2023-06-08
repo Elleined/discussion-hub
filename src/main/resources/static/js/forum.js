@@ -24,7 +24,7 @@ $(document).ready(function() {
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
             if (json.status === "INACTIVE") {
-                $("div").filter("#" + json.id).remove();
+                $("div").filter("#comment_" + json.id).remove();
                 return;
             }
             generateCommentBlock(json);
@@ -90,6 +90,10 @@ $(document).ready(function() {
         // Resubscribe to SendTo Comment URI
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
+            if (json.status === "INACTIVE") {
+                $("div").filter("#comment_" + commentDto.id).remove();
+                return;
+            }
             generateCommentBlock(json);
         });
     });
@@ -261,10 +265,25 @@ function deleteComment(commentURI) {
             console.log("Comment deleted successfully");
         },
         error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of post failed!");
+            alert("Error Occurred! Deletion of comment failed!");
         }
     });
 }
+
+function deleteReply(deleteReplyURI) {
+    $.ajax({
+        type: "DELETE",
+        url: deleteReplyURI,
+        success: function(commentDto, response) {
+            console.log("Reply deleted successfully");
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Deletion of reply failed!");
+        }
+    });
+}
+
+
 
 function disconnect() {
     if (stompClient) {
@@ -296,7 +315,7 @@ function generateCommentBlock(commentDto) {
     var container = $("<div>")
         .attr({
             "class": "commentContainer container ms-5",
-            "id": commentDto.id
+            "id": "comment_" + commentDto.id
         })
         .appendTo(commentSection);
 
@@ -359,6 +378,10 @@ function generateCommentBlock(commentDto) {
         // SendTo URI of Reply
         replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
             var json = JSON.parse(replyDto.body);
+            if (json.status === "INACTIVE") {
+                $("div").filter("#reply_" + json.id).remove();
+                return;
+            }
             generateReplyBlock(json);
         });
 
@@ -371,7 +394,10 @@ function generateCommentBlock(commentDto) {
 function generateReplyBlock(replyDto) {
     var replySection = $(".modal-body #replySection");
     var replyContainer = $("<div>")
-        .attr("class", "replyContainer")
+        .attr({
+            "class": "replyContainer",
+            "id": "reply_" + replyDto.id
+        })
         .appendTo(replySection);
 
     var row1 = $("<div>")
@@ -393,7 +419,7 @@ function generateReplyBlock(replyDto) {
         .text(replyDto.body)
         .appendTo(row2);
 
-    var hr = $("<hr>").appendTo(replySection);
+    var hr = $("<hr>").appendTo(replyContainer);
 }
 
 function generateCommentUpvoteBlock(container, dto) {
@@ -570,7 +596,7 @@ function generateReplyHeader(container, dto) {
             event.preventDefault();
 
             var deleteReplyURI = $(this).attr("href");
-            alert(deleteReplyURI);
+            deleteReply(deleteReplyURI);
         });
     }
 }
