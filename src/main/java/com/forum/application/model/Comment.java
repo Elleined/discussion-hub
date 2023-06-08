@@ -55,4 +55,8 @@ public class Comment {
     )
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
+
+    @OneToMany(mappedBy = "comment")
+    @Setter(AccessLevel.NONE)
+    private List<CommentUpvoteTransaction> commentUpvoteTransactions;
 }

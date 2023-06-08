@@ -52,4 +52,8 @@ public class User {
     )
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
+
+    @OneToMany(mappedBy = "respondent")
+    @Setter(AccessLevel.NONE)
+    private List<CommentUpvoteTransaction> commentUpvoteTransactions;
 }
