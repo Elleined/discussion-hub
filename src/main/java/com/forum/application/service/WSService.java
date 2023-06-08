@@ -24,4 +24,9 @@ public class WSService {
         simpMessagingTemplate.convertAndSend(destination, replyDTO);
         log.debug("Reply with body of {} broadcast successfully to {}", replyDTO.getBody(), destination);
     }
+
+    public void deleteComment(int postId) {
+        String destination = "/discussion/posts/" + postId + "/comments";
+        simpMessagingTemplate.convertAndSend(destination);
+    }
 }

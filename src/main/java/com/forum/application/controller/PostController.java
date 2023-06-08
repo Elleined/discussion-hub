@@ -30,6 +30,11 @@ public class PostController {
         return forumService.getPostById(postId);
     }
 
+    @GetMapping("/author/{id}")
+    public List<PostDTO> getAllByAuthorId(@PathVariable("id") int authorId) {
+        return forumService.getAllByAuthorId(authorId);
+    }
+
     @PostMapping
     public ResponseEntity<?> savePost(@RequestParam("body") String body,
                                       HttpSession session) {

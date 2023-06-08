@@ -4,6 +4,7 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Post;
 import com.forum.application.model.User;
+import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class PostService {
+    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
@@ -52,6 +54,15 @@ public class PostService {
     public PostDTO getById(int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return this.convertToDTO(post);
+    }
+
+    public List<PostDTO> getAllByAuthorId(int authorId) {
+        if (!userRepository.existsById(authorId)) throw new ResourceNotFoundException("User with id of " + authorId + " does not exists");
+        return postRepository.fetchAllByAuthorId(authorId)
+                .stream()
+                .map(this::convertToDTO)
+                .sorted(Comparator.comparing(PostDTO::getDateCreated).reversed())
+                .toList();
     }
 
     public PostDTO convertToDTO(Post post) {

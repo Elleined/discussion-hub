@@ -71,6 +71,10 @@ public class ForumService {
         return postService.getAll();
     }
 
+    public List<PostDTO> getAllByAuthorId(int authorId) {
+        return postService.getAllByAuthorId(authorId);
+    }
+
     public List<CommentDTO> getAllCommentsOf(int postId) {
         return commentService.getAllCommentsOf(postId);
     }
