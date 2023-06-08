@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Post;
+import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
@@ -76,7 +77,10 @@ public class PostService {
                 .authorName(post.getAuthor().getName())
                 .authorId(post.getAuthor().getId())
                 .authorPicture(post.getAuthor().getPicture())
-                .totalComments(post.getComments().size())
+                .totalComments((int) post.getComments()
+                        .stream()
+                        .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                        .count())
                 .build();
     }
 }
