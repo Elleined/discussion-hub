@@ -24,6 +24,10 @@ public class Reply {
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     @ManyToOne
     @JoinColumn(
             name = "comment_id",

@@ -4,6 +4,7 @@ import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Reply;
+import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.ReplyRepository;
@@ -32,6 +33,7 @@ public class ReplyService {
                 .dateCreated(LocalDateTime.now())
                 .replier(replier)
                 .comment(comment)
+                .status(Status.ACTIVE)
                 .build();
 
         replyRepository.save(reply);
@@ -40,7 +42,7 @@ public class ReplyService {
     }
 
     public void delete(int replyId) {
-        replyRepository.deleteById(replyId);
+        this.setStatus(replyId);
         log.debug("Reply with id of {} deleted successfully!", replyId);
     }
 
@@ -48,6 +50,7 @@ public class ReplyService {
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()
                 .stream()
+                .filter(r -> r.getStatus() == Status.ACTIVE)
                 .map(this::convertToDTO)
                 .toList();
     }
@@ -68,6 +71,13 @@ public class ReplyService {
                 .commentId(reply.getComment().getId())
                 .replierId(reply.getReplier().getId())
                 .replierPicture(reply.getReplier().getPicture())
+                .status(reply.getStatus().name())
                 .build();
+    }
+
+    private void setStatus(int replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        reply.setStatus(Status.INACTIVE);
+        replyRepository.save(reply);
     }
 }

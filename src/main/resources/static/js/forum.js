@@ -378,21 +378,7 @@ function generateReplyBlock(replyDto) {
         .attr("class", "row mb-2")
         .appendTo(replyContainer);
 
-    var row1Col1 = $("<div>")
-        .attr("class", "md-col")
-        .appendTo(row1);
-
-    var replierImage = $("<img>").attr({
-        "class": "rounded-circle shadow-4-strong",
-        "height": "50px",
-        "width": "50px",
-        "src": "/img/" + replyDto.replierPicture
-    }).appendTo(row1Col1);
-
-    var replyName = $("<span>")
-        .attr("class", "mb-5")
-        .text(replyDto.replierName)
-        .appendTo(row1Col1);
+    generateReplyHeader(row1, replyDto);
 
     var row2 = $("<div>")
         .attr("class", "row")
@@ -527,6 +513,64 @@ function generateCommentHeader(container, dto) {
 
             var deleteCommentURI = $(this).attr("href");
             deleteComment(deleteCommentURI);
+        });
+    }
+}
+
+function generateReplyHeader(container, dto) {
+    var parentContainer = $("<div>")
+        .attr("class", "container")
+        .appendTo(container);
+
+    var row1 = $("<div>")
+        .attr("class", "row")
+        .appendTo(parentContainer);
+
+    var row1Col1 = $("<div>")
+        .attr("class", "col-md-6")
+        .appendTo(row1);
+
+    var commenterImage = $("<img>").attr({
+        "class": "rounded-circle shadow-4-strong",
+        "height": "50px",
+        "width": "50px",
+        "src": "/img/" + dto.replierPicture
+    }).appendTo(row1Col1);
+
+    var commenterName = $("<span>")
+        .attr("class", "md5 mb-5")
+        .text(dto.replierName)
+        .appendTo(row1Col1);
+
+    var userId = $("#userId").val();
+    if (dto.replierId == userId) {
+        var row1Col2 = $("<div>")
+            .attr("class", "col-md-6")
+            .appendTo(row1);
+
+        var row1Col1Container = $("<div>")
+            .attr("class", "d-grid gap-2 d-md-flex justify-content-md-end")
+            .appendTo(row1Col2);
+
+        var deleteReplyBtn = $("<a>")
+            .attr({
+                "href": "/forum/api" + replyURI + "/" + dto.id,
+                "role": "button",
+                "class": "btn btn-danger",
+                "id": "replyDeleteBtn" + dto.id
+            })
+            .text("Delete")
+            .appendTo(row1Col1Container);
+
+        var deleteIcon = $("<i>")
+            .attr("class", "fas fa-trash")
+            .appendTo(deleteReplyBtn);
+
+        deleteReplyBtn.on("click", function(event) {
+            event.preventDefault();
+
+            var deleteReplyURI = $(this).attr("href");
+            alert(deleteReplyURI);
         });
     }
 }

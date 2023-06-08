@@ -18,4 +18,5 @@ public class ReplyDTO {
     private int commentId;
     private int replierId;
     private String replierPicture;
+    private String status;
 }
