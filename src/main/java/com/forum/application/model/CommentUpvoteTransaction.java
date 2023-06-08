@@ -20,7 +20,7 @@ public class CommentUpvoteTransaction {
     @ManyToOne
     @JoinColumn(
             name = "comment_id",
-            referencedColumnName = "id",
+            referencedColumnName = "comment_id",
             foreignKey = @ForeignKey(name = "FK_comment_upvote_id")
     )
     private Comment comment;
@@ -28,7 +28,7 @@ public class CommentUpvoteTransaction {
     @ManyToOne
     @JoinColumn(
             name = "respondent_id",
-            referencedColumnName = "id",
+            referencedColumnName = "user_id",
             foreignKey = @ForeignKey(name = "FK_respondent_id")
     )
     private User respondent;

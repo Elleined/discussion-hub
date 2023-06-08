@@ -42,7 +42,6 @@ public class PostController {
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Post body cannot be empty!");
 
         String loginEmailSession = (String) session.getAttribute("email");
-
         int authorId = userService.getIdByEmail(loginEmailSession);
 
         int postId = forumService.savePost(authorId, body);

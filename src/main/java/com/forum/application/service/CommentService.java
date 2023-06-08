@@ -2,11 +2,9 @@ package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.Comment;
-import com.forum.application.model.Post;
-import com.forum.application.model.Status;
-import com.forum.application.model.User;
+import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
+import com.forum.application.repository.CommentUpvoteTransactionRepository;
 import com.forum.application.repository.PostRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +19,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class CommentService {
-
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final CommentUpvoteTransactionService commentUpvoteTransactionService;
 
     public int save(int commenterId, int postId, String body) {
         User commenter = userRepository.findById(commenterId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + commenterId + " does not exists!"));
@@ -63,11 +61,11 @@ public class CommentService {
         return this.convertToDTO(comment);
     }
 
-    public CommentDTO updateUpvote(int commentId, int newUpvoteCount) {
-        this.setUpvote(commentId, newUpvoteCount);
+    public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
+        this.setUpvote(respondentId, commentId, newUpvoteCount);
 
         CommentDTO commentDTO = this.getById(commentId);
-        log.debug("Comment with id of {} updated successfully with new upvote count of {} ", commentId, commentDTO.getUpvote());
+        log.debug("User with id of {} upvoted the Comment with id of {} successfully with new upvote count of {} ", respondentId, commentId, commentDTO.getUpvote());
         return commentDTO;
     }
 
@@ -100,9 +98,10 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    private void setUpvote(int commentId, int newUpvoteCount) {
+    private void setUpvote(int respondentId, int commentId, int newUpvoteCount) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         comment.setUpvote(newUpvoteCount);
         commentRepository.save(comment);
+        commentUpvoteTransactionService.save(respondentId, commentId);
     }
 }

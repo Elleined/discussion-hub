@@ -17,6 +17,7 @@ public class ForumService {
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final CommentUpvoteTransactionService commentUpvoteTransactionService;
     private final WSService wsService;
 
     public int savePost(int authorId, String body) {
@@ -89,12 +90,16 @@ public class ForumService {
         return replyService.getAllRepliesOf(commentId);
     }
 
-    public CommentDTO updateUpvote(int commentId, int newUpvoteCount) {
-        return commentService.updateUpvote(commentId, newUpvoteCount);
+    public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
+        return commentService.updateUpvote(respondentId, commentId, newUpvoteCount);
     }
 
     public boolean isNotValidUpvoteValue(int commentId, int newUpvoteValue) {
         CommentDTO commentDTO = commentService.getById(commentId);
         return commentService.isNotValidUpvoteValue(commentDTO.getUpvote(), newUpvoteValue);
+    }
+
+    public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) {
+        return commentUpvoteTransactionService.isUserAlreadyUpvoteComment(respondentId, commentId);
     }
 }

@@ -56,6 +56,7 @@ public class Comment {
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
 
+    // comment id reference is in comment upvote transaction table
     @OneToMany(mappedBy = "comment")
     @Setter(AccessLevel.NONE)
     private List<CommentUpvoteTransaction> commentUpvoteTransactions;

@@ -53,6 +53,7 @@ public class User {
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
 
+    // user id reference is in comment upvote transaction table
     @OneToMany(mappedBy = "respondent")
     @Setter(AccessLevel.NONE)
     private List<CommentUpvoteTransaction> commentUpvoteTransactions;
