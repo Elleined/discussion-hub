@@ -89,6 +89,9 @@ public class CommentService {
                 .authorName(comment.getPost().getAuthor().getName())
                 .upvote(comment.getUpvote())
                 .status(comment.getStatus().name())
+                .totalReplies((int) comment.getReplies().stream()
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                        .count())
                 .build();
     }
 

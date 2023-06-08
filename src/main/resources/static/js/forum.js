@@ -359,7 +359,7 @@ function generateCommentBlock(commentDto) {
         "id": "replyBtn",
         "href": "/posts/comments/" + commentDto.id + "/replies",
         "class": "btn btn-primary me-1"
-    }).text("Reply").appendTo(row3Col1);
+    }).text("Reply  ·  " + commentDto.totalReplies).appendTo(row3Col1);
 
     var timeCommented = $("<span>")
         .text(" at " + commentDto.formattedTime + " on " + commentDto.formattedDate)

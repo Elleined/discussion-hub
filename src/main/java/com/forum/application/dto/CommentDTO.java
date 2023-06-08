@@ -20,4 +20,5 @@ public class CommentDTO {
     private String authorName;
     private int upvote;
     private String status;
+    private int totalReplies;
 }
