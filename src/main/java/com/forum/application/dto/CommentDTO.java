@@ -19,4 +19,5 @@ public class CommentDTO {
     private String commenterPicture;
     private String authorName;
     private int upvote;
+    private String status;
 }

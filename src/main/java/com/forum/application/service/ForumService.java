@@ -61,6 +61,9 @@ public class ForumService {
 
     public void deleteComment(int commentId) {
         commentService.delete(commentId);
+
+        CommentDTO commentDTO = commentService.getById(commentId);
+        wsService.broadcastComment(commentDTO.getPostId(), commentDTO);
     }
 
     public void deleteReply(int replyId) {

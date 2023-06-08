@@ -4,6 +4,7 @@ import com.forum.application.dto.CommentDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
+import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
@@ -34,6 +35,7 @@ public class CommentService {
                 .dateCreated(LocalDateTime.now())
                 .post(post)
                 .commenter(commenter)
+                .status(Status.ACTIVE)
                 .build();
 
         commentRepository.save(comment);
@@ -42,14 +44,15 @@ public class CommentService {
     }
 
     public void delete(int commentId) {
-        commentRepository.deleteById(commentId);
-        log.debug("Comment with id of {} deleted successfully!", commentId);
+        this.setStatus(commentId);
+        log.debug("Comment with id of {} are now inactive!", commentId);
     }
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getComments()
                 .stream()
+                .filter(p -> p.getStatus() == Status.ACTIVE)
                 .sorted(Comparator.comparingInt(Comment::getUpvote).reversed())
                 .map(this::convertToDTO)
                 .toList();
@@ -61,12 +64,11 @@ public class CommentService {
     }
 
     public CommentDTO updateUpvote(int commentId, int newUpvoteCount) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        comment.setUpvote(newUpvoteCount);
-        commentRepository.save(comment);
+        this.setUpvote(commentId, newUpvoteCount);
 
-        log.debug("Comment with id of {} updated successfully with new upvote count of {} ", commentId, comment.getUpvote());
-        return this.convertToDTO(comment);
+        CommentDTO commentDTO = this.getById(commentId);
+        log.debug("Comment with id of {} updated successfully with new upvote count of {} ", commentId, commentDTO.getUpvote());
+        return commentDTO;
     }
 
     public boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
@@ -88,6 +90,19 @@ public class CommentService {
                 .commenterPicture(comment.getCommenter().getPicture())
                 .authorName(comment.getPost().getAuthor().getName())
                 .upvote(comment.getUpvote())
+                .status(comment.getStatus().name())
                 .build();
+    }
+
+    private void setStatus(int commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        comment.setStatus(Status.INACTIVE);
+        commentRepository.save(comment);
+    }
+
+    private void setUpvote(int commentId, int newUpvoteCount) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        comment.setUpvote(newUpvoteCount);
+        commentRepository.save(comment);
     }
 }

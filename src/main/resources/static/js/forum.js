@@ -8,7 +8,6 @@ var commentSubscription = null;
 
 var replyURI = null;
 var commentURI = null;
-
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
@@ -24,6 +23,10 @@ $(document).ready(function() {
         // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
+            if (json.status === "INACTIVE") {
+                $("div").filter("#" + json.id).remove();
+                return;
+            }
             generateCommentBlock(json);
         });
 
@@ -291,7 +294,10 @@ function onError() {
 function generateCommentBlock(commentDto) {
     var commentSection = $(".modal-body #commentSection");
     var container = $("<div>")
-        .attr("class", "commentContainer container ms-5")
+        .attr({
+            "class": "commentContainer container ms-5",
+            "id": commentDto.id
+        })
         .appendTo(commentSection);
 
     var childContainer = $("<div>")
@@ -341,7 +347,7 @@ function generateCommentBlock(commentDto) {
         .text(" at " + commentDto.formattedTime + " on " + commentDto.formattedDate)
         .appendTo(row3Col1);
 
-    var hr = $("<hr>").appendTo(commentSection);
+    var hr = $("<hr>").appendTo(childContainer);
 
     replyBtn.on("click", function(event) {
         replyURI = $(this).attr("href");
