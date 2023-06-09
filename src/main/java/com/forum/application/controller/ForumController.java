@@ -1,31 +1,39 @@
 package com.forum.application.controller;
 
-import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.ReplyDTO;
+import com.forum.application.dto.PostDTO;
+import com.forum.application.service.ForumService;
+import com.forum.application.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 @Slf4j
-@Controller
 @RequiredArgsConstructor
+@Controller
+@RequestMapping("/forum")
 public class ForumController {
 
-    // @MessageMapping("/posts/{postId}/comments")
-    @SendTo("/discussion/posts/{postId}/comments")
-    public CommentDTO broadcastComment(@Payload CommentDTO commentDTO,
-                                       @DestinationVariable int postId) {
-        return commentDTO;
-    }
+    private final ForumService forumService;
+    private final UserService userService;
 
-    // @MessageMapping("posts/comments/{commentId}/replies")
-    @SendTo("/discussion/posts/comments/{commentId}/replies")
-    public ReplyDTO broadcastReply(@Payload ReplyDTO replyDTO,
-                                   @DestinationVariable int commentId) {
-        return replyDTO;
+    @GetMapping
+    public String goToForum(HttpSession session,
+                            Model model) {
+
+        String email = (String) session.getAttribute("email");
+        if (email == null) return "redirect:/";
+
+        int userId = userService.getIdByEmail(email);
+        List<PostDTO> posts = forumService.getAllPost();
+
+        model.addAttribute("userId", userId);
+        model.addAttribute("posts", posts);
+        return "forum";
     }
 }

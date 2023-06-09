@@ -4,18 +4,39 @@
    <meta charset="UTF-8">
    <title>Forum</title>
    <div th:insert="~{fragments/links :: links-fragment}"></div>
-   <script th:src="@{/js/register.js}"></script>
 </head>
 <body>
+<h1 class="display-1 text-primary-emphasis" align="center">Register</h1>
+<hr>
 
-   <h1 class="display-1 text-primary-emphasis" align="center">Register Your Username</h1>
-   <hr>
-   <form th:action="@{/}" method="post">
-      <div class="input-group mb-3">
-         <input type="email" name="email" id="email" class="form-control" placeholder="Your registered username in database">
-         <button class="btn btn-primary" type="submit" id="registerBtn">Register</button>
-      </div>
-      <span th:if="${emailNotExists}" th:text="${emailErrorMessage}"></span>
-   </form>
+<form th:action="@{/register}" method="post" th:object="${user}">
+   <!-- Name input -->
+   <div class="form-outline border mb-4">
+      <input type="text" id="name" class="form-control" th:field="*{name}" required/>
+      <label class="form-label" for="name">Name</label>
+   </div>
+
+   <!-- Email input -->
+   <div class="form-outline border mb-4">
+      <input type="email" id="email" class="form-control" th:field="*{email}" required/>
+      <label class="form-label" for="email">Email address</label>
+      <span th:if="${emailExists}" th:text="${emailErrorMessage}" style="color: red"></span>
+   </div>
+
+   <div class="form-outline border mb-4">
+      <input type="file" class="form-control" id="picture" th:field="*{picture}" required/>
+   </div>
+
+   <!-- Checkbox -->
+   <div class="form-check d-flex justify-content-center mb-4">
+      <input class="form-check-input me-2" type="checkbox" value="" id="form5Example3" checked />
+      <label class="form-check-label" for="form5Example3">
+         I have read and agree to the terms
+      </label>
+   </div>
+
+   <!-- Submit button -->
+   <button type="submit" class="btn btn-primary btn-block mb-4">Register</button>
+</form>
 </body>
 </html>
