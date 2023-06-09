@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 public class ReplyDTO {
     private int id;
     private String body;
-
     private String replierName;
     private LocalDateTime dateCreated;
     private String formattedDate;
@@ -19,4 +18,5 @@ public class ReplyDTO {
     private int replierId;
     private String replierPicture;
     private String status;
+    private int postId;
 }

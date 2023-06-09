@@ -63,9 +63,16 @@
       <span th:text="${'at ' + post.formattedTimeCreated}"></span>
 
       <p class="card-text mt-3" th:text="${post.body}"></p>
-      <a class="btn btn-primary" th:href="@{/posts/{postId}/comments (postId=${post.id}) }" role="button" data-bs-toggle="modal" data-bs-target="#commentModal" id="commentBtn">
+      <a class="btn btn-primary"
+         th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
+         role="button"
+         data-bs-toggle="modal"
+         data-bs-target="#commentModal"
+         id="commentBtn">
         <i class="fas fa-message"></i>
-        <span th:text="${'Comments  ·  ' + post.totalComments}"> </span>
+        <span th:text="${'Comments  ·  ' + post.totalComments}"
+              th:id="${'totalCommentsOfPost' + post.id}"
+              th:aria-valuetext=${post.totalComments}> </span>
       </a>
     </div>
   </div>

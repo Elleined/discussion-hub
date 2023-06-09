@@ -25,9 +25,11 @@ $(document).ready(function() {
             var json = JSON.parse(commentDto.body);
             if (json.status === "INACTIVE") {
                 $("div").filter("#comment_" + json.id).remove();
+                updateCommentCount(json.postId, "-");
                 return;
             }
             generateCommentBlock(json);
+            updateCommentCount(json.postId, "+");
         });
 
         getAllCommentsOf(commentURI);
@@ -92,9 +94,11 @@ $(document).ready(function() {
             var json = JSON.parse(commentDto.body);
             if (json.status === "INACTIVE") {
                 $("div").filter("#comment_" + json.id).remove();
+                updateCommentCount(json.postId, "-");
                 return;
             }
             generateCommentBlock(json);
+            updateCommentCount(json.postId, "+");
         });
     });
 
@@ -356,9 +360,10 @@ function generateCommentBlock(commentDto) {
         "data-bs-target": "#replyModal",
         "data-bs-dismiss": "modal",
         "type": "button",
-        "id": "replyBtn",
+        "id": "replyBtn" + commentDto.id,
         "href": "/posts/comments/" + commentDto.id + "/replies",
-        "class": "btn btn-primary me-1"
+        "class": "btn btn-primary me-1",
+        "value": commentDto.totalReplies
     }).text("Reply  ·  " + commentDto.totalReplies).appendTo(row3Col1);
 
     var timeCommented = $("<span>")
@@ -379,9 +384,11 @@ function generateCommentBlock(commentDto) {
             var json = JSON.parse(replyDto.body);
             if (json.status === "INACTIVE") {
                 $("div").filter("#reply_" + json.id).remove();
+                updateReplyCount(json.commentId, json.postId, "-");
                 return;
             }
             generateReplyBlock(json);
+            updateReplyCount(json.commentId, json.postId, "+");
         });
 
         getAllReplies(replyURI);
@@ -598,4 +605,35 @@ function generateReplyHeader(container, dto) {
             deleteReply(deleteReplyURI);
         });
     }
+}
+
+function updateCommentCount(postId, operation) {
+    const totalCommentsSpan = $("span").filter("#totalCommentsOfPost" + postId);
+    let totalComments;
+    if (operation == "+") {
+        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) + 1;
+    } else if (operation == "-") {
+        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) - 1;
+    } else {
+        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext"));
+    }
+    totalCommentsSpan.text("Comments  ·  " + totalComments);
+    totalCommentsSpan.attr("aria-valuetext", totalComments);
+}
+
+function updateReplyCount(commentId, postId, operation) {
+    const replyCountButton = $("div").filter("#replyBtn" + commentId);
+    let replyCount;
+    if (operation == "+") {
+        replyCount = replyCountButton.attr("value") + 1;
+        updateCommentCount(postId, operation);
+    } else if (operation == "-") {
+        replyCount = replyCountButton.attr("value") - 1;
+        updateCommentCount(postId, operation);
+    } else {
+        replyCount = replyCount = replyCountButton.attr("value");
+        updateCommentCount(postId, operation);
+    }
+    replyCountButton.text("Reply  · " + replyCount);
+    replyCountButton.attr("value", replyCount);
 }

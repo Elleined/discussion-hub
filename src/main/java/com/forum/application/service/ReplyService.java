@@ -72,6 +72,7 @@ public class ReplyService {
                 .replierId(reply.getReplier().getId())
                 .replierPicture(reply.getReplier().getPicture())
                 .status(reply.getStatus().name())
+                .postId(reply.getComment().getPost().getId())
                 .build();
     }
 
