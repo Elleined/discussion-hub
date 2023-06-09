@@ -2,10 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.Comment;
-import com.forum.application.model.Post;
-import com.forum.application.model.Status;
-import com.forum.application.model.User;
+import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
 import com.forum.application.repository.UserRepository;
@@ -26,6 +23,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentUpvoteTransactionService commentUpvoteTransactionService;
+    private final ReplyService replyService;
 
     public int save(int commenterId, int postId, String body) {
         User commenter = userRepository.findById(commenterId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + commenterId + " does not exists!"));
@@ -99,10 +97,15 @@ public class CommentService {
                 .build();
     }
 
-    private void setStatus(int commentId) {
+    public void setStatus(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         comment.setStatus(Status.INACTIVE);
         commentRepository.save(comment);
+
+        comment.getReplies()
+                .stream()
+                .map(Reply::getId)
+                .forEach(replyService::setStatus);
     }
 
     private void setUpvote(int respondentId, int commentId, int newUpvoteCount) {

@@ -75,7 +75,7 @@ public class ReplyService {
                 .build();
     }
 
-    private void setStatus(int replyId) {
+    public void setStatus(int replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         reply.setStatus(Status.INACTIVE);
         replyRepository.save(reply);

@@ -50,10 +50,7 @@ public class Comment {
     private User commenter;
 
     // comment id reference is in reply table
-    @OneToMany(
-            mappedBy = "comment",
-            cascade = CascadeType.REMOVE
-    )
+    @OneToMany(mappedBy = "comment")
     private List<Reply> replies;
 
     // comment id reference is in comment upvote transaction table

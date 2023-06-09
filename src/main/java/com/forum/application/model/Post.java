@@ -26,6 +26,10 @@ public class Post {
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     @ManyToOne
     @JoinColumn(
             name = "author_id",
@@ -35,9 +39,6 @@ public class Post {
     private User author;
 
     // post id reference is in comment table
-    @OneToMany(
-            mappedBy = "post",
-            cascade = CascadeType.REMOVE
-    )
+    @OneToMany(mappedBy = "post")
     private List<Comment> comments;
 }

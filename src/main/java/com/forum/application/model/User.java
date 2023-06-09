@@ -30,26 +30,17 @@ public class User {
     private String picture;
 
     // user id reference is in post table
-    @OneToMany(
-            mappedBy = "author",
-            cascade = CascadeType.REMOVE
-    )
+    @OneToMany(mappedBy = "author")
     @Setter(AccessLevel.NONE)
     private List<Post> posts;
 
     // user id reference is in comment table
-    @OneToMany(
-            mappedBy = "commenter",
-            cascade = CascadeType.REMOVE
-    )
+    @OneToMany(mappedBy = "commenter")
     @Setter(AccessLevel.NONE)
     private List<Comment> comments;
 
     // user id reference is in reply table
-    @OneToMany(
-            mappedBy = "replier",
-            cascade = CascadeType.REMOVE
-    )
+    @OneToMany(mappedBy = "replier")
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
 
