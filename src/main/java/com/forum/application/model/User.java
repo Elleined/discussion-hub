@@ -35,7 +35,7 @@ public class User {
             cascade = CascadeType.REMOVE
     )
     @Setter(AccessLevel.NONE)
-    private List<Post> posts = new ArrayList<>();
+    private List<Post> posts;
 
     // user id reference is in comment table
     @OneToMany(
@@ -43,7 +43,7 @@ public class User {
             cascade = CascadeType.REMOVE
     )
     @Setter(AccessLevel.NONE)
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments;
 
     // user id reference is in reply table
     @OneToMany(
@@ -51,10 +51,10 @@ public class User {
             cascade = CascadeType.REMOVE
     )
     @Setter(AccessLevel.NONE)
-    private List<Reply> replies = new ArrayList<>();
+    private List<Reply> replies;
 
     // user id reference is in comment upvote transaction table
     @OneToMany(mappedBy = "respondent")
     @Setter(AccessLevel.NONE)
-    private List<CommentUpvoteTransaction> commentUpvoteTransactions = new ArrayList<>();
+    private List<CommentUpvoteTransaction> commentUpvoteTransactions;
 }

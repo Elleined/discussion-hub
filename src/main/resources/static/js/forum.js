@@ -87,11 +87,11 @@ $(document).ready(function() {
 
     $("#replyModal").on("hidden.bs.modal", function() {
         replySubscription.unsubscribe();
-        // Resubscribe to SendTo Comment URI
+        // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
             if (json.status === "INACTIVE") {
-                $("div").filter("#comment_" + commentDto.id).remove();
+                $("div").filter("#comment_" + json.id).remove();
                 return;
             }
             generateCommentBlock(json);

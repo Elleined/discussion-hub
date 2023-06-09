@@ -54,11 +54,10 @@ public class Comment {
             mappedBy = "comment",
             cascade = CascadeType.REMOVE
     )
-    @Setter(AccessLevel.NONE)
-    private List<Reply> replies = new ArrayList<>();
+    private List<Reply> replies;
 
     // comment id reference is in comment upvote transaction table
     @OneToMany(mappedBy = "comment")
     @Setter(AccessLevel.NONE)
-    private List<CommentUpvoteTransaction> commentUpvoteTransactions = new ArrayList<>();
+    private List<CommentUpvoteTransaction> commentUpvoteTransactions;
 }

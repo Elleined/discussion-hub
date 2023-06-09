@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -78,6 +79,7 @@ public class CommentService {
     }
 
     private CommentDTO convertToDTO(Comment comment) {
+        if (comment.getReplies() == null) comment.setReplies(new ArrayList<>());
         return CommentDTO.builder()
                 .id(comment.getId())
                 .body(comment.getBody())

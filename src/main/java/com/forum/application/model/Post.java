@@ -39,5 +39,5 @@ public class Post {
             mappedBy = "post",
             cascade = CascadeType.REMOVE
     )
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments;
 }
