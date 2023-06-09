@@ -384,11 +384,13 @@ function generateCommentBlock(commentDto) {
             var json = JSON.parse(replyDto.body);
             if (json.status === "INACTIVE") {
                 $("div").filter("#reply_" + json.id).remove();
-                updateReplyCount(json.commentId, json.postId, "-");
+                updateReplyCount(json.commentId, "-");
+                updateCommentCount(json.postId, "-");
                 return;
             }
             generateReplyBlock(json);
-            updateReplyCount(json.commentId, json.postId, "+");
+            updateReplyCount(json.commentId, "+");
+            updateCommentCount(json.postId, "+");
         });
 
         getAllReplies(replyURI);
@@ -621,18 +623,15 @@ function updateCommentCount(postId, operation) {
     totalCommentsSpan.attr("aria-valuetext", totalComments);
 }
 
-function updateReplyCount(commentId, postId, operation) {
+function updateReplyCount(commentId, operation) {
     const replyCountButton = $("div").filter("#replyBtn" + commentId);
     let replyCount;
     if (operation == "+") {
         replyCount = replyCountButton.attr("value") + 1;
-        updateCommentCount(postId, operation);
     } else if (operation == "-") {
         replyCount = replyCountButton.attr("value") - 1;
-        updateCommentCount(postId, operation);
     } else {
         replyCount = replyCount = replyCountButton.attr("value");
-        updateCommentCount(postId, operation);
     }
     replyCountButton.text("Reply  · " + replyCount);
     replyCountButton.attr("value", replyCount);

@@ -71,6 +71,7 @@ public class PostService {
 
     public PostDTO convertToDTO(Post post) {
         if (post.getComments() == null) post.setComments(new ArrayList<>());
+        int totalCommentAndReplies = this.getTotalCommentsAndReplies(post);
         return PostDTO.builder()
                 .id(post.getId())
                 .body(post.getBody())
@@ -80,10 +81,7 @@ public class PostService {
                 .authorName(post.getAuthor().getName())
                 .authorId(post.getAuthor().getId())
                 .authorPicture(post.getAuthor().getPicture())
-                .totalComments((int) post.getComments()
-                        .stream()
-                        .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                        .count())
+                .totalCommentAndReplies(totalCommentAndReplies)
                 .status(post.getStatus().name())
                 .build();
     }
@@ -97,5 +95,21 @@ public class PostService {
                 .stream()
                 .map(Comment::getId)
                 .forEach(commentService::setStatus);
+    }
+
+    private int getTotalCommentsAndReplies(Post post) {
+        int commentCount = (int) post.getComments()
+                .stream()
+                .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .count();
+
+        int commentRepliesCount = (int) post.getComments()
+                .stream()
+                .map(Comment::getReplies)
+                .flatMap(replies -> replies.stream()
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE))
+                .count();
+
+        return commentCount + commentRepliesCount;
     }
 }

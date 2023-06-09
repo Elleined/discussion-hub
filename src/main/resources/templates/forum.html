@@ -70,9 +70,9 @@
          data-bs-target="#commentModal"
          id="commentBtn">
         <i class="fas fa-message"></i>
-        <span th:text="${'Comments  ·  ' + post.totalComments}"
+        <span th:text="${'Comments  ·  ' + post.totalCommentAndReplies}"
               th:id="${'totalCommentsOfPost' + post.id}"
-              th:aria-valuetext=${post.totalComments}> </span>
+              th:aria-valuetext=${post.totalCommentAndReplies}> </span>
       </a>
     </div>
   </div>
