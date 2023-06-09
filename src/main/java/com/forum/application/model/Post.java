@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -38,5 +39,5 @@ public class Post {
             mappedBy = "post",
             cascade = CascadeType.REMOVE
     )
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 }

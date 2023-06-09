@@ -7,7 +7,6 @@ import com.forum.application.model.User;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.CommentUpvoteTransactionRepository;
 import com.forum.application.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

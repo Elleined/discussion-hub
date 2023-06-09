@@ -1,7 +1,6 @@
 package com.forum.application.service;
 
 import com.forum.application.model.User;
-import com.forum.application.model.UserDTO;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

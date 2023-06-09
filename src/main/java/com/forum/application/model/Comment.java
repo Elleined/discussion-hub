@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -54,10 +55,10 @@ public class Comment {
             cascade = CascadeType.REMOVE
     )
     @Setter(AccessLevel.NONE)
-    private List<Reply> replies;
+    private List<Reply> replies = new ArrayList<>();
 
     // comment id reference is in comment upvote transaction table
     @OneToMany(mappedBy = "comment")
     @Setter(AccessLevel.NONE)
-    private List<CommentUpvoteTransaction> commentUpvoteTransactions;
+    private List<CommentUpvoteTransaction> commentUpvoteTransactions = new ArrayList<>();
 }
