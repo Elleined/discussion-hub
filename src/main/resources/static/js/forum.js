@@ -624,15 +624,16 @@ function updateCommentCount(postId, operation) {
 }
 
 function updateReplyCount(commentId, operation) {
-    const replyCountButton = $("div").filter("#replyBtn" + commentId);
+    const replyCountButton = $("button").filter("#replyBtn" + commentId);
     let replyCount;
     if (operation == "+") {
-        replyCount = replyCountButton.attr("value") + 1;
+        replyCount = parseInt(replyCountButton.attr("value")) + 1;
     } else if (operation == "-") {
-        replyCount = replyCountButton.attr("value") - 1;
+        replyCount = parseInt(replyCountButton.attr("value")) - 1;
     } else {
-        replyCount = replyCount = replyCountButton.attr("value");
+        replyCount = replyCountButton.attr("value");
     }
     replyCountButton.text("Reply  · " + replyCount);
     replyCountButton.attr("value", replyCount);
+    console.log("Reply count updated successfully " + replyCount);
 }
