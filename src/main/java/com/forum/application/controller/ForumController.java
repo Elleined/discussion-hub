@@ -40,7 +40,11 @@ public class ForumController {
 
     @GetMapping("/posts/{authorId}")
     public String goToPost(@PathVariable("authorId") int authorId,
+                           HttpSession session,
                            Model model) {
+
+        String email = (String) session.getAttribute("email");
+        if (email == null) return "redirect:/";
 
         List<PostDTO> posts = forumService.getAllByAuthorId(authorId);
         model.addAttribute("posts", posts);
