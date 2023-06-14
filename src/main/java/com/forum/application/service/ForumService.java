@@ -100,6 +100,10 @@ public class ForumService {
         return commentService.updateCommentBody(commentId, newBody);
     }
 
+    public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {
+        return replyService.updateReplyBody(replyId, newReplyBody);
+    }
+
     public boolean isNotValidUpvoteValue(int commentId, int newUpvoteValue) {
         CommentDTO commentDTO = commentService.getById(commentId);
         return commentService.isNotValidUpvoteValue(commentDTO.getUpvote(), newUpvoteValue);

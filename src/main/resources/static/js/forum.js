@@ -232,7 +232,7 @@ function getAllReplies(replyURI) {
     });
 }
 
-function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
+function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
     $.ajax({
         type: "PATCH",
         url: "/forum/api" + commentURI + "/upvote/" + commentId,
@@ -258,6 +258,22 @@ function updateCommentBody(commentId, newCommentBody) {
         },
         success: function(commentDto, response) {
             console.log("Comment with id of " + commentId + "updated successfully with new comment body of " + newCommentBody);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function updateReplyBody(replyId, newReplyBody) {
+    $.ajax({
+        type: "PATCH",
+        url: "/forum/api" + replyURI + "/body/" + replyId,
+        data: {
+            newCommentBody: newCommentBody
+        },
+        success: function(commentDto, response) {
+            console.log("Reply with id of " + replyId + "updated successfully with new reply body of " + newReplyBody);
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
@@ -515,7 +531,7 @@ function generateCommentUpvoteBlock(container, dto) {
         let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = originalUpdateValue + 1;
         $("#upvoteValue" + dto.id).text(newUpvoteValue);
-        updateUpvote(dto.id, newUpvoteValue, originalUpdateValue);
+        updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
         isClicked = true;
     });
 
@@ -525,7 +541,7 @@ function generateCommentUpvoteBlock(container, dto) {
         let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = originalUpdateValue - 1;
         $("#upvoteValue" + dto.id).text(newUpvoteValue);
-        updateUpvote(dto.id, newUpvoteValue, originalUpdateValue);
+        updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
         isClicked = true;
     });
 }
