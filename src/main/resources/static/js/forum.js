@@ -9,6 +9,8 @@ var commentSubscription = null;
 var replyURI = null;
 var commentURI = null;
 
+let previousCommentBody; // Sets when user click the save button after clicking the comment edit
+let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
@@ -24,12 +26,17 @@ $(document).ready(function() {
         // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
+            const commentContainer = $("div").filter("#comment_" + json.id);
             if (json.status === "INACTIVE") {
-                $("div").filter("#comment_" + json.id).remove();
+                commentContainer.remove();
                 updateCommentCount(json.postId, "-");
                 return;
             }
 
+            if (previousCommentBody !== json.body && commentContainer.length) {
+                $("#commentBody" + json.id).text(json.body);
+                return;
+            }
 
             generateCommentBlock(json);
             updateCommentCount(json.postId, "+");
@@ -95,9 +102,15 @@ $(document).ready(function() {
         // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
+            const commentContainer = $("div").filter("#comment_" + json.id);
             if (json.status === "INACTIVE") {
-                $("div").filter("#comment_" + json.id).remove();
+                commentContainer.remove();
                 updateCommentCount(json.postId, "-");
+                return;
+            }
+
+            if (previousCommentBody !== json.body && commentContainer.length) {
+                $("#commentBody" + json.id).text(json.body);
                 return;
             }
 
@@ -439,10 +452,16 @@ function generateCommentBlock(commentDto) {
         // SendTo URI of Reply
         replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
             var json = JSON.parse(replyDto.body);
+            const replyContainer = $("div").filter("#reply_" + json.id);
             if (json.status === "INACTIVE") {
-                $("div").filter("#reply_" + json.id).remove();
+                replyContainer.remove();
                 updateReplyCount(json.commentId, "-");
                 updateCommentCount(json.postId, "-");
+                return;
+            }
+
+            if (previousReplyBody !== json.body && replyContainer.length) {
+                $("#replyBody" + json.id).text(json.body);
                 return;
             }
 
@@ -643,6 +662,7 @@ function generateCommentHeader(container, dto) {
             event.preventDefault();
             const editCommentSaveBtn = $("#editCommentSaveBtn" + dto.id);
             const commentBodyText = $("#commentBody" + dto.id);
+            previousCommentBody = commentBodyText.text();
 
             commentBodyText.attr("contenteditable", "true");
             commentBodyText.focus();
@@ -732,6 +752,7 @@ function generateReplyHeader(container, dto) {
             event.preventDefault();
             const editReplySaveBtn = $("#editReplySaveBtn" + dto.id);
             const replyBody = $("#replyBody" + dto.id);
+            previousReplyBody = replyBody.text();
 
             replyBody.attr("contenteditable", "true");
             replyBody.focus();
