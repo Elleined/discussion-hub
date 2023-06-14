@@ -72,6 +72,7 @@ public class CommentService {
 
     public CommentDTO updateCommentBody(int commentId, String newBody) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        if (comment.getBody().equals(newBody)) return this.convertToDTO(comment); // Returning if user doesn't change the comment body
         comment.setBody(newBody);
         commentRepository.save(comment);
         log.debug("Comment with id of {} updated with the new body of {}", commentId, newBody);

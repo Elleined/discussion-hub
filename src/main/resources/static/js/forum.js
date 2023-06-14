@@ -235,7 +235,7 @@ function getAllReplies(replyURI) {
 function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
     $.ajax({
         type: "PATCH",
-        url: "/forum/api" + commentURI + "/upvote" + commentId,
+        url: "/forum/api" + commentURI + "/upvote/" + commentId,
         data: {
             newUpvoteCount: newUpvoteCount
         },
@@ -244,6 +244,22 @@ function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
         },
         error: function(xhr, status, error) {
             $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function updateCommentBody(commentId, newCommentBody) {
+    $.ajax({
+        type: "PATCH",
+        url: "/forum/api" + commentURI + "/body/" + commentId,
+        data: {
+            newCommentBody: newCommentBody
+        },
+        success: function(commentDto, response) {
+            console.log("Comment with id of " + commentId + "updated successfully with new comment body of " + newCommentBody);
+        },
+        error: function(xhr, status, error) {
             alert(xhr.responseText);
         }
     });
@@ -335,17 +351,38 @@ function generateCommentBlock(commentDto) {
     generateCommentHeader(commentColumn, commentDto);
 
     var row2 = $("<div>")
-        .attr("class", "row")
+        .attr({
+            "class": "row",
+            "id": "commentMessageContainer" + commentDto.id
+        })
         .appendTo(commentColumn);
 
     var row2Col1 = $("<div>")
-        .attr("class", "md-col")
+        .attr("class", "col-md-10")
         .appendTo(row2);
 
     var commenterMessageBody = $("<p>")
-        .attr("class", "mt-2")
+        .attr({
+            "class": "mt-2",
+            "id": "commentBody" + commentDto.id
+        })
         .text(commentDto.body)
         .appendTo(row2Col1);
+
+    var row2Col2 = $("<div>")
+        .attr("class", "col-md-2")
+        .appendTo(row2);
+
+    var editCommentSaveBtn = $("<button>")
+        .attr({
+            "type": "button",
+            "class": "btn btn-primary",
+            "href": "#",
+            "id": "editCommentSaveBtn" + commentDto.id
+        })
+        .text("Save")
+        .appendTo(row2Col2);
+    editCommentSaveBtn.hide();
 
     var row3 = $("<div>")
         .attr("class", "row")
@@ -544,7 +581,7 @@ function generateCommentHeader(container, dto) {
 
         var editCommentBtn = $("<a>")
             .attr({
-                "href": "/forum/api" + commentURI + "/" + dto.id,
+                "href": "#",
                 "role": "button",
                 "class": "btn btn-primary",
                 "id": "editCommentBtn" + dto.id
@@ -561,6 +598,23 @@ function generateCommentHeader(container, dto) {
 
             var deleteCommentURI = $(this).attr("href");
             deleteComment(deleteCommentURI);
+        });
+
+        editCommentBtn.on("click", function(event) {
+            event.preventDefault();
+            const editCommentSaveBtn = $("#editCommentSaveBtn" + dto.id);
+            const commentBodyText = $("#commentBody" + dto.id);
+
+            commentBodyText.attr("contenteditable", "true");
+            commentBodyText.focus();
+            editCommentSaveBtn.show();
+
+            // Adding the editCommentSaveBtn click listener only when user clicks the editCommentBtn
+            editCommentSaveBtn.on("click", function() {
+                commentBodyText.attr("contenteditable", "false");
+                editCommentSaveBtn.hide();
+                updateCommentBody(dto.id, commentBodyText.text());
+            });
         });
     }
 }
