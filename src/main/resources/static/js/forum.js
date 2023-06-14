@@ -8,6 +8,8 @@ var commentSubscription = null;
 
 var replyURI = null;
 var commentURI = null;
+
+let previousCommentBody; // Sets when user edit then save the comment
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
@@ -28,6 +30,12 @@ $(document).ready(function() {
                 updateCommentCount(json.postId, "-");
                 return;
             }
+            const currentCommentBody = $("#commentBody" + json.id);
+            if (previousCommentBody !== currentCommentBody.text()) {
+                currentCommentBody.text(json.body);
+                return;
+            }
+
             generateCommentBlock(json);
             updateCommentCount(json.postId, "+");
         });
@@ -95,6 +103,11 @@ $(document).ready(function() {
             if (json.status === "INACTIVE") {
                 $("div").filter("#comment_" + json.id).remove();
                 updateCommentCount(json.postId, "-");
+                return;
+            }
+            const currentCommentBody = $("#commentBody" + json.id);
+            if (json.body === currentCommentBody.text()) {
+                currentCommentBody.text(json.body);
                 return;
             }
             generateCommentBlock(json);
@@ -638,7 +651,7 @@ function generateCommentHeader(container, dto) {
             event.preventDefault();
             const editCommentSaveBtn = $("#editCommentSaveBtn" + dto.id);
             const commentBodyText = $("#commentBody" + dto.id);
-
+            previousCommentBody = commentBodyText.text();
             commentBodyText.attr("contenteditable", "true");
             commentBodyText.focus();
             editCommentSaveBtn.show();
