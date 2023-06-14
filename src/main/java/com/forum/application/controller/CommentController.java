@@ -51,7 +51,7 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{commentId}")
+    @PatchMapping("upvote/{commentId}")
     public ResponseEntity<?> updateCommentUpvote(@PathVariable("commentId") int commentId,
                                                  @RequestParam("newUpvoteCount") int newUpvoteCount,
                                                  HttpSession session) {
@@ -62,6 +62,14 @@ public class CommentController {
         if (forumService.isUserAlreadyUpvoteComment(respondentId, commentId)) return ResponseEntity.badRequest().body("You can only up vote and down vote a comment once!");
         if (forumService.isNotValidUpvoteValue(commentId, newUpvoteCount)) return ResponseEntity.unprocessableEntity().body("Cannot update upvote count! Because new upvote count must only be + 1 or - 1 to the previous value!");
         CommentDTO commentDTO = forumService.updateUpvote(respondentId, commentId, newUpvoteCount);
+        return ResponseEntity.ok(commentDTO);
+    }
+
+    @PatchMapping("/body/{commentId}")
+    public ResponseEntity<?> updateCommentBody(@PathVariable("commentId") int commentId,
+                                               @RequestParam("newCommentBody") String newCommentBody) {
+
+        CommentDTO commentDTO = forumService.updateCommentBody(commentId, newCommentBody);
         return ResponseEntity.ok(commentDTO);
     }
 }

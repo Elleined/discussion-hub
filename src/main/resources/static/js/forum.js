@@ -235,7 +235,7 @@ function getAllReplies(replyURI) {
 function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
     $.ajax({
         type: "PATCH",
-        url: "/forum/api" + commentURI + "/" + commentId,
+        url: "/forum/api" + commentURI + "/upvote" + commentId,
         data: {
             newUpvoteCount: newUpvoteCount
         },
@@ -518,7 +518,7 @@ function generateCommentHeader(container, dto) {
         .text(dto.commenterName)
         .appendTo(row1Col1);
 
-    var userId = $("#userId").val();
+    const userId = $("#userId").val();
     if (dto.commenterId == userId) {
         var row1Col2 = $("<div>")
             .attr("class", "col-md-6")
@@ -541,6 +541,20 @@ function generateCommentHeader(container, dto) {
         var deleteIcon = $("<i>")
             .attr("class", "fas fa-trash")
             .appendTo(deleteCommentBtn);
+
+        var editCommentBtn = $("<a>")
+            .attr({
+                "href": "/forum/api" + commentURI + "/" + dto.id,
+                "role": "button",
+                "class": "btn btn-primary",
+                "id": "editCommentBtn" + dto.id
+            })
+            .text("Edit")
+            .appendTo(row1Col1Container);
+
+        var editIcon = $("<i>")
+            .attr("class", "fas fa-pencil")
+            .appendTo(editCommentBtn);
 
         deleteCommentBtn.on("click", function(event) {
             event.preventDefault();
