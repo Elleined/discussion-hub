@@ -9,7 +9,6 @@ var commentSubscription = null;
 var replyURI = null;
 var commentURI = null;
 
-let previousCommentBody; // Sets when user edit then save the comment
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
@@ -30,11 +29,7 @@ $(document).ready(function() {
                 updateCommentCount(json.postId, "-");
                 return;
             }
-            const currentCommentBody = $("#commentBody" + json.id);
-            if (previousCommentBody !== currentCommentBody.text()) {
-                currentCommentBody.text(json.body);
-                return;
-            }
+
 
             generateCommentBlock(json);
             updateCommentCount(json.postId, "+");
@@ -105,11 +100,7 @@ $(document).ready(function() {
                 updateCommentCount(json.postId, "-");
                 return;
             }
-            const currentCommentBody = $("#commentBody" + json.id);
-            if (json.body === currentCommentBody.text()) {
-                currentCommentBody.text(json.body);
-                return;
-            }
+
             generateCommentBlock(json);
             updateCommentCount(json.postId, "+");
         });
@@ -454,6 +445,7 @@ function generateCommentBlock(commentDto) {
                 updateCommentCount(json.postId, "-");
                 return;
             }
+
             generateReplyBlock(json);
             updateReplyCount(json.commentId, "+");
             updateCommentCount(json.postId, "+");
@@ -488,10 +480,10 @@ function generateReplyBlock(replyDto) {
         .attr("class", "col-md-10")
         .appendTo(row2);
 
-    var replyMessageBody = $("<p>")
+    var replyBody = $("<p>")
         .attr({
             "class": "mt-2",
-            "id": "replyMessageBody" + replyDto.id
+            "id": "replyBody" + replyDto.id
         })
         .text(replyDto.body)
         .appendTo(row2Col1);
@@ -651,7 +643,7 @@ function generateCommentHeader(container, dto) {
             event.preventDefault();
             const editCommentSaveBtn = $("#editCommentSaveBtn" + dto.id);
             const commentBodyText = $("#commentBody" + dto.id);
-            previousCommentBody = commentBodyText.text();
+
             commentBodyText.attr("contenteditable", "true");
             commentBodyText.focus();
             editCommentSaveBtn.show();
@@ -739,17 +731,17 @@ function generateReplyHeader(container, dto) {
         editReplyBtn.on("click", function(event) {
             event.preventDefault();
             const editReplySaveBtn = $("#editReplySaveBtn" + dto.id);
-            const replyMessageBody = $("#replyMessageBody" + dto.id);
+            const replyBody = $("#replyBody" + dto.id);
 
-            replyMessageBody.attr("contenteditable", "true");
-            replyMessageBody.focus();
+            replyBody.attr("contenteditable", "true");
+            replyBody.focus();
             editReplySaveBtn.show();
 
             // Adding the editReplySaveBtn click listener only when user clicks the editReplyBtn
             editReplySaveBtn.on("click", function() {
-                replyMessageBody.attr("contenteditable", "false");
+                replyBody.attr("contenteditable", "false");
                 editReplySaveBtn.hide();
-                updateReplyBody(dto.id, replyMessageBody.text());
+                updateReplyBody(dto.id, replyBody.text());
             });
         });
     }
