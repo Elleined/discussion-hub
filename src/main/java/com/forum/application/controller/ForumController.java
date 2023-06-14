@@ -44,6 +44,7 @@ public class ForumController {
 
         List<PostDTO> posts = forumService.getAllByAuthorId(authorId);
         model.addAttribute("posts", posts);
-        return "posts";
+        model.addAttribute("userId", authorId);
+        return "author-posts";
     }
 }

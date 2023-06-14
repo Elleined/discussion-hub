@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+   <meta charset="UTF-8">
+   <title>Forum</title>
+   <div th:replace="~{fragments/links :: links-fragment}"></div>
+</head>
+<body>
+
+<th:block th:each="post : ${posts}">
+   <div class="card w-75 mb-3">
+      <div class="card-body">
+         <div class="container card-title">
+            <div class="row">
+               <div class="col-md-6">
+                  <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" th:src="${'/img/' + post.authorPicture}" src="" />
+                  <span class="md5 mb-5">
+                   <strong th:text="${post.authorName}" id="authorName"></strong>
+            </span>
+               </div>
+               <div class="col-md-6">
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                     <a th:if="${post.authorId} == ${userId}"
+                        class="btn btn-danger"
+                        role="button"
+                        th:href="@{/posts/{postId} (postId=${post.id}) }"
+                        id="postDeleteBtn">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                     </a>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <span th:text="${post.formattedDateCreated}"></span>
+         <span th:text="${'at ' + post.formattedTimeCreated}"></span>
+
+         <p class="card-text mt-3" th:text="${post.body}"></p>
+         <a class="btn btn-primary"
+            th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
+            role="button"
+            data-bs-toggle="modal"
+            data-bs-target="#commentModal"
+            id="commentBtn">
+            <i class="fas fa-message"></i>
+            <span th:text="${'Comments  ·  ' + post.totalCommentAndReplies}"
+                  th:id="${'totalCommentsOfPost' + post.id}"
+                  th:aria-valuetext=${post.totalCommentAndReplies}> </span>
+         </a>
+      </div>
+   </div>
+</th:block>
+</body>
+</html>
