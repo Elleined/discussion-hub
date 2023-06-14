@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -35,5 +36,14 @@ public class ForumController {
         model.addAttribute("userId", userId);
         model.addAttribute("posts", posts);
         return "forum";
+    }
+
+    @GetMapping("/posts/{authorId}")
+    public String goToPost(@PathVariable("authorId") int authorId,
+                           Model model) {
+
+        List<PostDTO> posts = forumService.getAllByAuthorId(authorId);
+        model.addAttribute("posts", posts);
+        return "posts";
     }
 }
