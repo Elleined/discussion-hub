@@ -1,18 +1,46 @@
 <div th:fragment="reply-body-fragment">
   <div class="replyContainer">
 
-    <div class="row mb-2">
-      <div class="md-col">
-        <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp" />
-        <span class="mb-5">Replier Name</span>
-      </div>
-    </div>
+    <div class="col-md-6">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" src="https://mdbcdn.b-cdn.net/img/new/avatars/1.webp"/>
+            <span class="md5 mb-5">
+                   <strong id="authorName">Replier name</strong>
+              </span>
+          </div>
 
-    <div class="row">
-      <div class="md-col">
-        <p class="mt-2">This is the reply</p>
+          <div class="col-md-6">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <!-- Ilagay mo sa a yung if commenter id == user id-->
+              <a class="btn btn-danger"
+                 role="button"
+                 href="#"
+                 id="deleteReplyBtn">
+                <i class="fas fa-trash"></i>
+                Delete
+              </a>
+              <a class="btn btn-primary"
+                 role="button"
+                 href="#"
+                 id="editReplyBtn">
+                <i class="fas fa-pencil"></i>
+                Edit
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div class="row">
+        <div class="col-md-10">
+          <p class="mt-2">This is the reply</p>
+        </div>
+        <div class="col-md-2">
+          <button type="button" id="editReplySaveBtn" class="btn btn-primary" href="#">Save</button>
+        </div>
+      </div>
 
   </div>
 </div>

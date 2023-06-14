@@ -270,7 +270,7 @@ function updateReplyBody(replyId, newReplyBody) {
         type: "PATCH",
         url: "/forum/api" + replyURI + "/body/" + replyId,
         data: {
-            newCommentBody: newCommentBody
+            newReplyBody: newReplyBody
         },
         success: function(commentDto, response) {
             console.log("Reply with id of " + replyId + "updated successfully with new reply body of " + newReplyBody);
@@ -472,13 +472,31 @@ function generateReplyBlock(replyDto) {
         .appendTo(replyContainer);
 
     var row2Col1 = $("<div>")
-        .attr("class", "md-col")
+        .attr("class", "col-md-10")
         .appendTo(row2);
 
     var replyMessageBody = $("<p>")
-        .attr("class", "mt-2")
+        .attr({
+            "class": "mt-2",
+            "id": "replyMessageBody" + replyDto.id
+        })
         .text(replyDto.body)
+        .appendTo(row2Col1);
+
+    var row2Col2 = $("<div>")
+        .attr("class", "col-md-2")
         .appendTo(row2);
+
+    var editReplySaveBtn = $("<button>")
+        .attr({
+            "type": "button",
+            "class": "btn btn-primary",
+            "href": "#",
+            "id": "editReplySaveBtn" + replyDto.id
+        })
+        .text("Save")
+        .appendTo(row2Col2);
+    // editReplySaveBtn.hide();
 
     var hr = $("<hr>").appendTo(replyContainer);
 }
@@ -684,11 +702,42 @@ function generateReplyHeader(container, dto) {
             .attr("class", "fas fa-trash")
             .appendTo(deleteReplyBtn);
 
+        var editReplyBtn = $("<a>")
+            .attr({
+                "href": "#",
+                "role": "button",
+                "class": "btn btn-primary",
+                "id": "editReplyBtn" + dto.id
+            })
+            .text("Edit")
+            .appendTo(row1Col1Container);
+
+        var editReplyIcon = $("<i>")
+            .attr("class", "fas fa-pencil")
+            .appendTo(editReplyBtn);
+
         deleteReplyBtn.on("click", function(event) {
             event.preventDefault();
 
             var deleteReplyURI = $(this).attr("href");
             deleteReply(deleteReplyURI);
+        });
+
+        editReplyBtn.on("click", function(event) {
+            event.preventDefault();
+            const editReplySaveBtn = $("#editReplySaveBtn" + dto.id);
+            const replyMessageBody = $("#replyMessageBody" + dto.id);
+
+            replyMessageBody.attr("contenteditable", "true");
+            replyMessageBody.focus();
+            editReplySaveBtn.show();
+
+            // Adding the editReplySaveBtn click listener only when user clicks the editReplyBtn
+            editReplySaveBtn.on("click", function() {
+                replyMessageBody.attr("contenteditable", "false");
+                editReplySaveBtn.hide();
+                updateReplyBody(dto.id, replyMessageBody.text());
+            });
         });
     }
 }
