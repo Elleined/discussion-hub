@@ -120,19 +120,19 @@ $(document).ready(function() {
     });
 
     $("#logoutBtn").on("click", function() {
-        disconnect()
+        disconnect();
     });
 
     $(window).on('beforeunload', function() {
-        disconnect()
+        disconnect();
     });
 
     $(document).on('close', function() {
-        disconnect()
+        disconnect();
     });
 
     $(window).on('unload', function() {
-        disconnect()
+        disconnect();
     });
     // insert here
 });
