@@ -1,5 +1,5 @@
-# ws-rest-api-forum-application
-Creating an Online Discussion Board(Forum) Using Web Socket and REST API
+# discussionhub
+A Online Discussion Board(Forum) Using Web Socket and REST API
 
 # Features
 - Create and Delete a Post
