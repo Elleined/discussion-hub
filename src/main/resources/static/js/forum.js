@@ -8,6 +8,9 @@ var commentSubscription = null;
 
 var replyURI = null;
 var commentURI = null;
+
+let previousCommentBody; // Sets when user click the save button after clicking the comment edit
+let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 $(document).ready(function() {
     var commentSection = $("#commentSection");
 
@@ -23,11 +26,18 @@ $(document).ready(function() {
         // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
+            const commentContainer = $("div").filter("#comment_" + json.id);
             if (json.status === "INACTIVE") {
-                $("div").filter("#comment_" + json.id).remove();
+                commentContainer.remove();
                 updateCommentCount(json.postId, "-");
                 return;
             }
+
+            if (previousCommentBody !== json.body && commentContainer.length) {
+                $("#commentBody" + json.id).text(json.body);
+                return;
+            }
+
             generateCommentBlock(json);
             updateCommentCount(json.postId, "+");
         });
@@ -92,30 +102,37 @@ $(document).ready(function() {
         // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             var json = JSON.parse(commentDto.body);
+            const commentContainer = $("div").filter("#comment_" + json.id);
             if (json.status === "INACTIVE") {
-                $("div").filter("#comment_" + json.id).remove();
+                commentContainer.remove();
                 updateCommentCount(json.postId, "-");
                 return;
             }
+
+            if (previousCommentBody !== json.body && commentContainer.length) {
+                $("#commentBody" + json.id).text(json.body);
+                return;
+            }
+
             generateCommentBlock(json);
             updateCommentCount(json.postId, "+");
         });
     });
 
     $("#logoutBtn").on("click", function() {
-        disconnect()
+        disconnect();
     });
 
     $(window).on('beforeunload', function() {
-        disconnect()
+        disconnect();
     });
 
     $(document).on('close', function() {
-        disconnect()
+        disconnect();
     });
 
     $(window).on('unload', function() {
-        disconnect()
+        disconnect();
     });
     // insert here
 });
@@ -232,10 +249,10 @@ function getAllReplies(replyURI) {
     });
 }
 
-function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
+function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
     $.ajax({
         type: "PATCH",
-        url: "/forum/api" + commentURI + "/" + commentId,
+        url: "/forum/api" + commentURI + "/upvote/" + commentId,
         data: {
             newUpvoteCount: newUpvoteCount
         },
@@ -244,6 +261,38 @@ function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
         },
         error: function(xhr, status, error) {
             $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function updateCommentBody(commentId, newCommentBody) {
+    $.ajax({
+        type: "PATCH",
+        url: "/forum/api" + commentURI + "/body/" + commentId,
+        data: {
+            newCommentBody: newCommentBody
+        },
+        success: function(commentDto, response) {
+            console.log("Comment with id of " + commentId + "updated successfully with new comment body of " + newCommentBody);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function updateReplyBody(replyId, newReplyBody) {
+    $.ajax({
+        type: "PATCH",
+        url: "/forum/api" + replyURI + "/body/" + replyId,
+        data: {
+            newReplyBody: newReplyBody
+        },
+        success: function(commentDto, response) {
+            console.log("Reply with id of " + replyId + "updated successfully with new reply body of " + newReplyBody);
+        },
+        error: function(xhr, status, error) {
             alert(xhr.responseText);
         }
     });
@@ -335,17 +384,38 @@ function generateCommentBlock(commentDto) {
     generateCommentHeader(commentColumn, commentDto);
 
     var row2 = $("<div>")
-        .attr("class", "row")
+        .attr({
+            "class": "row",
+            "id": "commentMessageContainer" + commentDto.id
+        })
         .appendTo(commentColumn);
 
     var row2Col1 = $("<div>")
-        .attr("class", "md-col")
+        .attr("class", "col-md-10")
         .appendTo(row2);
 
     var commenterMessageBody = $("<p>")
-        .attr("class", "mt-2")
+        .attr({
+            "class": "mt-2",
+            "id": "commentBody" + commentDto.id
+        })
         .text(commentDto.body)
         .appendTo(row2Col1);
+
+    var row2Col2 = $("<div>")
+        .attr("class", "col-md-2")
+        .appendTo(row2);
+
+    var editCommentSaveBtn = $("<button>")
+        .attr({
+            "type": "button",
+            "class": "btn btn-primary",
+            "href": "#",
+            "id": "editCommentSaveBtn" + commentDto.id
+        })
+        .text("Save")
+        .appendTo(row2Col2);
+    editCommentSaveBtn.hide();
 
     var row3 = $("<div>")
         .attr("class", "row")
@@ -382,12 +452,19 @@ function generateCommentBlock(commentDto) {
         // SendTo URI of Reply
         replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
             var json = JSON.parse(replyDto.body);
+            const replyContainer = $("div").filter("#reply_" + json.id);
             if (json.status === "INACTIVE") {
-                $("div").filter("#reply_" + json.id).remove();
+                replyContainer.remove();
                 updateReplyCount(json.commentId, "-");
                 updateCommentCount(json.postId, "-");
                 return;
             }
+
+            if (previousReplyBody !== json.body && replyContainer.length) {
+                $("#replyBody" + json.id).text(json.body);
+                return;
+            }
+
             generateReplyBlock(json);
             updateReplyCount(json.commentId, "+");
             updateCommentCount(json.postId, "+");
@@ -419,13 +496,31 @@ function generateReplyBlock(replyDto) {
         .appendTo(replyContainer);
 
     var row2Col1 = $("<div>")
-        .attr("class", "md-col")
+        .attr("class", "col-md-10")
         .appendTo(row2);
 
-    var replyMessageBody = $("<p>")
-        .attr("class", "mt-2")
+    var replyBody = $("<p>")
+        .attr({
+            "class": "mt-2",
+            "id": "replyBody" + replyDto.id
+        })
         .text(replyDto.body)
+        .appendTo(row2Col1);
+
+    var row2Col2 = $("<div>")
+        .attr("class", "col-md-2")
         .appendTo(row2);
+
+    var editReplySaveBtn = $("<button>")
+        .attr({
+            "type": "button",
+            "class": "btn btn-primary",
+            "href": "#",
+            "id": "editReplySaveBtn" + replyDto.id
+        })
+        .text("Save")
+        .appendTo(row2Col2);
+    // editReplySaveBtn.hide();
 
     var hr = $("<hr>").appendTo(replyContainer);
 }
@@ -478,7 +573,7 @@ function generateCommentUpvoteBlock(container, dto) {
         let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = originalUpdateValue + 1;
         $("#upvoteValue" + dto.id).text(newUpvoteValue);
-        updateUpvote(dto.id, newUpvoteValue, originalUpdateValue);
+        updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
         isClicked = true;
     });
 
@@ -488,7 +583,7 @@ function generateCommentUpvoteBlock(container, dto) {
         let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
         var newUpvoteValue = originalUpdateValue - 1;
         $("#upvoteValue" + dto.id).text(newUpvoteValue);
-        updateUpvote(dto.id, newUpvoteValue, originalUpdateValue);
+        updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
         isClicked = true;
     });
 }
@@ -518,7 +613,7 @@ function generateCommentHeader(container, dto) {
         .text(dto.commenterName)
         .appendTo(row1Col1);
 
-    var userId = $("#userId").val();
+    const userId = $("#userId").val();
     if (dto.commenterId == userId) {
         var row1Col2 = $("<div>")
             .attr("class", "col-md-6")
@@ -542,11 +637,43 @@ function generateCommentHeader(container, dto) {
             .attr("class", "fas fa-trash")
             .appendTo(deleteCommentBtn);
 
+        var editCommentBtn = $("<a>")
+            .attr({
+                "href": "#",
+                "role": "button",
+                "class": "btn btn-primary",
+                "id": "editCommentBtn" + dto.id
+            })
+            .text("Edit")
+            .appendTo(row1Col1Container);
+
+        var editIcon = $("<i>")
+            .attr("class", "fas fa-pencil")
+            .appendTo(editCommentBtn);
+
         deleteCommentBtn.on("click", function(event) {
             event.preventDefault();
 
             var deleteCommentURI = $(this).attr("href");
             deleteComment(deleteCommentURI);
+        });
+
+        editCommentBtn.on("click", function(event) {
+            event.preventDefault();
+            const editCommentSaveBtn = $("#editCommentSaveBtn" + dto.id);
+            const commentBodyText = $("#commentBody" + dto.id);
+            previousCommentBody = commentBodyText.text();
+
+            commentBodyText.attr("contenteditable", "true");
+            commentBodyText.focus();
+            editCommentSaveBtn.show();
+
+            // Adding the editCommentSaveBtn click listener only when user clicks the editCommentBtn
+            editCommentSaveBtn.on("click", function() {
+                commentBodyText.attr("contenteditable", "false");
+                editCommentSaveBtn.hide();
+                updateCommentBody(dto.id, commentBodyText.text());
+            });
         });
     }
 }
@@ -600,11 +727,43 @@ function generateReplyHeader(container, dto) {
             .attr("class", "fas fa-trash")
             .appendTo(deleteReplyBtn);
 
+        var editReplyBtn = $("<a>")
+            .attr({
+                "href": "#",
+                "role": "button",
+                "class": "btn btn-primary",
+                "id": "editReplyBtn" + dto.id
+            })
+            .text("Edit")
+            .appendTo(row1Col1Container);
+
+        var editReplyIcon = $("<i>")
+            .attr("class", "fas fa-pencil")
+            .appendTo(editReplyBtn);
+
         deleteReplyBtn.on("click", function(event) {
             event.preventDefault();
 
             var deleteReplyURI = $(this).attr("href");
             deleteReply(deleteReplyURI);
+        });
+
+        editReplyBtn.on("click", function(event) {
+            event.preventDefault();
+            const editReplySaveBtn = $("#editReplySaveBtn" + dto.id);
+            const replyBody = $("#replyBody" + dto.id);
+            previousReplyBody = replyBody.text();
+
+            replyBody.attr("contenteditable", "true");
+            replyBody.focus();
+            editReplySaveBtn.show();
+
+            // Adding the editReplySaveBtn click listener only when user clicks the editReplyBtn
+            editReplySaveBtn.on("click", function() {
+                replyBody.attr("contenteditable", "false");
+                editReplySaveBtn.hide();
+                updateReplyBody(dto.id, replyBody.text());
+            });
         });
     }
 }

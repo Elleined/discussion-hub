@@ -8,29 +8,42 @@
 </head>
 <body>
 
-<div class="container mt-3 d-flex justify-content-center">
-  <form id="createPostBtn">
-    <div class="row">
-      <div class="col-md-6 w-auto">
-        <div class="form-outline border">
-          <input type="text" id="postBody" name="body" class="form-control" />
-          <label class="form-label" for="postBody">What's on your mind</label>
-        </div>
-      </div>
-      <div class="col-md-1 w-auto">
-        <button type="submit" class="btn btn-primary btn-rounded">Post</button>
-      </div>
+<div class="container mt-3 mb-3">
+  <div class="row">
+    <div class="col-md-4">
+      <a th:href="@{/forum/posts/{authorId} (authorId=${userId}) }">
+        <button type="button" class="btn btn-primary mb-3">
+          See all posts
+        </button>
+      </a>
     </div>
-  </form>
+    <div class="col-md-4">
+      <form id="createPostBtn">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="form-outline border">
+              <input type="text" id="postBody" name="body" class="form-control" />
+              <label class="form-label" for="postBody">What's on your mind</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary btn-rounded">Post</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-4">
+      <a th:href="@{/logout}" id="logoutBtn">
+        <button type="button" class="btn btn-primary mb-3">
+          <i class="fas fa-right-from-bracket"></i>
+          Logout
+        </button>
+      </a>
+    </div>
+  </div>
 </div>
 <hr />
 
-<a th:href="@{/logout}" id="logoutBtn">
-  <button type="button" class="btn btn-primary mb-3">
-    <i class="fas fa-right-from-bracket"></i>
-    Logout
-  </button>
-</a>
 
 <div th:if="${posts.isEmpty()}">No Post Yet</div>
 <th:block th:each="post : ${posts}">

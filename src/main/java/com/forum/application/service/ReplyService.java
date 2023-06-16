@@ -46,6 +46,15 @@ public class ReplyService {
         log.debug("Reply with id of {} are now inactive!", replyId);
     }
 
+    public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        if (reply.getBody().equals(newReplyBody)) return this.convertToDTO(reply);
+        reply.setBody(newReplyBody);
+        replyRepository.save(reply);
+        log.debug("Reply with id of {} updated with the new body of {}", replyId, newReplyBody);
+        return this.convertToDTO(reply);
+    }
+
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()

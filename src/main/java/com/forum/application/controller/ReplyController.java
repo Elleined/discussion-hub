@@ -50,4 +50,12 @@ public class ReplyController {
         forumService.deleteReply(replyId);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/body/{replyId}")
+    public ResponseEntity<ReplyDTO> updateReplyBody(@PathVariable("replyId") int replyId,
+                                                    @RequestParam("newReplyBody") String newReplyBody) {
+
+        ReplyDTO replyDTO = forumService.updateReplyBody(replyId, newReplyBody);
+        return ResponseEntity.ok(replyDTO);
+    }
 }
