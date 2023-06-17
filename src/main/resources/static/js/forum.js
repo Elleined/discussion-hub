@@ -14,7 +14,7 @@ let previousCommentBody; // Sets when user click the save button after clicking 
 let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 
 $(document).ready(function() {
-    var commentSection = $("#commentSection");
+    const commentSection = $("#commentSection");
 
     $(".card-body #commentBtn").on("click", function(event) {
         commentURI = $(this).attr("href");
@@ -348,6 +348,12 @@ function disconnect() {
 
 function onConnected() {
     console.log("Web Socket Connected!!!");
+
+    const userId = $("#userId").val();
+    stompClient.subscribe("/discussion/forum-notification/" + userId, function(notificationResponse) {
+
+    });
+
 }
 
 function onError() {
