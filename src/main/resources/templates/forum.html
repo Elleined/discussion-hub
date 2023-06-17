@@ -10,14 +10,14 @@
 
 <div class="container mt-3 mb-3">
   <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <a th:href="@{/forum/posts/{authorId} (authorId=${userId}) }">
         <button type="button" class="btn btn-primary mb-3">
           See all posts
         </button>
       </a>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <form id="createPostBtn">
         <div class="row">
           <div class="col-md-8">
@@ -32,13 +32,29 @@
         </div>
       </form>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <a th:href="@{/logout}" id="logoutBtn">
         <button type="button" class="btn btn-primary mb-3">
           <i class="fas fa-right-from-bracket"></i>
           Logout
         </button>
       </a>
+    </div>
+    <div class="col-md-3">
+      <div class="dropdown">
+        <button
+                class="btn btn-primary dropdown-toggle position-relative"
+                type="button"
+                id="dropdownMenuButton"
+                data-mdb-toggle="dropdown"
+                aria-expanded="false">
+          Notification
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-danger" id="totalNotifCount">0</span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="notificationContainer">
+          <!-- The content of this are auto generated in js -->
+        </ul>
+      </div>
     </div>
   </div>
 </div>
