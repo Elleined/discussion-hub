@@ -28,7 +28,7 @@ public class ForumService {
     public int saveComment(int commenterId, int postId, String body) {
         int commentId = commentService.save(commenterId, postId, body);
         wsService.broadcastComment(commentId);
-        notificationService.sendCommentNotification(postId, commenterId);
+        notificationService.broadcastCommentNotification(postId, commenterId);
 
         return commentId;
     }
@@ -36,7 +36,7 @@ public class ForumService {
     public int saveReply(int replierId, int commentId, String body) {
         int replyId = replyService.save(replierId, commentId, body);
         wsService.broadcastReply(replyId);
-
+        notificationService.broadcastReplyNotification(commentId, replierId);
         return replyId;
     }
 

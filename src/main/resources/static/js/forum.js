@@ -349,13 +349,27 @@ function onConnected() {
     console.log("Web Socket Connected!!!");
 
     const authorId = $("#userId").val();
-    stompClient.subscribe("/discussion/forum-notification/" + authorId, function(notificationResponse) {
+
+    stompClient.subscribe("/discussion/forum-notification/comments/" + authorId, function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
-        if (json.commenterId == authorId) return; // If the post author commented in his own post it will not generate a notification block
+        if (json.respondentId == authorId) return; // If the post author commented in his own post it will not generate a notification block
 
         updateTotalNotificationCount();
-        if($("#notificationItem_" + json.commenterId).length) {
-            updateNotification(json.commenterId);
+        if($("#notificationCommentItem_" + json.respondentId).length) {
+            updateNotification(json.respondentId, json.type);
+            return;
+        }
+
+        generateNotificationBlock(json);
+    });
+
+    stompClient.subscribe("/discussion/forum-notification/replies/" + authorId, function(notificationResponse) {
+        const json = JSON.parse(notificationResponse.body);
+        if (json.respondentId == authorId) return; // If the post author replied in his own post it will not generate a notification block
+
+        updateTotalNotificationCount();
+        if($("#notificationReplyItem_" + json.respondentId).length) {
+            updateNotification(json.respondentId, json.type);
             return;
         }
 
@@ -366,10 +380,16 @@ function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
 
-function updateNotification(commenterId) {
-            const messageCount = $("#messageCount_" + commenterId);
-            const newMessageCount = parseInt(messageCount.text()) + 1;
-            messageCount.text(newMessageCount + "+");
+function updateNotification(respondentId, type) {
+    if (type === "REPLY") {
+        const messageCount = $("#messageReplyCount_" + respondentId);
+        const newMessageCount = parseInt(messageCount.text()) + 1;
+        messageCount.text(newMessageCount + "+");
+        return
+    }
+    const messageCount = $("#messageCommentCount_" + respondentId);
+    const newMessageCount = parseInt(messageCount.text()) + 1;
+    messageCount.text(newMessageCount + "+");
 }
 
 function updateTotalNotificationCount() {
@@ -812,30 +832,35 @@ function updateReplyCount(commentId, operation) {
 }
 
 function generateNotificationBlock(notificationResponse) {
+    alert("type " + notificationResponse.type + " uri " + notificationResponse.uri);
     const notificationContainer = $("#notificationContainer");
 
+    const notificationItemId = notificationResponse.type === "REPLY" ? "notificationReplyItem_" + notificationResponse.respondentId
+        : "notificationCommentItem_" + notificationResponse.respondentId;
     const notificationItem = $("<li>")
         .attr({
             "class": "d-inline-flex position-relative ms-2 dropdown-item",
-            "id": "notificationItem_" + notificationResponse.commenterId
+            "id": notificationItemId
         })
         .appendTo(notificationContainer);
 
+    const messageCountId = notificationResponse.type === "REPLY" ? "messageReplyCount_" + notificationResponse.respondentId
+        : "messageCommentCount_" + notificationResponse.respondentId;
     const messageCount = $("<span>")
         .attr({
             "class": "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle",
-            "id": "messageCount_" + notificationResponse.commenterId
+            "id": messageCountId
         }).text(1 + "+").appendTo(notificationItem);
 
     const senderImage = $("<img>").attr({
         "class": "rounded-4 shadow-4",
-        "src": "/img/" + notificationResponse.commenterPicture,
+        "src": "/img/" + notificationResponse.respondentPicture,
         "style": "width: 50px; height: 50px;"
         }).appendTo(notificationItem);
 
         const notificationLink = $("<a>")
             .attr({
-                "href": "/posts/" + notificationResponse.postId + "/comments",
+                "href": notificationResponse.uri,
                 "role": "button",
                 "data-bs-toggle": "modal",
                 "data-bs-target": "#commentModal"
@@ -849,12 +874,12 @@ function generateNotificationBlock(notificationResponse) {
     const br = $("<br>").appendTo(notificationContainer);
 
     notificationLink.on("click", function(event) {
-        const notificationCommentURI = $(this).attr("href");
-        const associatedCommentBtn = $("a").filter(function() {
-            return $(this).attr("href") === notificationCommentURI;
+        const uri = $(this).attr("href");
+        const associatedBtn = $("a").filter(function() {
+            return $(this).attr("href") === uri;
         }).last();
 
-        associatedCommentBtn.click();
+        associatedBtn.click();
         event.preventDefault();
     });
 }
