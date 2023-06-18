@@ -22,11 +22,13 @@ public class NotificationService {
 
         String postBody = postService.getById(postId).getBody();
         var notificationResponse = NotificationResponse.builder()
-                .message(commenterName + " commented in your post: " + postBody)
+                .message(commenterName + " commented in your post: " + "\"" + postBody + "\"")
                 .commenterPicture(commenterPicture)
                 .postId(postId)
                 .build();
         final String destination = "/discussion/forum-notification/" + authorId;
         simpMessagingTemplate.convertAndSend(destination, notificationResponse);
+
+        log.debug("Comment notification successfully sent to {}", destination);
     }
 }

@@ -352,7 +352,7 @@ function onConnected() {
     const authorId = $("#userId").val();
     stompClient.subscribe("/discussion/forum-notification/" + authorId, function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
-        alert(json);
+        generateNotificationBlock(json);
     });
 }
 
@@ -791,4 +791,34 @@ function updateReplyCount(commentId, operation) {
     replyCountButton.text("Reply  · " + replyCount);
     replyCountButton.attr("value", replyCount);
     console.log("Reply count updated successfully " + replyCount);
+}
+
+function generateNotificationBlock(notificationResponse) {
+    const notificationContainer = $("#notificationContainer");
+
+    const notificationItem = $("<li>")
+        .attr("class", "d-inline-flex position-relative ms-2 dropdown-item")
+        .appendTo(notificationContainer);
+
+    const messageCount = $("<span>")
+        .attr("class", "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle")
+        .text("1+")
+        .appendTo(notificationItem);
+
+    const senderImage = $("<img>").attr({
+        "class": "rounded-4 shadow-4",
+        "src": "/img/" + notificationResponse.commenterPicture,
+        "style": "width: 50px; height: 50px;"
+        }).appendTo(notificationItem);
+
+    const notificationLink = $("<a>")
+        .attr("href", "#")
+        .appendTo(notificationItem);
+
+    const notificationMessage = $("<p>")
+        .attr("class", "lead mt-2 ms-2 me-2")
+        .text(notificationResponse.message)
+        .appendTo(notificationLink);
+
+    const br = $("<br>").appendTo(notificationContainer);
 }

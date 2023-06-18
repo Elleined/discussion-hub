@@ -7,6 +7,6 @@ import lombok.Data;
 @Builder
 public class NotificationResponse {
     private String message;
-    private String commenterPicture;
-    private int postId;
+    private String commenterPicture; // For comment notification
+    private int postId; // For comment notification
 }
