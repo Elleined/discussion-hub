@@ -19,6 +19,7 @@ public class ForumService {
     private final ReplyService replyService;
     private final CommentUpvoteTransactionService commentUpvoteTransactionService;
     private final WSService wsService;
+    private final NotificationService notificationService;
 
     public int savePost(int authorId, String body) {
         return postService.save(authorId, body);
@@ -26,18 +27,15 @@ public class ForumService {
 
     public int saveComment(int commenterId, int postId, String body) {
         int commentId = commentService.save(commenterId, postId, body);
-
-        CommentDTO commentDTO = commentService.getById(commentId);
-        wsService.broadcastComment(postId, commentDTO);
+        wsService.broadcastComment(commentId);
+        notificationService.sendCommentNotification(postId, commenterId);
 
         return commentId;
     }
 
     public int saveReply(int replierId, int commentId, String body) {
         int replyId = replyService.save(replierId, commentId, body);
-
-        ReplyDTO replyDTO = replyService.getById(replyId);
-        wsService.broadcastReply(commentId, replyDTO);
+        wsService.broadcastReply(replyId);
 
         return replyId;
     }
@@ -62,16 +60,12 @@ public class ForumService {
 
     public void deleteComment(int commentId) {
         commentService.delete(commentId);
-
-        CommentDTO commentDTO = commentService.getById(commentId);
-        wsService.broadcastComment(commentDTO.getPostId(), commentDTO);
+        wsService.broadcastComment(commentId);
     }
 
     public void deleteReply(int replyId) {
         replyService.delete(replyId);
-
-        ReplyDTO replyDTO = replyService.getById(replyId);
-        wsService.broadcastReply(replyDTO.getCommentId(), replyDTO);
+        wsService.broadcastReply(replyId);
     }
 
     public List<PostDTO> getAllPost() {
@@ -94,16 +88,14 @@ public class ForumService {
         return commentService.updateUpvote(respondentId, commentId, newUpvoteCount);
     }
 
-    public CommentDTO updateCommentBody(int commentId, String newBody) {
-        CommentDTO commentDTO = commentService.updateCommentBody(commentId, newBody);
-        wsService.broadcastComment(commentDTO.getPostId(), commentDTO);
-        return commentDTO;
+    public void updateCommentBody(int commentId, String newBody) {
+        commentService.updateCommentBody(commentId, newBody);
+        wsService.broadcastComment(commentId);
     }
 
-    public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {
-        ReplyDTO replyDTO = replyService.updateReplyBody(replyId, newReplyBody);
-        wsService.broadcastReply(replyDTO.getCommentId(), replyDTO);
-        return replyDTO;
+    public void updateReplyBody(int replyId, String newReplyBody) {
+        replyService.updateReplyBody(replyId, newReplyBody);
+        wsService.broadcastReply(replyId);
     }
 
     public boolean isNotValidUpvoteValue(int commentId, int newUpvoteValue) {
@@ -114,4 +106,5 @@ public class ForumService {
     public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) {
         return commentUpvoteTransactionService.isUserAlreadyUpvoteComment(respondentId, commentId);
     }
+
 }

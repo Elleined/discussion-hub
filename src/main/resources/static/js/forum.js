@@ -349,11 +349,11 @@ function disconnect() {
 function onConnected() {
     console.log("Web Socket Connected!!!");
 
-    const userId = $("#userId").val();
-    stompClient.subscribe("/discussion/forum-notification/" + userId, function(notificationResponse) {
-
+    const authorId = $("#userId").val();
+    stompClient.subscribe("/discussion/forum-notification/" + authorId, function(notificationResponse) {
+        const json = JSON.parse(notificationResponse.body);
+        alert(json);
     });
-
 }
 
 function onError() {

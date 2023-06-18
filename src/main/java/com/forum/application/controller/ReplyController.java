@@ -55,7 +55,9 @@ public class ReplyController {
     public ResponseEntity<ReplyDTO> updateReplyBody(@PathVariable("replyId") int replyId,
                                                     @RequestParam("newReplyBody") String newReplyBody) {
 
-        ReplyDTO replyDTO = forumService.updateReplyBody(replyId, newReplyBody);
+        forumService.updateReplyBody(replyId, newReplyBody);
+
+        ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);
     }
 }

@@ -1,5 +1,6 @@
 package com.forum.application.service;
 
+import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.User;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,9 @@ public class UserService {
 
     public boolean isEmailExists(String email) {
         return userRepository.fetchAllEmail().contains(email);
+    }
+
+    public User getById(int userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 }

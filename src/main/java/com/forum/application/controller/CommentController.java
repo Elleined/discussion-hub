@@ -69,7 +69,9 @@ public class CommentController {
     public ResponseEntity<?> updateCommentBody(@PathVariable("commentId") int commentId,
                                                @RequestParam("newCommentBody") String newCommentBody) {
 
-        CommentDTO commentDTO = forumService.updateCommentBody(commentId, newCommentBody);
+        forumService.updateCommentBody(commentId, newCommentBody);
+
+        CommentDTO commentDTO = forumService.getCommentById(commentId);
         return ResponseEntity.ok(commentDTO);
     }
 }
