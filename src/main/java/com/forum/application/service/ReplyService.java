@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -59,6 +60,7 @@ public class ReplyService {
         return comment.getReplies()
                 .stream()
                 .filter(r -> r.getStatus() == Status.ACTIVE)
+                .sorted(Comparator.comparing(Reply::getDateCreated))
                 .map(this::convertToDTO)
                 .toList();
     }

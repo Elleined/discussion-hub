@@ -218,8 +218,7 @@ function getAllCommentsOf(commentURI) {
         type: "GET",
         url: "/forum/api" + commentURI,
         success: function(commentDTOs, response) {
-            const commentSection = $(".modal-body #commentSection");
-            commentSection.empty(); // Removes the recent comments in the modal
+            $(".modal-body #commentSection").empty(); // Removes the recent comments in the modal
 
             $.each(commentDTOs, function(index, commentDto) {
                 generateCommentBlock(commentDto);
@@ -352,6 +351,9 @@ function onConnected() {
     const authorId = $("#userId").val();
     stompClient.subscribe("/discussion/forum-notification/" + authorId, function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
+
+        if (json.authorId == authorId) return; // If the post author commented in his own post it will not generate a notification block
+
         generateNotificationBlock(json);
     });
 }
@@ -811,9 +813,13 @@ function generateNotificationBlock(notificationResponse) {
         "style": "width: 50px; height: 50px;"
         }).appendTo(notificationItem);
 
-    const notificationLink = $("<a>")
-        .attr("href", "#")
-        .appendTo(notificationItem);
+        const notificationLink = $("<a>")
+            .attr({
+                "href": "/posts/" + notificationResponse.postId + "/comments",
+                "role": "button",
+                "data-bs-toggle": "modal",
+                "data-bs-target": "#commentModal"
+            }).appendTo(notificationItem);
 
     const notificationMessage = $("<p>")
         .attr("class", "lead mt-2 ms-2 me-2")
@@ -821,4 +827,14 @@ function generateNotificationBlock(notificationResponse) {
         .appendTo(notificationLink);
 
     const br = $("<br>").appendTo(notificationContainer);
+
+    notificationLink.on("click", function(event) {
+        const notificationCommentURI = $(this).attr("href");
+        const associatedCommentBtn = $("a").filter(function() {
+            return $(this).attr("href") === notificationCommentURI;
+        }).last();
+
+        associatedCommentBtn.click();
+        event.preventDefault();
+    });
 }

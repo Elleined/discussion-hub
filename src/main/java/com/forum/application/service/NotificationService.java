@@ -25,6 +25,7 @@ public class NotificationService {
                 .message(commenterName + " commented in your post: " + "\"" + postBody + "\"")
                 .commenterPicture(commenterPicture)
                 .postId(postId)
+                .authorId(authorId)
                 .build();
         final String destination = "/discussion/forum-notification/" + authorId;
         simpMessagingTemplate.convertAndSend(destination, notificationResponse);
