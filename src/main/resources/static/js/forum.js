@@ -880,6 +880,8 @@ function generateNotificationBlock(notificationResponse) {
         }).last();
 
         associatedBtn.click();
+
+        if ()
         event.preventDefault();
     });
 }

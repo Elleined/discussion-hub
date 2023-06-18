@@ -47,6 +47,11 @@ public class CommentService {
         log.debug("Comment with id of {} are now inactive!", commentId);
     }
 
+    public boolean isDeleted(int commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        return comment.getStatus() == Status.INACTIVE;
+    }
+
     public List<CommentDTO> getAllCommentsOf(int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getComments()

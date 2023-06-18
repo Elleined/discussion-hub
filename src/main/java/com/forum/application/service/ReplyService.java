@@ -47,6 +47,10 @@ public class ReplyService {
         log.debug("Reply with id of {} are now inactive!", replyId);
     }
 
+    public boolean isDeleted(int replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        return reply.getStatus() == Status.INACTIVE;
+    }
     public void updateReplyBody(int replyId, String newReplyBody) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         if (reply.getBody().equals(newReplyBody)) return;

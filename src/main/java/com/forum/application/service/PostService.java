@@ -26,7 +26,6 @@ public class PostService {
     private final PostRepository postRepository;
 
     private final CommentService commentService;
-    private final ReplyService replyService;
 
     public int save(int authorId, String body) {
         User author = userRepository.findById(authorId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + authorId + " does not exists!"));
@@ -46,6 +45,11 @@ public class PostService {
     public void delete(int postId) {
         this.setStatus(postId);
         log.debug("Post with id of {} are now inactive", postId);
+    }
+
+    public boolean isDeleted(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        return post.getStatus() == Status.INACTIVE;
     }
 
     public List<PostDTO> getAll() {
