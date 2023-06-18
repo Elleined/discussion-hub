@@ -354,8 +354,8 @@ function onConnected() {
         if (json.commenterId == authorId) return; // If the post author commented in his own post it will not generate a notification block
 
         updateTotalNotificationCount();
-        if($("#notificationItem_" + json.postId).length) {
-            updateNotification(json.postId);
+        if($("#notificationItem_" + json.commenterId).length) {
+            updateNotification(json.commenterId);
             return;
         }
 
@@ -366,8 +366,8 @@ function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
 
-function updateNotification(postId) {
-            const messageCount = $("#messageCount_" + postId);
+function updateNotification(commenterId) {
+            const messageCount = $("#messageCount_" + commenterId);
             const newMessageCount = parseInt(messageCount.text()) + 1;
             messageCount.text(newMessageCount + "+");
 }
@@ -817,14 +817,14 @@ function generateNotificationBlock(notificationResponse) {
     const notificationItem = $("<li>")
         .attr({
             "class": "d-inline-flex position-relative ms-2 dropdown-item",
-            "id": "notificationItem_" + notificationResponse.postId
+            "id": "notificationItem_" + notificationResponse.commenterId
         })
         .appendTo(notificationContainer);
 
     const messageCount = $("<span>")
         .attr({
             "class": "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle",
-            "id": "messageCount_" + notificationResponse.postId
+            "id": "messageCount_" + notificationResponse.commenterId
         }).text(1 + "+").appendTo(notificationItem);
 
     const senderImage = $("<img>").attr({
