@@ -351,15 +351,31 @@ function onConnected() {
     const authorId = $("#userId").val();
     stompClient.subscribe("/discussion/forum-notification/" + authorId, function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
+        if (json.commenterId == authorId) return; // If the post author commented in his own post it will not generate a notification block
 
-        if (json.authorId == authorId) return; // If the post author commented in his own post it will not generate a notification block
+        updateTotalNotificationCount();
+        if($("#notificationItem_" + json.postId).length) {
+            updateNotification(json.postId);
+            return;
+        }
 
         generateNotificationBlock(json);
     });
 }
-
 function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
+}
+
+function updateNotification(postId) {
+            const messageCount = $("#messageCount_" + postId);
+            const newMessageCount = parseInt(messageCount.text()) + 1;
+            messageCount.text(newMessageCount + "+");
+}
+
+function updateTotalNotificationCount() {
+            const totalNotifCount = $("#totalNotifCount");
+            const newTotalNotifCount = parseInt(totalNotifCount.text()) + 1;
+            totalNotifCount.text(newTotalNotifCount + "+");
 }
 
 // Don't bother reading this code
@@ -799,13 +815,17 @@ function generateNotificationBlock(notificationResponse) {
     const notificationContainer = $("#notificationContainer");
 
     const notificationItem = $("<li>")
-        .attr("class", "d-inline-flex position-relative ms-2 dropdown-item")
+        .attr({
+            "class": "d-inline-flex position-relative ms-2 dropdown-item",
+            "id": "notificationItem_" + notificationResponse.postId
+        })
         .appendTo(notificationContainer);
 
     const messageCount = $("<span>")
-        .attr("class", "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle")
-        .text("1+")
-        .appendTo(notificationItem);
+        .attr({
+            "class": "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle",
+            "id": "messageCount_" + notificationResponse.postId
+        }).text(1 + "+").appendTo(notificationItem);
 
     const senderImage = $("<img>").attr({
         "class": "rounded-4 shadow-4",

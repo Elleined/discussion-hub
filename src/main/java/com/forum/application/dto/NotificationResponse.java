@@ -8,6 +8,6 @@ import lombok.Data;
 public class NotificationResponse {
     private String message;
     private String commenterPicture; // For comment notification
-    private int authorId;
+    private int commenterId;
     private int postId; // For comment notification
 }
