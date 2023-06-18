@@ -36,6 +36,7 @@ public class CommentController {
                                          HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Comment body cannot be empty!");
+        if (forumService.isPostDeleted(postId)) return ResponseEntity.badRequest().body("The post you trying to comment is either be deleted or does not exists anymore!");
 
         String email = (String) session.getAttribute("email");
         int commenterId = userService.getIdByEmail(email);
@@ -55,6 +56,8 @@ public class CommentController {
     public ResponseEntity<?> updateCommentUpvote(@PathVariable("commentId") int commentId,
                                                  @RequestParam("newUpvoteCount") int newUpvoteCount,
                                                  HttpSession session) {
+
+        if (forumService.isCommentDeleted(commentId)) return ResponseEntity.badRequest().body("The comment you trying to upvote might be deleted by the author or does not exists anymore!");
 
         String loginEmailSession = (String) session.getAttribute("email");
         int respondentId = userService.getIdByEmail(loginEmailSession);

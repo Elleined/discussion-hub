@@ -107,4 +107,15 @@ public class ForumService {
         return commentUpvoteTransactionService.isUserAlreadyUpvoteComment(respondentId, commentId);
     }
 
+    public boolean isPostDeleted(int postId) {
+        return postService.isDeleted(postId);
+    }
+
+    public boolean isCommentDeleted(int commentId) {
+        return commentService.isDeleted(commentId);
+    }
+
+    public boolean isReplyDeleted(int replyId) {
+        return replyService.isDeleted(replyId);
+    }
 }
