@@ -49,6 +49,12 @@ public class PostService {
         log.debug("Post with id of {} are now inactive", postId);
     }
 
+    public void updateCommentSectionStatus(int postId, CommentSectionStatus status) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        post.setCommentSectionStatus(status);
+        postRepository.save(post);
+    }
+
     public boolean isDeleted(int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getStatus() == Status.INACTIVE;

@@ -89,6 +89,10 @@ public class ForumService {
         return commentService.updateUpvote(respondentId, commentId, newUpvoteCount);
     }
 
+    public void updateCommentSectionStatus(int postId, Post.CommentSectionStatus status) {
+        postService.updateCommentSectionStatus(postId, status);
+    }
+
     public void updateCommentBody(int commentId, String newBody) {
         commentService.updateCommentBody(commentId, newBody);
         wsService.broadcastComment(commentId);
@@ -118,9 +122,5 @@ public class ForumService {
 
     public boolean isCommentDeleted(int commentId) {
         return commentService.isDeleted(commentId);
-    }
-
-    public boolean isReplyDeleted(int replyId) {
-        return replyService.isDeleted(replyId);
     }
 }

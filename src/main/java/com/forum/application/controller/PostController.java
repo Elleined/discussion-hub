@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
+import com.forum.application.model.Post;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -56,7 +57,17 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<PostDTO> deletePost(@PathVariable("postId") int postId) {
-         forumService.deletePost(postId);
+        forumService.deletePost(postId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/commentSectionStatus/{postId}")
+    public ResponseEntity<PostDTO> updateCommentSectionStatus(@PathVariable("postId") int postId,
+                                                              @RequestParam("newStatus") Post.CommentSectionStatus status) {
+
+        forumService.updateCommentSectionStatus(postId, status);
+
+        PostDTO postDTO = forumService.getPostById(postId);
+        return ResponseEntity.ok(postDTO);
     }
 }

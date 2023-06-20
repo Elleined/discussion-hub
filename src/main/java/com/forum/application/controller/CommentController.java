@@ -69,8 +69,8 @@ public class CommentController {
     }
 
     @PatchMapping("/body/{commentId}")
-    public ResponseEntity<?> updateCommentBody(@PathVariable("commentId") int commentId,
-                                               @RequestParam("newCommentBody") String newCommentBody) {
+    public ResponseEntity<CommentDTO> updateCommentBody(@PathVariable("commentId") int commentId,
+                                                        @RequestParam("newCommentBody") String newCommentBody) {
 
         forumService.updateCommentBody(commentId, newCommentBody);
 
