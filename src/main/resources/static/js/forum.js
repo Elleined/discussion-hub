@@ -83,6 +83,17 @@ $(document).ready(function() {
         deletePost(href);
     });
 
+    $(".card-title #commentSectionStatusToggle").on("change", function() {
+        const postId = $(this).attr("value");
+        if ($(this).is(':checked')) {
+            $(".card-title #commentSectionStatusText").text("Close comment section");
+            updateCommentSectionStatus(postId, "CLOSED");
+            return;
+        }
+        $(".card-title #commentSectionStatusText").text("Open comment section");
+        updateCommentSectionStatus(postId, "OPEN");
+    });
+
     // Used to show the comments modal when the reply modal is closed
     $("#replyModal").on("hidden.bs.modal", function(e) {
         e.stopPropagation(); // Stop event propagation
@@ -255,7 +266,7 @@ function getAllReplies(replyURI) {
 function getCommentSectionStatus(postId) {
     $.ajax({
         type: "GET",
-        url: "/forum/api/posts/commentSectionStatus/" + postId,
+        url: "/forum/api/posts/" + postId + "/commentSectionStatus",
         success: function(commentSectionStatus, response) {
             if (commentSectionStatus === "CLOSED") {
                 $(".commentModal #disabledCommentSectionInfo").show();
@@ -267,6 +278,22 @@ function getCommentSectionStatus(postId) {
         },
         error: function(xhr, status, error) {
             console.error(xhr.responseText);
+        }
+    });
+}
+
+function updateCommentSectionStatus(postId, newStatus) {
+    $.ajax({
+        type: "PATCH",
+        url: "/forum/api/posts/" + postId + "/commentSectionStatus",
+        data: {
+            newStatus: newStatus
+        },
+        success: function(response) {
+            console.log("Comment section status update successfully to " + newStatus);
+        },
+        error: function(xhr, status, error) {
+            console.error("Error Occurred! " + xhr.responseText);
         }
     });
 }

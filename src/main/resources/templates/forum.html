@@ -74,15 +74,21 @@
             </span>
           </div>
           <div class="col-md-6">
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a th:if="${post.authorId} == ${userId}"
-                 class="btn btn-danger"
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end" th:if="${post.authorId} == ${userId}">
+              <a class="btn btn-danger me-1"
                  role="button"
                  th:href="@{/posts/{postId} (postId=${post.id}) }"
                  id="postDeleteBtn">
                 <i class="fas fa-trash"></i>
                 Delete
               </a>
+
+              <div class="vr vr-blurry" style="height: 30px;"></div>
+
+              <div class="form-check form-switch mt-1 ms-1">
+                <input class="form-check-input" type="checkbox" role="switch" id="commentSectionStatusToggle" th:checked="${post.commentSectionStatus.equals('OPEN')}" th:value="${post.id}"/>
+                <label class="form-check-label" for="commentSectionStatusToggle" id="commentSectionStatusText" th:text="${post.commentSectionStatus.equals('OPEN') ? 'Close comment section' : 'Open comment section'}"></label>
+              </div>
             </div>
           </div>
         </div>

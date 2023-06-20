@@ -36,7 +36,7 @@ public class PostController {
         return forumService.getAllByAuthorId(authorId);
     }
 
-    @GetMapping("/commentSectionStatus/{postId}")
+    @GetMapping("/{postId}/commentSectionStatus")
     public String getCommentSectionStatus(@PathVariable("postId") int postId) {
         return forumService.getCommentSectionStatus(postId);
     }
@@ -61,7 +61,7 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/commentSectionStatus/{postId}")
+    @PatchMapping("/{postId}/commentSectionStatus")
     public ResponseEntity<PostDTO> updateCommentSectionStatus(@PathVariable("postId") int postId,
                                                               @RequestParam("newStatus") Post.CommentSectionStatus status) {
 
