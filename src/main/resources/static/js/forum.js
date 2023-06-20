@@ -544,16 +544,19 @@ function generateCommentBlock(commentDto) {
         .attr("class", "col-md-2")
         .appendTo(row2);
 
-    const editCommentSaveBtn = $("<button>")
-        .attr({
-            "type": "button",
-            "class": "btn btn-primary",
-            "href": "#",
-            "id": "editCommentSaveBtn" + commentDto.id
-        })
-        .text("Save")
-        .appendTo(row2Col2);
-    editCommentSaveBtn.hide();
+    const userId = $("#userId").val();
+    if (commentDto.commenterId == userId) {
+        const editCommentSaveBtn = $("<button>")
+            .attr({
+                "type": "button",
+                "class": "btn btn-primary",
+                "href": "#",
+                "id": "editCommentSaveBtn" + commentDto.id
+            })
+            .text("Save")
+            .appendTo(row2Col2);
+        editCommentSaveBtn.hide();
+    }
 
     const row3 = $("<div>")
         .attr("class", "row")
@@ -630,16 +633,17 @@ function generateReplyBlock(replyDto) {
         .attr("class", "col-md-2")
         .appendTo(row2);
 
-    const editReplySaveBtn = $("<button>")
-        .attr({
-            "type": "button",
-            "class": "btn btn-primary",
-            "href": "#",
-            "id": "editReplySaveBtn" + replyDto.id
-        })
-        .text("Save")
-        .appendTo(row2Col2);
-    // editReplySaveBtn.hide();
+    const userId = $("#userId").val();
+    if (replyDto.replierId == userId) {
+        const editReplySaveBtn = $("<button>")
+            .attr({
+                "type": "button",
+                "class": "btn btn-primary",
+                "href": "#",
+                "id": "editReplySaveBtn" + replyDto.id
+            }).text("Save").appendTo(row2Col2);
+        editReplySaveBtn.hide();
+    }
 
     const hr = $("<hr>").appendTo(replyContainer);
 }
