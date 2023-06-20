@@ -73,7 +73,7 @@ public class PostController {
 
     @PatchMapping("/body/{postId}")
     public ResponseEntity<PostDTO> updatePostBody(@PathVariable("postId") int postId,
-                                                  @RequestParam("newBody") String newPostBody) {
+                                                  @RequestParam("newPostBody") String newPostBody) {
         forumService.updatePostBody(postId, newPostBody);
 
         PostDTO postDTO = forumService.getPostById(postId);

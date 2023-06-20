@@ -14,6 +14,54 @@ let previousCommentBody; // Sets when user click the save button after clicking 
 let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 
 $(document).ready(function() {
+    $("#postForm").on("submit", function(event) {
+        event.preventDefault();
+
+        const body = $("#postBody").val();
+        if ($.trim(body) === '') return;
+        savePost(body);
+
+        $("#postBody").val("");
+    });
+
+    $(".card-title #postDeleteBtn").on("click", function(event) {
+        event.preventDefault();
+
+        const href = $(this).attr("href");
+        deletePost(href);
+    });
+
+    $(".card-title #editPostBtn").on("click", function(event) {
+        event.preventDefault();
+
+        const href = $(this).attr("href");
+        const postId = href.split("/")[3];
+
+        const postContent = $("#postBody" + postId);
+        postContent.attr("contenteditable", "true");
+        postContent.focus();
+
+        const editPostBtnSave = $("#editPostBtnSave" + postId);
+        editPostBtnSave.removeClass("d-none");
+
+        editPostBtnSave.on("click", function(event) {
+            postContent.attr("contenteditable", "false");
+            editPostBtnSave.addClass("d-none");
+
+            updatePostBody(href, postContent.text());
+        });
+    });
+
+    $(".card-title #commentSectionStatusToggle").on("change", function() {
+        const postId = $(this).attr("value");
+        if ($(this).is(':checked')) {
+            $(".card-title #commentSectionStatusText").text("Close comment section");
+            updateCommentSectionStatus(postId, "OPEN");
+            return;
+        }
+        $(".card-title #commentSectionStatusText").text("Open comment section");
+        updateCommentSectionStatus(postId, "CLOSED");
+    });
 
     $(".card-body #commentBtn").on("click", function(event) {
         commentURI = $(this).attr("href");
@@ -27,16 +75,6 @@ $(document).ready(function() {
 
         getAllCommentsOf(commentURI);
         event.preventDefault();
-    });
-
-    $("#createPostBtn").on("submit", function() {
-        event.preventDefault();
-
-        const body = $("#postBody").val();
-        if ($.trim(body) === '') return;
-        savePost(body);
-
-        $("#postBody").val("");
     });
 
     $(".commentModal #commentForm").on("submit", function(event) {
@@ -57,24 +95,6 @@ $(document).ready(function() {
         saveReply(body);
 
         $("#replyBody").val("");
-    });
-
-    $(".card-title #postDeleteBtn").on("click", function(event) {
-        event.preventDefault();
-
-        const href = $(this).attr("href");
-        deletePost(href);
-    });
-
-    $(".card-title #commentSectionStatusToggle").on("change", function() {
-        const postId = $(this).attr("value");
-        if ($(this).is(':checked')) {
-            $(".card-title #commentSectionStatusText").text("Comment section is open");
-            updateCommentSectionStatus(postId, "OPEN");
-            return;
-        }
-        $(".card-title #commentSectionStatusText").text("Comment section is closed");
-        updateCommentSectionStatus(postId, "CLOSED");
     });
 
     // Used to show the comments modal when the reply modal is closed
@@ -325,6 +345,22 @@ function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
         error: function(xhr, status, error) {
             $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
             console.error(xhr.responseText);
+        }
+    });
+}
+
+function updatePostBody(href, newPostBody) {
+    $.ajax({
+        type: "PATCH",
+        url: "/forum/api" + href,
+        data: {
+            newPostBody: newPostBody
+        },
+        success: function(response) {
+            console.log("Post updated successfully with new body of " + newPostBody);
+        },
+        error: function(xhr, status, error) {
+            console.error("Updating the post body failed!");
         }
     });
 }

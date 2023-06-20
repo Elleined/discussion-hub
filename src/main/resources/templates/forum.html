@@ -18,7 +18,7 @@
       </a>
     </div>
     <div class="col-md-3">
-      <form id="createPostBtn">
+      <form id="postForm">
         <div class="row">
           <div class="col-md-8">
             <div class="form-outline border">
@@ -85,9 +85,19 @@
 
               <div class="vr vr-blurry" style="height: 30px;"></div>
 
+              <a class="btn btn-primary"
+                 role="button"
+                 th:href="@{/posts/body/{postId} (postId=${post.id}) }"
+                 id="editPostBtn">
+                <i class="fas fa-pencil"></i>
+                Edit
+              </a>
+
+              <div class="vr vr-blurry" style="height: 30px;"></div>
+
               <div class="form-check form-switch mt-1 ms-1">
                 <input class="form-check-input" type="checkbox" role="switch" id="commentSectionStatusToggle" th:checked="${post.commentSectionStatus.equals('OPEN')}" th:value="${post.id}"/>
-                <label class="form-check-label" for="commentSectionStatusToggle" id="commentSectionStatusText" th:text="${post.commentSectionStatus.equals('OPEN') ? 'Comment section is open' : 'Comment section is closed'}"></label>
+                <label class="form-check-label" for="commentSectionStatusToggle" id="commentSectionStatusText" th:text="${post.commentSectionStatus.equals('OPEN') ? 'Close comment section' : 'Open comment section'}"></label>
               </div>
             </div>
           </div>
@@ -97,7 +107,21 @@
       <span th:text="${post.formattedDateCreated}"></span>
       <span th:text="${'at ' + post.formattedTimeCreated}"></span>
 
-      <p class="card-text mt-3" th:text="${post.body}"></p>
+      <div class="container mb-4">
+        <div class="row ">
+          <div class="col-md-6">
+            <p class="card-text mt-3" th:text="${post.body}" th:id="${'postBody' + post.id}"></p>
+          </div>
+
+          <div class="col-md-6 mt-2">
+            <button type="button"
+                    th:if="${post.authorId} == ${userId}"
+                    th:id="${'editPostBtnSave' + post.id}"
+                    class="btn btn-primary ms-3 d-none">Save</button>
+          </div>
+
+        </div>
+      </div>
       <a class="btn btn-primary"
          th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
          role="button"
