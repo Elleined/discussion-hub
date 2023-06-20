@@ -69,12 +69,12 @@ $(document).ready(function() {
     $(".card-title #commentSectionStatusToggle").on("change", function() {
         const postId = $(this).attr("value");
         if ($(this).is(':checked')) {
-            $(".card-title #commentSectionStatusText").text("Close comment section");
-            updateCommentSectionStatus(postId, "CLOSED");
+            $(".card-title #commentSectionStatusText").text("Comment section is open");
+            updateCommentSectionStatus(postId, "OPEN");
             return;
         }
-        $(".card-title #commentSectionStatusText").text("Open comment section");
-        updateCommentSectionStatus(postId, "OPEN");
+        $(".card-title #commentSectionStatusText").text("Comment section is closed");
+        updateCommentSectionStatus(postId, "CLOSED");
     });
 
     // Used to show the comments modal when the reply modal is closed
@@ -276,16 +276,16 @@ function getAllReplies(replyURI) {
 function getCommentSectionStatus(postId) {
     $.ajax({
         type: "GET",
-        url: "/forum/api/posts/" + postId + "/commentSectionStatus",
+        url: "/forum/api/posts/commentSectionStatus/" + postId,
         success: function(commentSectionStatus, response) {
             if (commentSectionStatus === "CLOSED") {
-                $(".commentModal #disabledCommentSectionInfo").show();
+                $(".disabledCommentAndReplySectionInfo").show();
 
                 $(".replyModal #replyForm").hide();
                 $(".commentModal #commentForm").hide();
                 return;
             }
-            $(".commentModal #disabledCommentSectionInfo").hide();
+            $(".disabledCommentAndReplySectionInfo").hide();
 
             $(".replyModal #replyForm").show();
             $(".commentModal #commentForm").show();
@@ -299,7 +299,7 @@ function getCommentSectionStatus(postId) {
 function updateCommentSectionStatus(postId, newStatus) {
     $.ajax({
         type: "PATCH",
-        url: "/forum/api/posts/" + postId + "/commentSectionStatus",
+        url: "/forum/api/posts/commentSectionStatus/" + postId,
         data: {
             newStatus: newStatus
         },

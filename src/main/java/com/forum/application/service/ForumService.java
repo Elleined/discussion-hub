@@ -93,6 +93,10 @@ public class ForumService {
         postService.updateCommentSectionStatus(postId, status);
     }
 
+    public void updatePostBody(int postId, String newBody) {
+        postService.updatePostBody(postId, newBody);
+    }
+
     public void updateCommentBody(int commentId, String newBody) {
         commentService.updateCommentBody(commentId, newBody);
         wsService.broadcastComment(commentId);

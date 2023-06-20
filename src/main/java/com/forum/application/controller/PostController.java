@@ -36,7 +36,7 @@ public class PostController {
         return forumService.getAllByAuthorId(authorId);
     }
 
-    @GetMapping("/{postId}/commentSectionStatus")
+    @GetMapping("/commentSectionStatus/{postId}")
     public String getCommentSectionStatus(@PathVariable("postId") int postId) {
         return forumService.getCommentSectionStatus(postId);
     }
@@ -61,11 +61,20 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{postId}/commentSectionStatus")
+    @PatchMapping("/commentSectionStatus/{postId}")
     public ResponseEntity<PostDTO> updateCommentSectionStatus(@PathVariable("postId") int postId,
                                                               @RequestParam("newStatus") Post.CommentSectionStatus status) {
 
         forumService.updateCommentSectionStatus(postId, status);
+
+        PostDTO postDTO = forumService.getPostById(postId);
+        return ResponseEntity.ok(postDTO);
+    }
+
+    @PatchMapping("/body/{postId}")
+    public ResponseEntity<PostDTO> updatePostBody(@PathVariable("postId") int postId,
+                                                  @RequestParam("newBody") String newPostBody) {
+        forumService.updatePostBody(postId, newPostBody);
 
         PostDTO postDTO = forumService.getPostById(postId);
         return ResponseEntity.ok(postDTO);

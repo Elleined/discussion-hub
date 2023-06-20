@@ -49,10 +49,19 @@ public class PostService {
         log.debug("Post with id of {} are now inactive", postId);
     }
 
+    public void updatePostBody(int postId, String newBody) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        if (post.getBody().equals(newBody)) return; // Returning if user doesn't change the post body
+        post.setBody(newBody);
+        postRepository.save(post);
+        log.debug("Post with id of {} updated with the new body of {}", postId, newBody);
+    }
+
     public void updateCommentSectionStatus(int postId, CommentSectionStatus status) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         post.setCommentSectionStatus(status);
         postRepository.save(post);
+        log.debug("Comment section of Post with id of {} are now {}", postId, post.getCommentSectionStatus().name());
     }
 
     public boolean isDeleted(int postId) {
