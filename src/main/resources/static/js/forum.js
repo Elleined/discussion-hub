@@ -69,12 +69,12 @@ $(document).ready(function() {
     $(".card-title #commentSectionStatusToggle").on("change", function() {
         const postId = $(this).attr("value");
         if ($(this).is(':checked')) {
-            updateCommentSectionStatus(postId, "OPEN");
-            $(".card-title #commentSectionStatusText").text("Comment section is open");
+            $(".card-title #commentSectionStatusText").text("Close comment section");
+            updateCommentSectionStatus(postId, "CLOSED");
             return;
         }
-        updateCommentSectionStatus(postId, "CLOSED");
-        $(".card-title #commentSectionStatusText").text("Comment section is closed");
+        $(".card-title #commentSectionStatusText").text("Open comment section");
+        updateCommentSectionStatus(postId, "OPEN");
     });
 
     // Used to show the comments modal when the reply modal is closed
@@ -279,16 +279,16 @@ function getCommentSectionStatus(postId) {
         url: "/forum/api/posts/" + postId + "/commentSectionStatus",
         success: function(commentSectionStatus, response) {
             if (commentSectionStatus === "CLOSED") {
-                $(".disableCommentAndReplySectionInfo").show();
+                $(".commentModal #disabledCommentSectionInfo").show();
 
-                $(".commentModal #commentForm").hide();
                 $(".replyModal #replyForm").hide();
+                $(".commentModal #commentForm").hide();
                 return;
             }
-            $(".disableCommentAndReplySectionInfo").hide();
+            $(".commentModal #disabledCommentSectionInfo").hide();
 
-            $(".commentModal #commentForm").show();
             $(".replyModal #replyForm").show();
+            $(".commentModal #commentForm").show();
         },
         error: function(xhr, status, error) {
             console.error(xhr.responseText);

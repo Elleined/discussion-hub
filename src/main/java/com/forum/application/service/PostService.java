@@ -53,7 +53,6 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         post.setCommentSectionStatus(status);
         postRepository.save(post);
-        log.debug("Comment section of Post with id of {} are now ", post.getCommentSectionStatus().name());
     }
 
     public boolean isDeleted(int postId) {

@@ -87,7 +87,7 @@
 
               <div class="form-check form-switch mt-1 ms-1">
                 <input class="form-check-input" type="checkbox" role="switch" id="commentSectionStatusToggle" th:checked="${post.commentSectionStatus.equals('OPEN')}" th:value="${post.id}"/>
-                <label class="form-check-label" for="commentSectionStatusToggle" id="commentSectionStatusText" th:text="${post.commentSectionStatus.equals('OPEN') ? 'Comment section is open' : 'Comment section is closed'}"></label>
+                <label class="form-check-label" for="commentSectionStatusToggle" id="commentSectionStatusText" th:text="${post.commentSectionStatus.equals('OPEN') ? 'Close comment section' : 'Open comment section'}"></label>
               </div>
             </div>
           </div>
