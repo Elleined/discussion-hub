@@ -7,14 +7,13 @@ stompClient.connect({}, onConnected, onError);
 let replySubscription;
 let commentSubscription;
 
-let commentURI; // Sets when user pressed the commentBtn in specific post
-let replyURI; // Sets when user pressed the replyBtn in specific comment
+let commentURI; // "/posts/{postId}/comments"
+let replyURI; // "/posts/comments/{commentId}/replies"
 
 let previousCommentBody; // Sets when user click the save button after clicking the comment edit
 let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 
 $(document).ready(function() {
-    const commentSection = $("#commentSection");
 
     $(".card-body #commentBtn").on("click", function(event) {
         commentURI = $(this).attr("href");
@@ -22,6 +21,7 @@ $(document).ready(function() {
 
         const postId = commentURI.split("/")[2];
         setCommentModalTitle(postId);
+        getCommentSectionStatus(postId);
 
         // SendTo URI of Comment
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
@@ -137,6 +137,10 @@ $(document).ready(function() {
     // insert here
 });
 
+function disableCommentSection() {
+    $(".commentModal #commentForm").hide();
+}
+
 function setCommentModalTitle(postId) {
     $.ajax({
         type: "GET",
@@ -145,7 +149,7 @@ function setCommentModalTitle(postId) {
             $("#commentModalTitle").text("Comments in " + commentDto.authorName + " post");
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
 }
@@ -158,7 +162,7 @@ function setReplyModalTitle(commentId) {
             $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post");
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
     $("#replyModalTitle").text();
@@ -176,7 +180,7 @@ function savePost(body) {
             window.location.href = "/forum";
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
 }
@@ -192,7 +196,7 @@ function saveComment(body) {
             console.log("Returned CommentDTO" + xhr.responseText);
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
 }
@@ -208,7 +212,7 @@ function saveReply(body) {
             console.log("Returned ReplyDTO " + xhr.responseText);
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
 }
@@ -225,7 +229,7 @@ function getAllCommentsOf(commentURI) {
             });
         },
         error: function(xhr, status, error) {
-            alert("Getting all comments failed!");
+            console.error("Getting all comments failed!");
         }
     });
 }
@@ -243,7 +247,26 @@ function getAllReplies(replyURI) {
             });
         },
         error: function(xhr, response, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+function getCommentSectionStatus(postId) {
+    $.ajax({
+        type: "GET",
+        url: "/forum/api/posts/commentSectionStatus/" + postId,
+        success: function(commentSectionStatus, response) {
+            if (commentSectionStatus === "CLOSED") {
+                $(".commentModal #disabledCommentSectionInfo").show();
+                $(".commentModal #commentForm").hide();
+                return;
+            }
+            $(".commentModal #disabledCommentSectionInfo").hide();
+            $(".commentModal #commentForm").show();
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
         }
     });
 }
@@ -260,7 +283,7 @@ function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
         },
         error: function(xhr, status, error) {
             $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
 }
@@ -276,7 +299,7 @@ function updateCommentBody(commentId, newCommentBody) {
             console.log("Comment with id of " + commentId + "updated successfully with new comment body of " + newCommentBody);
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
 }
@@ -292,7 +315,7 @@ function updateReplyBody(replyId, newReplyBody) {
             console.log("Reply with id of " + replyId + "updated successfully with new reply body of " + newReplyBody);
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            console.error(xhr.responseText);
         }
     });
 }
@@ -305,7 +328,7 @@ function deletePost(postURI) {
             window.location.href = "/forum";
         },
         error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of post failed!");
+            console.error("Error Occurred! Deletion of post failed!");
         }
     });
 }
@@ -318,7 +341,7 @@ function deleteComment(commentURI) {
             console.log("Comment deleted successfully");
         },
         error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of comment failed!");
+            console.error("Error Occurred! Deletion of comment failed!");
         }
     });
 }
@@ -331,7 +354,7 @@ function deleteReply(deleteReplyURI) {
             console.log("Reply deleted successfully");
         },
         error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of reply failed!");
+            console.error("Error Occurred! Deletion of reply failed!");
         }
     });
 }
@@ -832,7 +855,6 @@ function updateReplyCount(commentId, operation) {
 }
 
 function generateNotificationBlock(notificationResponse) {
-    alert("type " + notificationResponse.type + " uri " + notificationResponse.uri);
     const notificationContainer = $("#notificationContainer");
 
     const notificationItemId = notificationResponse.type === "REPLY" ? "notificationReplyItem_" + notificationResponse.respondentId

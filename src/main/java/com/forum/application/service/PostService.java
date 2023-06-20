@@ -4,6 +4,7 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
+import com.forum.application.model.Post.CommentSectionStatus;
 import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
@@ -35,6 +36,7 @@ public class PostService {
                 .dateCreated(LocalDateTime.now())
                 .author(author)
                 .status(Status.ACTIVE)
+                .commentSectionStatus(CommentSectionStatus.OPEN)
                 .build();
 
         postRepository.save(post);
@@ -76,6 +78,12 @@ public class PostService {
                 .toList();
     }
 
+    public String getCommentSectionStatus(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        return post.getCommentSectionStatus().name();
+    }
+
+
     public PostDTO convertToDTO(Post post) {
         if (post.getComments() == null) post.setComments(new ArrayList<>());
         int totalCommentAndReplies = this.getTotalCommentsAndReplies(post);
@@ -90,6 +98,7 @@ public class PostService {
                 .authorPicture(post.getAuthor().getPicture())
                 .totalCommentAndReplies(totalCommentAndReplies)
                 .status(post.getStatus().name())
+                .commentSectionStatus(post.getCommentSectionStatus().name())
                 .build();
     }
 

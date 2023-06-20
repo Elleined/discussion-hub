@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.model.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -96,6 +97,10 @@ public class ForumService {
     public void updateReplyBody(int replyId, String newReplyBody) {
         replyService.updateReplyBody(replyId, newReplyBody);
         wsService.broadcastReply(replyId);
+    }
+
+    public String getCommentSectionStatus(int postId) {
+        return postService.getCommentSectionStatus(postId);
     }
 
     public boolean isNotValidUpvoteValue(int commentId, int newUpvoteValue) {

@@ -30,6 +30,10 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "comment_section_status")
+    @Enumerated(EnumType.STRING)
+    private CommentSectionStatus commentSectionStatus;
+
     @ManyToOne
     @JoinColumn(
             name = "author_id",
@@ -41,4 +45,6 @@ public class Post {
     // post id reference is in comment table
     @OneToMany(mappedBy = "post")
     private List<Comment> comments;
+
+    public enum CommentSectionStatus {OPEN, CLOSED}
 }
