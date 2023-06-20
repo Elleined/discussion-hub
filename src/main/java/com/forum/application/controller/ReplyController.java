@@ -36,6 +36,7 @@ public class ReplyController {
                                        HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Reply body cannot be empty!");
+        if (forumService.isPostCommentSectionClosedByCommentId(commentId)) return ResponseEntity.badRequest().body("Cannot reply to this comment because author already closed the comment section for this post!");
         if (forumService.isCommentDeleted(commentId)) return ResponseEntity.badRequest().body("The comment you trying to reply is either be deleted or does not exists anymore!");
 
         String email = (String) session.getAttribute("email");
@@ -54,7 +55,8 @@ public class ReplyController {
 
     @PatchMapping("/body/{replyId}")
     public ResponseEntity<ReplyDTO> updateReplyBody(@PathVariable("replyId") int replyId,
-                                                    @RequestParam("newReplyBody") String newReplyBody) {
+                                             @RequestParam("newReplyBody") String newReplyBody) {
+
         forumService.updateReplyBody(replyId, newReplyBody);
 
         ReplyDTO replyDTO = forumService.getReplyById(replyId);

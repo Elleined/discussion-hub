@@ -190,7 +190,7 @@ function setCommentModalTitle(postId) {
             $("#commentModalTitle").text("Comments in " + commentDto.authorName + " post");
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -203,7 +203,7 @@ function setReplyModalTitle(commentId) {
             $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post");
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
     $("#replyModalTitle").text();
@@ -221,7 +221,7 @@ function savePost(body) {
             window.location.href = "/forum";
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -237,7 +237,7 @@ function saveComment(body) {
             console.log("Returned CommentDTO" + xhr.responseText);
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -253,7 +253,7 @@ function saveReply(body) {
             console.log("Returned ReplyDTO " + xhr.responseText);
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -270,7 +270,7 @@ function getAllCommentsOf(commentURI) {
             });
         },
         error: function(xhr, status, error) {
-            console.error("Getting all comments failed!");
+            alert("Getting all comments failed!");
         }
     });
 }
@@ -288,7 +288,7 @@ function getAllReplies(replyURI) {
             });
         },
         error: function(xhr, response, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -311,7 +311,7 @@ function getCommentSectionStatus(postId) {
             $(".commentModal #commentForm").show();
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -327,7 +327,7 @@ function updateCommentSectionStatus(postId, newStatus) {
             console.log("Comment section status update successfully to " + newStatus);
         },
         error: function(xhr, status, error) {
-            console.error("Error Occurred! " + xhr.responseText);
+            alert("Error Occurred! " + xhr.responseText);
         }
     });
 }
@@ -344,7 +344,7 @@ function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
         },
         error: function(xhr, status, error) {
             $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -360,7 +360,7 @@ function updatePostBody(href, newPostBody) {
             console.log("Post updated successfully with new body of " + newPostBody);
         },
         error: function(xhr, status, error) {
-            console.error("Updating the post body failed!");
+            alert("Updating the post body failed!");
         }
     });
 }
@@ -376,7 +376,7 @@ function updateCommentBody(commentId, newCommentBody) {
             console.log("Comment with id of " + commentId + "updated successfully with new comment body of " + newCommentBody);
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -392,7 +392,7 @@ function updateReplyBody(replyId, newReplyBody) {
             console.log("Reply with id of " + replyId + "updated successfully with new reply body of " + newReplyBody);
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            alert(xhr.responseText);
         }
     });
 }
@@ -405,7 +405,7 @@ function deletePost(postURI) {
             window.location.href = "/forum";
         },
         error: function(xhr, status, error) {
-            console.error("Error Occurred! Deletion of post failed!");
+            alert("Error Occurred! Deletion of post failed!");
         }
     });
 }
@@ -418,7 +418,7 @@ function deleteComment(commentURI) {
             console.log("Comment deleted successfully");
         },
         error: function(xhr, status, error) {
-            console.error("Error Occurred! Deletion of comment failed!");
+            alert("Error Occurred! Deletion of comment failed!");
         }
     });
 }
@@ -431,7 +431,7 @@ function deleteReply(deleteReplyURI) {
             console.log("Reply deleted successfully");
         },
         error: function(xhr, status, error) {
-            console.error("Error Occurred! Deletion of reply failed!");
+            alert("Error Occurred! Deletion of reply failed!");
         }
     });
 }

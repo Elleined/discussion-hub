@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.model.Post;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -36,6 +37,7 @@ public class CommentController {
                                          HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Comment body cannot be empty!");
+        if (forumService.isPostCommentSectionClosed(postId)) return ResponseEntity.badRequest().body("Cannot comment because author already closed the comment section for this post!");
         if (forumService.isPostDeleted(postId)) return ResponseEntity.badRequest().body("The post you trying to comment is either be deleted or does not exists anymore!");
 
         String email = (String) session.getAttribute("email");
@@ -70,8 +72,7 @@ public class CommentController {
 
     @PatchMapping("/body/{commentId}")
     public ResponseEntity<CommentDTO> updateCommentBody(@PathVariable("commentId") int commentId,
-                                                        @RequestParam("newCommentBody") String newCommentBody) {
-
+                                               @RequestParam("newCommentBody") String newCommentBody) {
         forumService.updateCommentBody(commentId, newCommentBody);
 
         CommentDTO commentDTO = forumService.getCommentById(commentId);

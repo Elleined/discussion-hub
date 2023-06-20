@@ -127,4 +127,13 @@ public class ForumService {
     public boolean isCommentDeleted(int commentId) {
         return commentService.isDeleted(commentId);
     }
+
+    public boolean isPostCommentSectionClosed(int postId) {
+        return postService.getCommentSectionStatus(postId).equals(Post.CommentSectionStatus.CLOSED.name());
+    }
+
+    public boolean isPostCommentSectionClosedByCommentId(int commentId) {
+        int postId = commentService.getById(commentId).getPostId();
+        return this.isPostCommentSectionClosed(postId);
+    }
 }
