@@ -2,10 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.Comment;
-import com.forum.application.model.Reply;
-import com.forum.application.model.Status;
-import com.forum.application.model.User;
+import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.ReplyRepository;
 import com.forum.application.repository.UserRepository;
@@ -35,6 +32,7 @@ public class ReplyService {
                 .replier(replier)
                 .comment(comment)
                 .status(Status.ACTIVE)
+                .notificationStatus(NotificationStatus.UNREAD)
                 .build();
 
         replyRepository.save(reply);
@@ -70,7 +68,7 @@ public class ReplyService {
         return this.convertToDTO(reply);
     }
 
-    private ReplyDTO convertToDTO(Reply reply) {
+    ReplyDTO convertToDTO(Reply reply) {
         return ReplyDTO.builder()
                 .id(reply.getId())
                 .body(reply.getBody())
@@ -83,6 +81,7 @@ public class ReplyService {
                 .replierPicture(reply.getReplier().getPicture())
                 .status(reply.getStatus().name())
                 .postId(reply.getComment().getPost().getId())
+                .notificationStatus(reply.getNotificationStatus().name())
                 .build();
     }
 

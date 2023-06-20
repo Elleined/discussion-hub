@@ -34,6 +34,7 @@ public class CommentService {
                 .dateCreated(LocalDateTime.now())
                 .post(post)
                 .commenter(commenter)
+                .notificationStatus(NotificationStatus.UNREAD)
                 .status(Status.ACTIVE)
                 .build();
 
@@ -89,7 +90,7 @@ public class CommentService {
         return oldUpvoteCount != next && oldUpvoteCount != previous;
     }
 
-    private CommentDTO convertToDTO(Comment comment) {
+    CommentDTO convertToDTO(Comment comment) {
         if (comment.getReplies() == null) comment.setReplies(new ArrayList<>());
         return CommentDTO.builder()
                 .id(comment.getId())
@@ -107,6 +108,7 @@ public class CommentService {
                 .totalReplies((int) comment.getReplies().stream()
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
                         .count())
+                .notificationStatus(comment.getNotificationStatus().name())
                 .build();
     }
 

@@ -33,6 +33,10 @@ public class Comment {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "notification_status")
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus notificationStatus;
+
     @ManyToOne
     @JoinColumn(
             name = "post_id",

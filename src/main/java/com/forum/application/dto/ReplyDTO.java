@@ -19,4 +19,5 @@ public class ReplyDTO {
     private String replierPicture;
     private String status;
     private int postId;
+    private String notificationStatus;
 }
