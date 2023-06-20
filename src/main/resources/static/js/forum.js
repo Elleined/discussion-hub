@@ -23,24 +23,7 @@ $(document).ready(function() {
         setCommentModalTitle(postId);
         getCommentSectionStatus(postId);
 
-        // SendTo URI of Comment
-        commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
-            const json = JSON.parse(commentDto.body);
-            const commentContainer = $("div").filter("#comment_" + json.id);
-            if (json.status === "INACTIVE") {
-                commentContainer.remove();
-                updateCommentCount(json.postId, "-");
-                return;
-            }
-
-            if (previousCommentBody !== json.body && commentContainer.length) {
-                $("#commentBody" + json.id).text(json.body);
-                return;
-            }
-
-            generateCommentBlock(json);
-            updateCommentCount(json.postId, "+");
-        });
+        subscribeToPostComments();
 
         getAllCommentsOf(commentURI);
         event.preventDefault();
@@ -110,24 +93,7 @@ $(document).ready(function() {
 
     $("#replyModal").on("hidden.bs.modal", function() {
         replySubscription.unsubscribe();
-        // SendTo URI of Comment
-        commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
-            const json = JSON.parse(commentDto.body);
-            const commentContainer = $("div").filter("#comment_" + json.id);
-            if (json.status === "INACTIVE") {
-                commentContainer.remove();
-                updateCommentCount(json.postId, "-");
-                return;
-            }
-
-            if (previousCommentBody !== json.body && commentContainer.length) {
-                $("#commentBody" + json.id).text(json.body);
-                return;
-            }
-
-            generateCommentBlock(json);
-            updateCommentCount(json.postId, "+");
-        });
+        subscribeToPostComments();
     });
 
     $("#logoutBtn").on("click", function() {
@@ -147,6 +113,50 @@ $(document).ready(function() {
     });
     // insert here
 });
+
+function subscribeToPostComments() {
+// SendTo URI of Comment
+        commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
+            const json = JSON.parse(commentDto.body);
+            const commentContainer = $("div").filter("#comment_" + json.id);
+            if (json.status === "INACTIVE") {
+                commentContainer.remove();
+                updateCommentCount(json.postId, "-");
+                return;
+            }
+
+            if (previousCommentBody !== json.body && commentContainer.length) {
+                $("#commentBody" + json.id).text(json.body);
+                return;
+            }
+
+            generateCommentBlock(json);
+            updateCommentCount(json.postId, "+");
+        });
+}
+
+function subscribeToCommentReplies() {
+ // SendTo URI of Reply
+        replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
+            const json = JSON.parse(replyDto.body);
+            const replyContainer = $("div").filter("#reply_" + json.id);
+            if (json.status === "INACTIVE") {
+                replyContainer.remove();
+                updateReplyCount(json.commentId, "-");
+                updateCommentCount(json.postId, "-");
+                return;
+            }
+
+            if (previousReplyBody !== json.body && replyContainer.length) {
+                $("#replyBody" + json.id).text(json.body);
+                return;
+            }
+
+            generateReplyBlock(json);
+            updateReplyCount(json.commentId, "+");
+            updateCommentCount(json.postId, "+");
+        });
+}
 
 function disableCommentSection() {
     $(".commentModal #commentForm").hide();
@@ -270,10 +280,14 @@ function getCommentSectionStatus(postId) {
         success: function(commentSectionStatus, response) {
             if (commentSectionStatus === "CLOSED") {
                 $(".commentModal #disabledCommentSectionInfo").show();
+
+                $(".replyModal #replyForm").hide();
                 $(".commentModal #commentForm").hide();
                 return;
             }
             $(".commentModal #disabledCommentSectionInfo").hide();
+
+            $(".replyModal #replyForm").show();
             $(".commentModal #commentForm").show();
         },
         error: function(xhr, status, error) {
@@ -537,26 +551,7 @@ function generateCommentBlock(commentDto) {
         const commentId = replyURI.split("/")[3];
         setReplyModalTitle(commentId);
 
-        // SendTo URI of Reply
-        replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
-            const json = JSON.parse(replyDto.body);
-            const replyContainer = $("div").filter("#reply_" + json.id);
-            if (json.status === "INACTIVE") {
-                replyContainer.remove();
-                updateReplyCount(json.commentId, "-");
-                updateCommentCount(json.postId, "-");
-                return;
-            }
-
-            if (previousReplyBody !== json.body && replyContainer.length) {
-                $("#replyBody" + json.id).text(json.body);
-                return;
-            }
-
-            generateReplyBlock(json);
-            updateReplyCount(json.commentId, "+");
-            updateCommentCount(json.postId, "+");
-        });
+       subscribeToCommentReplies();
 
         getAllReplies(replyURI);
     });
