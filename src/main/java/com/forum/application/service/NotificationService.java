@@ -42,11 +42,12 @@ public class NotificationService {
         final CommentDTO commentDTO = commentService.getById(commentId);
         final User replier = userService.getById(replierId);
 
-        var replyNotificationResponse = ReplyNotificationResponse.builder()
+        var replyNotificationResponse = ReplyNotificationResponse.replyNotificationBuilder()
                 .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
                 .respondentId(replierId)
                 .uri("/posts/comments/" + commentId + "/replies")
+                .commentURI("/posts/" + commentDTO.getPostId() + "/comments")
                 .type(NotificationResponse.Type.REPLY)
                 .build();
 

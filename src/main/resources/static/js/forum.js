@@ -97,15 +97,6 @@ $(document).ready(function() {
         $("#replyBody").val("");
     });
 
-    // Used to show the comments modal when the reply modal is closed
-    $("#replyModal").on("hidden.bs.modal", function(e) {
-        e.stopPropagation(); // Stop event propagation
-
-        // Open the first modal again
-        $('#commentModal').modal('show');
-    });
-
-
     // Below this making sure that socket and stompClient is closed
     $("#commentModal").on("hidden.bs.modal", function() {
         commentSubscription.unsubscribe();
@@ -113,7 +104,6 @@ $(document).ready(function() {
 
     $("#replyModal").on("hidden.bs.modal", function() {
         replySubscription.unsubscribe();
-        subscribeToPostComments();
     });
 
     $("#logoutBtn").on("click", function() {
@@ -203,7 +193,7 @@ function setReplyModalTitle(commentId) {
             $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post");
         },
         error: function(xhr, status, error) {
-            alert(xhr.responseText);
+            alert("Error Occurred! Setting the reply modal title failed!");
         }
     });
     $("#replyModalTitle").text();
@@ -288,7 +278,7 @@ function getAllReplies(replyURI) {
             });
         },
         error: function(xhr, response, error) {
-            alert(xhr.responseText);
+            alert("Error Occurred!" + xhr.responseText);
         }
     });
 }
@@ -568,7 +558,6 @@ function generateCommentBlock(commentDto) {
     const replyBtn = $("<button>").attr({
         "data-bs-toggle": "modal",
         "data-bs-target": "#replyModal",
-        "data-bs-dismiss": "modal",
         "type": "button",
         "id": "replyBtn" + commentDto.id,
         "href": "/posts/comments/" + commentDto.id + "/replies",
@@ -944,9 +933,7 @@ function generateNotificationBlock(notificationResponse) {
         const notificationLink = $("<a>")
             .attr({
                 "href": notificationResponse.uri,
-                "role": "button",
-                "data-bs-toggle": "modal",
-                "data-bs-target": "#commentModal"
+                "role": "button"
             }).appendTo(notificationItem);
 
     const notificationMessage = $("<p>")
@@ -957,12 +944,31 @@ function generateNotificationBlock(notificationResponse) {
     const br = $("<br>").appendTo(notificationContainer);
 
     notificationLink.on("click", function(event) {
-        const uri = $(this).attr("href");
-        const associatedBtn = $("a").filter(function() {
-            return $(this).attr("href") === uri;
-        }).last();
-
-        associatedBtn.click();
         event.preventDefault();
+
+        if (notificationResponse.type === "COMMENT") {
+            const uri = $(this).attr("href");
+            const associatedBtn = $("a").filter(function() {
+                return $(this).attr("href") === uri;
+            }).last();
+
+            associatedBtn.click();
+            $("#commentModal").modal('show');
+        }
+
+        if (notificationResponse.type === "REPLY") {
+            replyURI = notificationResponse.uri;
+            commentURI = notificationResponse.commentURI;
+
+            console.log(replyURI);
+
+            const commentId = notificationResponse.uri.split("/")[3];
+            setReplyModalTitle(commentId);
+
+           subscribeToCommentReplies();
+
+            getAllReplies(replyURI);
+            $("#replyModal").modal('show');
+        }
     });
 }
