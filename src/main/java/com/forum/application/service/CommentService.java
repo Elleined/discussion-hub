@@ -84,6 +84,13 @@ public class CommentService {
         log.debug("Comment with id of {} updated with the new body of {}", commentId, newBody);
     }
 
+    public void updateNotificationStatus(int commentId, NotificationStatus newStatus) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        comment.setNotificationStatus(newStatus);
+        commentRepository.save(comment);
+        log.debug("Comment with id of {} notification status updated to {}", commentId, newStatus);
+    }
+
     public boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
         int next = newUpvoteCount + 1;
         int previous = newUpvoteCount - 1;

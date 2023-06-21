@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.model.NotificationStatus;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -73,6 +74,15 @@ public class CommentController {
     public ResponseEntity<CommentDTO> updateCommentBody(@PathVariable("commentId") int commentId,
                                                @RequestParam("newCommentBody") String newCommentBody) {
         forumService.updateCommentBody(commentId, newCommentBody);
+
+        CommentDTO commentDTO = forumService.getCommentById(commentId);
+        return ResponseEntity.ok(commentDTO);
+    }
+
+    @PatchMapping("/notificationStatus/{commentId}")
+    public ResponseEntity<CommentDTO> updateNotificationStatus(@PathVariable("commentId") int commentId,
+                                                               @RequestParam("newStatus") NotificationStatus newStatus) {
+        forumService.updateCommentNotificationStatus(commentId, newStatus);
 
         CommentDTO commentDTO = forumService.getCommentById(commentId);
         return ResponseEntity.ok(commentDTO);

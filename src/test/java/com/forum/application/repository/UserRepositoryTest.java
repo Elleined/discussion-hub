@@ -1,5 +1,6 @@
 package com.forum.application.repository;
 
+import com.forum.application.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -29,5 +30,12 @@ class UserRepositoryTest {
         String email = "user1@gmail.com";
         int userId = userRepository.fetchIdByEmail(email);
         log.debug("{} id is {}", email, userId);
+    }
+
+
+    @Test
+    void fetchAllBlockedUserOf() {
+        int userId = 1;
+        userRepository.fetchAllBlockedUserOf(userId).forEach(user -> System.out.println(user.getName()));
     }
 }

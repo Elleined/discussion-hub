@@ -60,8 +60,7 @@ public class UserService {
     }
 
     public Set<User> getAllBlockedUsers(int userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
-        return user.getBlockedUsers();
+        return userRepository.fetchAllBlockedUserOf(userId);
     }
 
     public void blockUser(int userId, int userToBeBlockedId) {

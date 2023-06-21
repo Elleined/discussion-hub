@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
+    @Query("SELECT u.blockedUsers FROM User u WHERE u.id = :userId")
+    Set<User> fetchAllBlockedUserOf(@Param("userId") int userId);
     @Query("SELECT u.id FROM User u WHERE u.email = :email")
     int fetchIdByEmail(@Param("email") String email);
 
