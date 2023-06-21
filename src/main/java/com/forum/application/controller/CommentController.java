@@ -87,4 +87,13 @@ public class CommentController {
         CommentDTO commentDTO = forumService.getCommentById(commentId);
         return ResponseEntity.ok(commentDTO);
     }
+
+    @PatchMapping("/notificationStatus/batchUpdate")
+    public ResponseEntity<List<CommentDTO>> updateAllNotificationStatus(@RequestParam("commentIds") List<Integer> commentIds,
+                                                                      @RequestParam("newStatus") NotificationStatus newStatus) {
+        forumService.updateAllCommentNotificationStatus(commentIds, newStatus);
+
+        List<CommentDTO> comments = forumService.getAllCommentById(commentIds);
+        return ResponseEntity.ok(comments);
+    }
 }

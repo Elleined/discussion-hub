@@ -68,6 +68,14 @@ public class CommentService {
         return this.convertToDTO(comment);
     }
 
+    public List<CommentDTO> getAllById(List<Integer> commentIds) {
+        return commentRepository.findAllById(commentIds)
+                .stream()
+                .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .map(this::convertToDTO)
+                .toList();
+    }
+
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
         this.setUpvote(respondentId, commentId, newUpvoteCount);
 
@@ -89,6 +97,13 @@ public class CommentService {
         comment.setNotificationStatus(newStatus);
         commentRepository.save(comment);
         log.debug("Comment with id of {} notification status updated to {}", commentId, newStatus);
+    }
+
+    public void batchUpdateNotificationStatus(List<Integer> commentIds, NotificationStatus newStatus) {
+        commentRepository.findAllById(commentIds)
+                .stream()
+                .map(Comment::getId)
+                .forEach(id -> updateNotificationStatus(id, newStatus));
     }
 
     public boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
