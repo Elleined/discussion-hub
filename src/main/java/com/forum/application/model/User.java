@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -47,4 +48,14 @@ public class User {
     @OneToMany(mappedBy = "respondent")
     @Setter(AccessLevel.NONE)
     private List<CommentUpvoteTransaction> commentUpvoteTransactions;
+
+    @ManyToMany
+    @JoinTable(
+            name = "tbl_blocked_user",
+            joinColumns = @JoinColumn(name = "user_id",
+                    referencedColumnName = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "blocked_user_id",
+                    referencedColumnName = "user_id")
+    )
+    private Set<User> blockedUsers;
 }
