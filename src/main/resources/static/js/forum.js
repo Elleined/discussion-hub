@@ -449,8 +449,7 @@ function onConnected() {
     console.log("Web Socket Connected!!!");
 
     const authorId = $("#userId").val();
-
-    stompClient.subscribe("/discussion/forum-notification/comments/" + authorId, function(notificationResponse) {
+    stompClient.subscribe("/user/notification/comments", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
         if (json.respondentId == authorId) return; // If the post author commented in his own post it will not generate a notification block
 
@@ -463,7 +462,7 @@ function onConnected() {
         generateNotificationBlock(json);
     });
 
-    stompClient.subscribe("/discussion/forum-notification/replies/" + authorId, function(notificationResponse) {
+    stompClient.subscribe("/user/notification/replies", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
         if (json.respondentId == authorId) return; // If the post author replied in his own post it will not generate a notification block
 

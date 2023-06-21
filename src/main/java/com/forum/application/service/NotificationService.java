@@ -32,10 +32,10 @@ public class NotificationService {
                 .type(NotificationResponse.Type.COMMENT)
                 .build();
 
-        final String destination = "/discussion/forum-notification/comments/" + postDTO.getAuthorId();
-        simpMessagingTemplate.convertAndSend(destination, commentNotificationResponse);
+        final String subscriberId = String.valueOf(postDTO.getAuthorId());
+        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/comments", commentNotificationResponse);
 
-        log.debug("Comment notification successfully sent to {}", destination);
+        log.debug("Comment notification successfully sent to {}", subscriberId);
     }
 
     public void broadcastReplyNotification(int commentId, int replierId) {
@@ -43,16 +43,16 @@ public class NotificationService {
         final User replier = userService.getById(replierId);
 
         var replyNotificationResponse = ReplyNotificationResponse.builder()
-                .message(replier.getName() + " replied to your comment: " + commentDTO.getBody())
+                .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
                 .respondentId(replierId)
                 .uri("/posts/comments/" + commentId + "/replies")
                 .type(NotificationResponse.Type.REPLY)
                 .build();
 
-        final String destination = "/discussion/forum-notification/replies/" + commentDTO.getCommenterId();
-        simpMessagingTemplate.convertAndSend(destination, replyNotificationResponse);
+        final String subscriberId = String.valueOf(commentDTO.getCommenterId());
+        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
 
-        log.debug("Reply notification successfully sent to {}", destination);
+        log.debug("Reply notification successfully sent to {}", subscriberId);
     }
 }
