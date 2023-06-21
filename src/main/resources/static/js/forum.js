@@ -932,7 +932,7 @@ function generateNotificationBlock(notificationResponse) {
 
         const notificationLink = $("<a>")
             .attr({
-                "href": notificationResponse.uri,
+                "href": "#",
                 "role": "button"
             }).appendTo(notificationItem);
 
@@ -952,14 +952,19 @@ function generateNotificationBlock(notificationResponse) {
 
         messageCount.text(0 + "+");
 
+        notificationItem.remove();
+
         if (notificationResponse.type === "COMMENT") {
-            const uri = $(this).attr("href");
+            const uri = notificationResponse.uri;
             const associatedBtn = $("a").filter(function() {
                 return $(this).attr("href") === uri;
             }).last();
 
             associatedBtn.click();
+
             $("#commentModal").modal('show');
+            const postId = uri.split("/")[2];
+            getCommentSectionStatus(postId);
         }
 
         if (notificationResponse.type === "REPLY") {
@@ -974,7 +979,10 @@ function generateNotificationBlock(notificationResponse) {
            subscribeToCommentReplies();
 
             getAllReplies(replyURI);
+
             $("#replyModal").modal('show');
+            const postId = commentURI.split("/")[2];
+            getCommentSectionStatus(postId);
         }
     });
 }
