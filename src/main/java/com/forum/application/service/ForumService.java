@@ -112,6 +112,10 @@ public class ForumService {
         commentService.updateNotificationStatus(commentId, newStatus);
     }
 
+    public void updateReplyNotificationStatus(int replyId, NotificationStatus newStatus) {
+        replyService.updateNotificationStatus(replyId, newStatus);
+    }
+
     public String getCommentSectionStatus(int postId) {
         return postService.getCommentSectionStatus(postId);
     }

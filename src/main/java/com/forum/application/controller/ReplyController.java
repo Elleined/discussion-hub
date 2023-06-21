@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.model.NotificationStatus;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -58,6 +59,15 @@ public class ReplyController {
                                              @RequestParam("newReplyBody") String newReplyBody) {
 
         forumService.updateReplyBody(replyId, newReplyBody);
+
+        ReplyDTO replyDTO = forumService.getReplyById(replyId);
+        return ResponseEntity.ok(replyDTO);
+    }
+
+    @PatchMapping("/notificationStatus/{replyId}")
+    public ResponseEntity<ReplyDTO> updateNotificationStatus(@PathVariable("replyId") int replyId,
+                                                             @RequestParam("newStatus") NotificationStatus newStatus) {
+        forumService.updateReplyNotificationStatus(replyId, newStatus);
 
         ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);

@@ -53,6 +53,13 @@ public class ReplyService {
         log.debug("Reply with id of {} updated with the new body of {}", replyId, newReplyBody);
     }
 
+    public void updateNotificationStatus(int replyId, NotificationStatus newStatus) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        reply.setNotificationStatus(newStatus);
+        replyRepository.save(reply);
+        log.debug("Reply with id of {} notification status updated successfully to {}", reply, newStatus);
+    }
+
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()
