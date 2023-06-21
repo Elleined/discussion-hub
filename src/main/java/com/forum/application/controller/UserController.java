@@ -35,13 +35,13 @@ public class UserController {
 
     @PatchMapping("/{userId}/blockUser")
     public ResponseEntity<String> blockUser(@PathVariable("userId") int userId,
-                                            @RequestParam("userToBeBlocked") int userToBeBlockedId) {
+                                            @RequestParam("userToBeBlockedId") int userToBeBlockedId) {
 
         userService.blockUser(userId, userToBeBlockedId);
         return ResponseEntity.ok("User with id of " + userToBeBlockedId + " blocked successfully");
     }
 
-    @PatchMapping("/{userId}/unBlockUser")
+    @PatchMapping("/{userId}/unblockUser")
     public ResponseEntity<String> unblockUser(@PathVariable("userId") int userId,
                                               @RequestParam("userToBeUnblockedId") int userToBeUnblockedId) {
         userService.unBlockUser(userId, userToBeUnblockedId);
