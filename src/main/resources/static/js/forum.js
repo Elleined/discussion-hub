@@ -946,6 +946,12 @@ function generateNotificationBlock(notificationResponse) {
     notificationLink.on("click", function(event) {
         event.preventDefault();
 
+        const totalNotifCount = $("#totalNotifCount");
+        const newTotalNotifCount = parseInt(totalNotifCount.text()) - parseInt(messageCount.text());
+        totalNotifCount.text(newTotalNotifCount + "+");
+
+        messageCount.text(0 + "+");
+
         if (notificationResponse.type === "COMMENT") {
             const uri = $(this).attr("href");
             const associatedBtn = $("a").filter(function() {
