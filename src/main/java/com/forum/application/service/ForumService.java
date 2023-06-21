@@ -90,6 +90,10 @@ public class ForumService {
         return commentService.getAllById(commentIds);
     }
 
+    public List<ReplyDTO> getAllRepliesById(List<Integer> replyIds) {
+        return replyService.getAllById(replyIds);
+    }
+
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
         return commentService.updateUpvote(respondentId, commentId, newUpvoteCount);
     }
@@ -122,6 +126,10 @@ public class ForumService {
 
     public void updateReplyNotificationStatus(int replyId, NotificationStatus newStatus) {
         replyService.updateNotificationStatus(replyId, newStatus);
+    }
+
+    public void updateAllReplyNotificationStatus(List<Integer> replyIds, NotificationStatus newStatus) {
+        replyService.batchUpdateNotificationStatus(replyIds, newStatus);
     }
 
     public String getCommentSectionStatus(int postId) {

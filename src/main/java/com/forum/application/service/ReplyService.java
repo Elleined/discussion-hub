@@ -1,5 +1,6 @@
 package com.forum.application.service;
 
+import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
@@ -60,12 +61,27 @@ public class ReplyService {
         log.debug("Reply with id of {} notification status updated successfully to {}", reply, newStatus);
     }
 
+    public void batchUpdateNotificationStatus(List<Integer> replyIds, NotificationStatus newStatus) {
+        replyRepository.findAllById(replyIds)
+                .stream()
+                .map(Reply::getId)
+                .forEach(id -> updateNotificationStatus(id, newStatus));
+    }
+
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()
                 .stream()
                 .filter(r -> r.getStatus() == Status.ACTIVE)
                 .sorted(Comparator.comparing(Reply::getDateCreated))
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    public List<ReplyDTO> getAllById(List<Integer> replyIds) {
+        return replyRepository.findAllById(replyIds)
+                .stream()
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .map(this::convertToDTO)
                 .toList();
     }

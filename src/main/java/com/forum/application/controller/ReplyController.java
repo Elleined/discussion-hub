@@ -72,4 +72,13 @@ public class ReplyController {
         ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);
     }
+
+    @PatchMapping("/notificationStatus/batchUpdate")
+    public ResponseEntity<List<ReplyDTO>> updateAllNotificationStatus(@RequestParam("replyIds") List<Integer> replyIds,
+                                                                    @RequestParam("newStatus") NotificationStatus newStatus) {
+        forumService.updateAllReplyNotificationStatus(replyIds, newStatus);
+
+        List<ReplyDTO> replies = forumService.getAllRepliesById(replyIds);
+        return ResponseEntity.ok(replies);
+    }
 }
