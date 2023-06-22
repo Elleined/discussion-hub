@@ -5,7 +5,6 @@ import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
-import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,14 +18,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class CommentService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final CommentUpvoteTransactionService commentUpvoteTransactionService;
     private final ReplyService replyService;
+    private final CommentUpvoteTransactionService commentUpvoteTransactionService;
+    private final CommentRepository commentRepository;
 
     public int save(int commenterId, int postId, String body) {
-        User commenter = userRepository.findById(commenterId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + commenterId + " does not exists!"));
+        User commenter = userService.getById(commenterId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
         Comment comment = Comment.builder()
@@ -53,11 +52,13 @@ public class CommentService {
         return comment.getStatus() == Status.INACTIVE;
     }
 
-    public List<CommentDTO> getAllCommentsOf(int postId) {
+    public List<CommentDTO> getAllCommentsOf(int userId, int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getComments()
                 .stream()
-                .filter(p -> p.getStatus() == Status.ACTIVE)
+                .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .filter(comment -> userService.notBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> userService.notBlockedBy(comment.getCommenter().getId(), userId))
                 .sorted(Comparator.comparingInt(Comment::getUpvote).reversed())
                 .map(this::convertToDTO)
                 .toList();
@@ -72,6 +73,19 @@ public class CommentService {
         return commentRepository.findAllById(commentIds)
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    public List<CommentDTO> getAllUnreadCommentsOf(int userId) {
+        User user = userService.getById(userId);
+        List<Post> posts = user.getPosts();
+
+        return posts.stream()
+                .map(Post::getComments)
+                .flatMap(comments -> comments.stream()
+                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
+                        .filter(comment -> comment.getStatus() == Status.ACTIVE))
                 .map(this::convertToDTO)
                 .toList();
     }

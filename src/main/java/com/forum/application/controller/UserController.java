@@ -3,6 +3,8 @@ package com.forum.application.controller;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.model.User;
+import com.forum.application.service.CommentService;
+import com.forum.application.service.ReplyService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +19,17 @@ import java.util.Set;
 @RequestMapping("/forum/api/users")
 public class UserController {
     private final UserService userService;
+    private final CommentService commentService;
+    private final ReplyService replyService;
 
     @GetMapping("/{userId}/unreadComments")
     public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int userId) {
-        return userService.getAllUnreadCommentsOf(userId);
+        return commentService.getAllUnreadCommentsOf(userId);
     }
 
     @GetMapping("/{userId}/unreadReplies")
     public List<ReplyDTO> getAllUnreadReplies(@PathVariable("userId") int userId) {
-        return userService.getAllUnreadReplyOf(userId);
+        return replyService.getAllUnreadReplyOf(userId);
     }
 
     @GetMapping("/{userId}/getAllBlockedUsers")

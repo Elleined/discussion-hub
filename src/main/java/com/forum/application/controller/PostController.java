@@ -22,8 +22,10 @@ public class PostController {
 
 
     @GetMapping
-    public List<PostDTO> getAllPost() {
-        return forumService.getAllPost();
+    public List<PostDTO> getAllPost(HttpSession session) {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
+        return forumService.getAllPost(userId);
     }
 
     @GetMapping("/{postId}")

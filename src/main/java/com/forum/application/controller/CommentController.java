@@ -22,8 +22,11 @@ public class CommentController {
     private final UserService userService;
 
     @GetMapping
-    public List<CommentDTO> getAllCommentsOf(@PathVariable("postId") int postId) {
-        return forumService.getAllCommentsOf(postId);
+    public List<CommentDTO> getAllCommentsOf(@PathVariable("postId") int postId,
+                                             HttpSession session) {
+        String email = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(email);
+        return forumService.getAllCommentsOf(userId, postId);
     }
 
     @GetMapping("/{commentId}")

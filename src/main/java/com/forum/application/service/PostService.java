@@ -8,7 +8,6 @@ import com.forum.application.model.Post.CommentSectionStatus;
 import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
-import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,13 +22,12 @@ import java.util.List;
 @Service
 public class PostService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PostRepository postRepository;
-
     private final CommentService commentService;
 
     public int save(int authorId, String body) {
-        User author = userRepository.findById(authorId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + authorId + " does not exists!"));
+        User author = userService.getById(authorId);
 
         Post post = Post.builder()
                 .body(body)
@@ -69,22 +67,24 @@ public class PostService {
         return post.getStatus() == Status.INACTIVE;
     }
 
-    public List<PostDTO> getAll() {
-        return postRepository.findAll()
-                .stream()
-                .filter(post -> post.getStatus() == Status.ACTIVE)
-                .map(this::convertToDTO)
-                .sorted(Comparator.comparing(PostDTO::getDateCreated).reversed())
-                .toList();
-    }
-
     public PostDTO getById(int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return this.convertToDTO(post);
     }
 
+    public List<PostDTO> getAll(int userId) {
+        return postRepository.findAll()
+                .stream()
+                .filter(post -> post.getStatus() == Status.ACTIVE)
+                .filter(post -> userService.notBlockedBy(userId, post.getAuthor().getId()))
+                .filter(post -> userService.notBlockedBy(post.getAuthor().getId(), userId))
+                .sorted(Comparator.comparing(Post::getDateCreated).reversed())
+                .map(this::convertToDTO)
+                .toList();
+    }
+
     public List<PostDTO> getAllByAuthorId(int authorId) {
-        if (!userRepository.existsById(authorId)) throw new ResourceNotFoundException("User with id of " + authorId + " does not exists");
+        if (!userService.existsById(authorId)) throw new ResourceNotFoundException("User with id of " + authorId + " does not exists");
         return postRepository.fetchAllByAuthorId(authorId)
                 .stream()
                 .filter(post -> post.getStatus() == Status.ACTIVE)

@@ -70,20 +70,20 @@ public class ForumService {
         wsService.broadcastReply(replyId);
     }
 
-    public List<PostDTO> getAllPost() {
-        return postService.getAll();
+    public List<PostDTO> getAllPost(int userId) {
+        return postService.getAll(userId);
     }
 
     public List<PostDTO> getAllByAuthorId(int authorId) {
         return postService.getAllByAuthorId(authorId);
     }
 
-    public List<CommentDTO> getAllCommentsOf(int postId) {
-        return commentService.getAllCommentsOf(postId);
+    public List<CommentDTO> getAllCommentsOf(int userId, int postId) {
+        return commentService.getAllCommentsOf(userId, postId);
     }
 
-    public List<ReplyDTO> getAllRepliesOf(int commentId) {
-        return replyService.getAllRepliesOf(commentId);
+    public List<ReplyDTO> getAllRepliesOf(int userId, int commentId) {
+        return replyService.getAllRepliesOf(userId, commentId);
     }
 
     public List<CommentDTO> getAllCommentById(List<Integer> commentIds) {

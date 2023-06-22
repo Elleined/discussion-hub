@@ -31,7 +31,7 @@ public class ForumController {
         if (email == null) return "redirect:/";
 
         int userId = userService.getIdByEmail(email);
-        List<PostDTO> posts = forumService.getAllPost();
+        List<PostDTO> posts = forumService.getAllPost(userId);
 
         model.addAttribute("userId", userId);
         model.addAttribute("posts", posts);

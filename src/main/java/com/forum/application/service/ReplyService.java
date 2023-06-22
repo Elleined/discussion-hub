@@ -1,12 +1,10 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.ReplyRepository;
-import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,12 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ReplyService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
 
     public int save(int replierId, int commentId, String body) {
-        User replier = userRepository.findById(replierId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + replierId + " does not exists!"));
+        User replier = userService.getById(replierId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
 
         Reply reply = Reply.builder()
@@ -68,11 +66,13 @@ public class ReplyService {
                 .forEach(id -> updateNotificationStatus(id, newStatus));
     }
 
-    public List<ReplyDTO> getAllRepliesOf(int commentId) {
+    public List<ReplyDTO> getAllRepliesOf(int userId, int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()
                 .stream()
-                .filter(r -> r.getStatus() == Status.ACTIVE)
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                .filter(reply -> userService.notBlockedBy(userId, reply.getReplier().getId()))
+                .filter(reply -> userService.notBlockedBy(reply.getReplier().getId(), userId))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
                 .map(this::convertToDTO)
                 .toList();
@@ -89,6 +89,19 @@ public class ReplyService {
     public ReplyDTO getById(int replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         return this.convertToDTO(reply);
+    }
+
+    public List<ReplyDTO> getAllUnreadReplyOf(int userId) {
+        User user = userService.getById(userId);
+        List<Comment> comments = user.getComments();
+
+        return comments.stream()
+                .map(Comment::getReplies)
+                .flatMap(replies -> replies.stream()
+                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE))
+                .map(this::convertToDTO)
+                .toList();
     }
 
     ReplyDTO convertToDTO(Reply reply) {

@@ -22,8 +22,12 @@ public class ReplyController {
     private final UserService userService;
 
     @GetMapping
-    public List<ReplyDTO> getAllRepliesOf(@PathVariable("commentId") int commentId) {
-        return forumService.getAllRepliesOf(commentId);
+    public List<ReplyDTO> getAllRepliesOf(@PathVariable("commentId") int commentId,
+                                          HttpSession session) {
+
+        String email = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(email);
+        return forumService.getAllRepliesOf(userId, commentId);
     }
 
     @GetMapping("/{replyId}")
