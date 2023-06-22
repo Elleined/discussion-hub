@@ -84,8 +84,8 @@ public class CommentService {
         return posts.stream()
                 .map(Post::getComments)
                 .flatMap(comments -> comments.stream()
-                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
-                        .filter(comment -> comment.getStatus() == Status.ACTIVE))
+                        .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
                 .map(this::convertToDTO)
                 .toList();
     }

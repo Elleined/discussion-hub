@@ -98,8 +98,8 @@ public class ReplyService {
         return comments.stream()
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
-                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
-                        .filter(reply -> reply.getStatus() == Status.ACTIVE))
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
                 .map(this::convertToDTO)
                 .toList();
     }
