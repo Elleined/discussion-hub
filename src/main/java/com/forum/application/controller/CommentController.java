@@ -46,6 +46,9 @@ public class CommentController {
         String email = (String) session.getAttribute("email");
         int commenterId = userService.getIdByEmail(email);
 
+        int authorId = forumService.getPostById(postId).getAuthorId();
+        if (userService.isYouBeenBlockedBy(commenterId, authorId)) return ResponseEntity.badRequest().body("Cannot comment because this user block you already!");
+
         int commentId = forumService.saveComment(commenterId, postId, body);
         CommentDTO fetchedComment = forumService.getCommentById(commentId);
         return ResponseEntity.ok(fetchedComment);

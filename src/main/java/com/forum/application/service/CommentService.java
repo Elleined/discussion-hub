@@ -57,8 +57,8 @@ public class CommentService {
         return post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> userService.notBlockedBy(userId, comment.getCommenter().getId()))
-                .filter(comment -> userService.notBlockedBy(comment.getCommenter().getId(), userId))
+                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
                 .sorted(Comparator.comparingInt(Comment::getUpvote).reversed())
                 .map(this::convertToDTO)
                 .toList();

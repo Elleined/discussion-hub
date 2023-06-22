@@ -76,8 +76,8 @@ public class PostService {
         return postRepository.findAll()
                 .stream()
                 .filter(post -> post.getStatus() == Status.ACTIVE)
-                .filter(post -> userService.notBlockedBy(userId, post.getAuthor().getId()))
-                .filter(post -> userService.notBlockedBy(post.getAuthor().getId(), userId))
+                .filter(post -> !userService.isBlockedBy(userId, post.getAuthor().getId()))
+                .filter(post -> !userService.isYouBeenBlockedBy(userId, post.getAuthor().getId()))
                 .sorted(Comparator.comparing(Post::getDateCreated).reversed())
                 .map(this::convertToDTO)
                 .toList();

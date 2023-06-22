@@ -71,8 +71,8 @@ public class ReplyService {
         return comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                .filter(reply -> userService.notBlockedBy(userId, reply.getReplier().getId()))
-                .filter(reply -> userService.notBlockedBy(reply.getReplier().getId(), userId))
+                .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
+                .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
                 .map(this::convertToDTO)
                 .toList();

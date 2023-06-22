@@ -1,7 +1,9 @@
 package com.forum.application.repository;
 
 import com.forum.application.model.User;
+import com.forum.application.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,6 @@ class UserRepositoryTest {
     public UserRepositoryTest(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
 
     @Test
     void getIdByEmail() {

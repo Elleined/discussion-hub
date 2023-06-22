@@ -49,10 +49,14 @@ public class UserService {
         log.debug("User with id of {} unblocked successfully", userToBeUnblockedId);
     }
 
-    public boolean notBlockedBy(int userId, int userToCheckId) {
+    public boolean isBlockedBy(int userId, int userToCheckId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
-        User userToCheck = userRepository.findById(userToCheckId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userToCheckId + " does not exists!"));
-        return !user.getBlockedUsers().contains(userToCheck);
+        return user.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userToCheckId);
+    }
+
+    public boolean isYouBeenBlockedBy(int userId, int suspectedUserId) {
+        User suspected = userRepository.findById(suspectedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + suspectedUserId + " does not exists!"));
+        return suspected.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userId);
     }
 
     public boolean isEmailExists(String email) {

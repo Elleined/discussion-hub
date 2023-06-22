@@ -49,7 +49,7 @@ public class User {
     @Setter(AccessLevel.NONE)
     private List<CommentUpvoteTransaction> commentUpvoteTransactions;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tbl_blocked_user",
             joinColumns = @JoinColumn(name = "user_id",
