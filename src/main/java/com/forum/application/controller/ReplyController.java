@@ -47,6 +47,9 @@ public class ReplyController {
         String email = (String) session.getAttribute("email");
         int replierId = userService.getIdByEmail(email);
 
+        int commenterId = forumService.getCommentById(commentId).getCommenterId();
+        if (userService.isYouBeenBlockedBy(replierId, commenterId)) return ResponseEntity.badRequest().body("Cannot reply because this user block you already!");
+
         int replyId = forumService.saveReply(replierId, commentId, body);
         ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);
