@@ -124,15 +124,15 @@ $(document).ready(function() {
     // insert here
 });
 
-function isBlockedBy(commenterId) {
+function isBlockedBy(userToCheckId) {
     const userId = $("#userId").val();
 
     return $.ajax({
         type: "GET",
-        url: "/forum/api/users/isBlockedBy/" + userId + "/" + commenterId,
+        url: "/forum/api/users/isBlockedBy/" + userId + "/" + userToCheckId,
         async: false,
         success: function(isBlockedBy, response) {
-            console.log("Is " + commenterId + " blocked by " + userId + ": " + isBlockedBy);
+            console.log("Is " + userToCheckId + " blocked by " + userId + ": " + isBlockedBy);
         },
         error: function(xhr, status, response) {
             alert("Error Occurred! is user blocked failed to fetch!")
@@ -155,13 +155,12 @@ function isYouBeenBlockedBy(suspectedBlockerId) {
     });
 }
 
-function isUserBlocked(commenterId) {
-          let blockedBy;
-            let youBeenBlockedBy;
-            isBlockedBy(commenterId).done(function(data) {
+function isUserBlocked(id) {
+          let blockedBy, youBeenBlockedBy;
+            isBlockedBy(id).done(function(data) {
                 blockedBy = data == true ? true : false;
             });
-            isYouBeenBlockedBy(commenterId).done(function(data) {
+            isYouBeenBlockedBy(id).done(function(data) {
                 youBeenBlockedBy = data == true ? true : false;
             });
 
@@ -201,6 +200,8 @@ function subscribeToCommentReplies() {
         replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
             const json = JSON.parse(replyDto.body);
             const replyContainer = $("div").filter("#reply_" + json.id);
+
+            // Use for delete
             if (json.status === "INACTIVE") {
                 replyContainer.remove();
                 updateReplyCount(json.commentId, "-");
@@ -208,6 +209,10 @@ function subscribeToCommentReplies() {
                 return;
             }
 
+            // Use for block
+            if (isUserBlocked(json.replierId)) return;
+
+            // Use for update
             if (previousReplyBody !== json.body && replyContainer.length) {
                 $("#replyBody" + json.id).text(json.body);
                 return;
