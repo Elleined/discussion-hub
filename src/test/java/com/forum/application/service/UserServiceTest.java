@@ -19,8 +19,8 @@ class UserServiceTest {
     @Test
     void isBlockedBy() {
         int userId = 2;
-        int userToCheckId = 3;
-        assertTrue(userService.isBlockedBy(userToCheckId, userId), "User does not blocked the other user");
+        int userToCheckId = 1;
+        assertTrue(userService.isBlockedBy(userId, userToCheckId), "User does not blocked the other user");
     }
 
     @Test

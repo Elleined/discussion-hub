@@ -1,7 +1,5 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.User;
 import com.forum.application.repository.UserRepository;
@@ -9,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
 
 @Slf4j

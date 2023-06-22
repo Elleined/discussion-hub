@@ -2,6 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -15,6 +16,7 @@ public class WSService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final CommentService commentService;
     private final ReplyService replyService;
+
     public void broadcastComment(int commentId) {
         final CommentDTO commentDTO = commentService.getById(commentId);
         commentDTO.setBody(HtmlUtils.htmlEscape(commentDTO.getBody()));

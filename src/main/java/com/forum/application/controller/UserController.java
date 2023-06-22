@@ -51,4 +51,16 @@ public class UserController {
         userService.unBlockUser(userId, userToBeUnblockedId);
         return ResponseEntity.ok("User with id of " + userToBeUnblockedId + " unblocked successfully");
     }
+
+    @GetMapping("/isBlockedBy/{userId}/{userToCheckId}")
+    public boolean isBlockedBy(@PathVariable("userId") int userId,
+                               @PathVariable("userToCheckId") int userToCheckId) {
+        return userService.isBlockedBy(userId, userToCheckId);
+    }
+
+    @GetMapping("/isYouBeenBlockedBy/{userId}/{suspectedBlockerId}")
+    public boolean isYouBeenBlockedBy(@PathVariable("userId") int userId,
+                                      @PathVariable("suspectedBlockerId") int suspectedBlockerId) {
+        return userService.isYouBeenBlockedBy(userId, suspectedBlockerId);
+    }
 }

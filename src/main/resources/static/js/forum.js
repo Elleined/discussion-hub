@@ -124,17 +124,68 @@ $(document).ready(function() {
     // insert here
 });
 
+function isBlockedBy(commenterId) {
+    const userId = $("#userId").val();
+
+    return $.ajax({
+        type: "GET",
+        url: "/forum/api/users/isBlockedBy/" + userId + "/" + commenterId,
+        async: false,
+        success: function(isBlockedBy, response) {
+            console.log("Is " + commenterId + " blocked by " + userId + ": " + isBlockedBy);
+        },
+        error: function(xhr, status, response) {
+            alert("Error Occurred! is user blocked failed to fetch!")
+        }
+    });
+}
+
+function isYouBeenBlockedBy(suspectedBlockerId) {
+    const userId = $("#userId").val();
+    return $.ajax({
+        type: "GET",
+        url: "/forum/api/users/isYouBeenBlockedBy/" + userId + "/" + suspectedBlockerId,
+        async: false,
+        success: function(isYouBeenBlockedBy, response) {
+            console.log("Is you been blocked by " + userId + ": " + isYouBeenBlockedBy);
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Is you been blocked by failed to fetch!");
+        }
+    });
+}
+
+function isUserBlocked(commenterId) {
+          let blockedBy;
+            let youBeenBlockedBy;
+            isBlockedBy(commenterId).done(function(data) {
+                blockedBy = data == true ? true : false;
+            });
+            isYouBeenBlockedBy(commenterId).done(function(data) {
+                youBeenBlockedBy = data == true ? true : false;
+            });
+
+            return blockedBy || youBeenBlockedBy;
+}
+
 function subscribeToPostComments() {
 // SendTo URI of Comment
+        const userId = $("#userId").val();
         commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
             const json = JSON.parse(commentDto.body);
             const commentContainer = $("div").filter("#comment_" + json.id);
+
+            // Use for delete
             if (json.status === "INACTIVE") {
                 commentContainer.remove();
                 updateCommentCount(json.postId, "-");
                 return;
             }
 
+            // Use for block
+            if (isUserBlocked(json.commenterId)) return;
+
+            // Used for update
             if (previousCommentBody !== json.body && commentContainer.length) {
                 $("#commentBody" + json.id).text(json.body);
                 return;
@@ -166,10 +217,6 @@ function subscribeToCommentReplies() {
             updateReplyCount(json.commentId, "+");
             updateCommentCount(json.postId, "+");
         });
-}
-
-function disableCommentSection() {
-    $(".commentModal #commentForm").hide();
 }
 
 function setCommentModalTitle(postId) {
@@ -282,6 +329,7 @@ function getAllReplies(replyURI) {
         }
     });
 }
+
 
 function getCommentSectionStatus(postId) {
     $.ajax({
