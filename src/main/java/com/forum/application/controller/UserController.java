@@ -37,9 +37,9 @@ public class UserController {
         return userService.getAllBlockedUsers(userId);
     }
 
-    @PatchMapping("/{userId}/blockUser")
+    @PatchMapping("/{userId}/blockUser/{userToBeBlockedId}")
     public ResponseEntity<String> blockUser(@PathVariable("userId") int userId,
-                                            @RequestParam("userToBeBlockedId") int userToBeBlockedId) {
+                                            @PathVariable("userToBeBlockedId") int userToBeBlockedId) {
 
         userService.blockUser(userId, userToBeBlockedId);
         return ResponseEntity.ok("User with id of " + userToBeBlockedId + " blocked successfully");

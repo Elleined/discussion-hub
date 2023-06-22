@@ -80,7 +80,15 @@
                   <div class="note note-primary mb-3" th:text="${'Comment section status: ' + post.commentSectionStatus}"></div>
                 </div>
                 <div class="col-md-3">
-                  <button type="button" class="btn btn-outline-danger btn-rounded mt-1" data-mdb-ripple-color="dark" data-mdb-toggle="modal" data-mdb-target="#blockModal">Block</button>
+                  <a class="btn btn-outline-danger btn-rounded mt-1"
+                     data-mdb-ripple-color="dark"
+                     data-mdb-toggle="modal"
+                     data-mdb-target="#blockModal"
+                     role="button"
+                     th:href="@{/forum/api/users/{userId}/blockUser/{userToBeBlockedId} (userId=${userId}, userToBeBlockedId=${post.authorId}) }"
+                     id="blockBtn">
+                    Block
+                  </a>
                 </div>
               </div>
             </div>

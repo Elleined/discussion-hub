@@ -35,7 +35,7 @@ public class UserService {
         User userToBeBlocked = userRepository.findById(userToBeBlockedId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userToBeBlockedId + " does not exists!"));
         user.getBlockedUsers().add(userToBeBlocked);
         userRepository.save(user);
-        log.debug("User with id of {} blocked successfully", userToBeBlockedId);
+        log.debug("User {} blocked User {} successfully", userId, userToBeBlockedId);
     }
 
     public void unBlockUser(int userId, int userToBeUnblockedId) {
@@ -43,7 +43,7 @@ public class UserService {
         User userToBeUnBlocked = userRepository.findById(userToBeUnblockedId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userToBeUnblockedId + " does not exists!"));
         user.getBlockedUsers().remove(userToBeUnBlocked);
         userRepository.save(user);
-        log.debug("User with id of {} unblocked successfully", userToBeUnblockedId);
+        log.debug("User {} unblocked user {} successfully", userId, userToBeUnblockedId);
     }
 
     public boolean isBlockedBy(int userId, int userToCheckId) {

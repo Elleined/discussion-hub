@@ -77,6 +77,15 @@ $(document).ready(function() {
         event.preventDefault();
     });
 
+    $(".row #blockBtn").on("click", function(event) {
+        event.preventDefault();
+        const href = $(this).attr("href");
+
+        $("#blockModalBtn").on("click", function() {
+            blockUser(href);
+        });
+    });
+
     $(".commentModal #commentForm").on("submit", function(event) {
         event.preventDefault();
 
@@ -123,37 +132,6 @@ $(document).ready(function() {
     });
     // insert here
 });
-
-function isBlockedBy(userToCheckId) {
-    const userId = $("#userId").val();
-
-    return $.ajax({
-        type: "GET",
-        url: "/forum/api/users/isBlockedBy/" + userId + "/" + userToCheckId,
-        async: false,
-        success: function(isBlockedBy, response) {
-            console.log("Is " + userToCheckId + " blocked by " + userId + ": " + isBlockedBy);
-        },
-        error: function(xhr, status, response) {
-            alert("Error Occurred! is user blocked failed to fetch!")
-        }
-    });
-}
-
-function isYouBeenBlockedBy(suspectedBlockerId) {
-    const userId = $("#userId").val();
-    return $.ajax({
-        type: "GET",
-        url: "/forum/api/users/isYouBeenBlockedBy/" + userId + "/" + suspectedBlockerId,
-        async: false,
-        success: function(isYouBeenBlockedBy, response) {
-            console.log("Is you been blocked by " + userId + ": " + isYouBeenBlockedBy);
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Is you been blocked by failed to fetch!");
-        }
-    });
-}
 
 function isUserBlocked(id) {
           let blockedBy, youBeenBlockedBy;
@@ -224,6 +202,38 @@ function subscribeToCommentReplies() {
         });
 }
 
+function isBlockedBy(userToCheckId) {
+    const userId = $("#userId").val();
+
+    return $.ajax({
+        type: "GET",
+        url: "/forum/api/users/isBlockedBy/" + userId + "/" + userToCheckId,
+        async: false,
+        success: function(isBlockedBy, response) {
+            console.log("Is " + userToCheckId + " blocked by " + userId + ": " + isBlockedBy);
+        },
+        error: function(xhr, status, response) {
+            alert("Error Occurred! is user blocked failed to fetch!")
+        }
+    });
+}
+
+function isYouBeenBlockedBy(suspectedBlockerId) {
+    const userId = $("#userId").val();
+    return $.ajax({
+        type: "GET",
+        url: "/forum/api/users/isYouBeenBlockedBy/" + userId + "/" + suspectedBlockerId,
+        async: false,
+        success: function(isYouBeenBlockedBy, response) {
+            console.log("Is you been blocked by " + userId + ": " + isYouBeenBlockedBy);
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Is you been blocked by failed to fetch!");
+        }
+    });
+}
+
+
 function setCommentModalTitle(postId) {
     $.ajax({
         type: "GET",
@@ -249,6 +259,20 @@ function setReplyModalTitle(commentId) {
         }
     });
     $("#replyModalTitle").text();
+}
+
+function blockUser(href) {
+    $.ajax({
+        type: "PATCH",
+        url: href,
+        success: function(response) {
+            console.log("Successfully blocked this user with href of " + href);
+            location.reload();
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Blocking this user failed!" + xhr.responseText);
+        }
+    });
 }
 
 function savePost(body) {
