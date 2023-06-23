@@ -110,6 +110,8 @@ $(document).ready(function() {
     // Below this making sure that socket and stompClient is closed
     $("#commentModal").on("hidden.bs.modal", function() {
         commentSubscription.unsubscribe();
+        const userId = $("#userId").val();
+        deleteTracker(userId);
     });
 
     $("#commentModal").on("show.bs.modal", function() {
@@ -207,7 +209,7 @@ function saveTracker(userId, associatedTypeId, type) {
             type: type
         },
         success: function(modalTracker, response) {
-            alert("Saving the modal tracker for user with id of " + userId + " successful!");
+            console.log("Saving the modal tracker for user with id of " + userId + " successful!");
         },
         error: function(xhr, status, error) {
             alert("Error Occurred! Saving the modal tracker for this user failed!");
@@ -235,11 +237,11 @@ function getTracker(userId) {
 
 function deleteTracker(userId) {
     return $.ajax({
-        type: "GET",
+        type: "DELETE",
         url: "/forum/api/users/" + userId + "/deleteTracker",
         async: false,
         success: function(response) {
-            alert("User with id of " + userId + " modal tracker deleted successfully!")
+            console.log("User with id of " + userId + " modal tracker deleted successfully!")
         },
         error: function(xhr, status, error) {
             alert("Error Occurred! Deleting the modal tracker of user with id of " + userId + " failed");
