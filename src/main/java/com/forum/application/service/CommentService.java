@@ -93,9 +93,8 @@ public class CommentService {
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
         this.setUpvote(respondentId, commentId, newUpvoteCount);
 
-        CommentDTO commentDTO = this.getById(commentId);
-        log.debug("User with id of {} upvoted the Comment with id of {} successfully with new upvote count of {} ", respondentId, commentId, commentDTO.getUpvote());
-        return commentDTO;
+        log.debug("User with id of {} upvoted the Comment with id of {} successfully with new upvote count of {} ", respondentId, commentId, newUpvoteCount);
+        return this.getById(commentId);
     }
 
     public void updateCommentBody(int commentId, String newBody) {
@@ -124,6 +123,13 @@ public class CommentService {
         int next = newUpvoteCount + 1;
         int previous = newUpvoteCount - 1;
         return oldUpvoteCount != next && oldUpvoteCount != previous;
+    }
+
+    public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) {
+        User respondent = userService.getById(respondentId);
+        return respondent.getUpvotedComments()
+                .stream()
+                .anyMatch(upvotedComment -> upvotedComment.getId() == commentId);
     }
 
     CommentDTO convertToDTO(Comment comment) {
@@ -163,5 +169,9 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         comment.setUpvote(newUpvoteCount);
         commentRepository.save(comment);
+
+        User respondent = userService.getById(respondentId);
+        respondent.getUpvotedComments().add(comment);
+        userService.save(respondent);
     }
 }

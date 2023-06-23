@@ -140,6 +140,10 @@ public class ForumService {
         return commentService.isNotValidUpvoteValue(commentDTO.getUpvote(), newUpvoteValue);
     }
 
+    public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) {
+        return commentService.isUserAlreadyUpvoteComment(respondentId, commentId);
+    }
+
     public boolean isPostDeleted(int postId) {
         return postService.isDeleted(postId);
     }
