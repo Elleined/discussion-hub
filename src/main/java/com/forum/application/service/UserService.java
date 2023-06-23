@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.ModalTracker;
+import com.forum.application.model.Type;
 import com.forum.application.model.User;
 import com.forum.application.repository.ModalTrackerRepository;
 import com.forum.application.repository.UserRepository;
@@ -30,6 +31,27 @@ public class UserService {
 
     public int getIdByEmail(String email) {
         return userRepository.fetchIdByEmail(email);
+    }
+
+    public boolean isEmailExists(String email) {
+        return userRepository.fetchAllEmail().contains(email);
+    }
+
+    public boolean existsById(int userId) {
+        return userRepository.existsById(userId);
+    }
+
+    public User getById(int userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
+    }
+
+    public ModalTracker saveTrackerOfUserById(int userId, int associateTypeIdOpened, String type) {
+        ModalTracker modalTracker = ModalTracker.builder()
+                .userId(userId)
+                .associatedTypeIdOpened(associateTypeIdOpened)
+                .type(Type.valueOf(type))
+                .build();
+        return modalTrackerRepository.save(modalTracker);
     }
 
     public ModalTracker getTrackerOfUserById(int userId) {
@@ -61,18 +83,6 @@ public class UserService {
 
     public boolean isYouBeenBlockedBy(int userId, int suspectedUserId) {
         return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
-    }
-
-    public boolean isEmailExists(String email) {
-        return userRepository.fetchAllEmail().contains(email);
-    }
-
-    public boolean existsById(int userId) {
-        return userRepository.existsById(userId);
-    }
-
-    public User getById(int userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 
     public UserDTO convertToDTO(User user) {

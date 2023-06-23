@@ -106,9 +106,16 @@ $(document).ready(function() {
         $("#replyBody").val("");
     });
 
+
     // Below this making sure that socket and stompClient is closed
     $("#commentModal").on("hidden.bs.modal", function() {
         commentSubscription.unsubscribe();
+    });
+
+    $("#commentModal").on("show.bs.modal", function() {
+        const userId = $("#userId").val();
+        const postId = $(".card-body #commentBtn").attr("href").split("/")[2];
+        saveTracker(userId, postId, "COMMENT");
     });
 
     $("#replyModal").on("hidden.bs.modal", function() {
@@ -132,18 +139,6 @@ $(document).ready(function() {
     });
     // insert here
 });
-
-function isUserBlocked(id) {
-          let blockedBy, youBeenBlockedBy;
-            isBlockedBy(id).done(function(data) {
-                blockedBy = data == true ? true : false;
-            });
-            isYouBeenBlockedBy(id).done(function(data) {
-                youBeenBlockedBy = data == true ? true : false;
-            });
-
-            return blockedBy || youBeenBlockedBy;
-}
 
 function subscribeToPostComments() {
 // SendTo URI of Comment
@@ -202,6 +197,24 @@ function subscribeToCommentReplies() {
         });
 }
 
+function saveTracker(userId, associatedTypeId, type) {
+    return $.ajax({
+        type: "POST",
+        url: "/forum/api/users/" + userId + "/saveTracker",
+        async: false,
+        data: {
+            associatedTypeId: associatedTypeId,
+            type: type
+        },
+        success: function(modalTracker, response) {
+            alert("Saving the modal tracker for user with id of " + userId + " successful!");
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Saving the modal tracker for this user failed!");
+        }
+    });
+}
+
 function getTracker(userId) {
     return $.ajax({
         type: "GET",
@@ -232,6 +245,18 @@ function deleteTracker(userId) {
             alert("Error Occurred! Deleting the modal tracker of user with id of " + userId + " failed");
         }
     });
+}
+
+function isUserBlocked(id) {
+          let blockedBy, youBeenBlockedBy;
+            isBlockedBy(id).done(function(data) {
+                blockedBy = data == true ? true : false;
+            });
+            isYouBeenBlockedBy(id).done(function(data) {
+                youBeenBlockedBy = data == true ? true : false;
+            });
+
+            return blockedBy || youBeenBlockedBy;
 }
 
 function isBlockedBy(userToCheckId) {

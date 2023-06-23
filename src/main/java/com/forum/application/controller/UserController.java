@@ -4,6 +4,7 @@ import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
+import com.forum.application.model.Type;
 import com.forum.application.model.User;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.ReplyService;
@@ -64,6 +65,15 @@ public class UserController {
     public boolean isYouBeenBlockedBy(@PathVariable("userId") int userId,
                                       @PathVariable("suspectedBlockerId") int suspectedBlockerId) {
         return userService.isYouBeenBlockedBy(userId, suspectedBlockerId);
+    }
+
+    @PostMapping("/saveTracker")
+    public ResponseEntity<ModalTracker> saveTracker(@PathVariable("userId") int userId,
+                                                    @RequestParam("associatedTypeId") int associateTypeId,
+                                                    @RequestParam("type") String type) {
+
+        ModalTracker modalTracker = userService.saveTrackerOfUserById(userId, associateTypeId, type);
+        return ResponseEntity.ok(modalTracker);
     }
 
     @GetMapping("/getTracker")

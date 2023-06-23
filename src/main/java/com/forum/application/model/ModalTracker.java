@@ -22,5 +22,5 @@ public class ModalTracker {
 
 
     @Column(name = "associated_id_opened")
-    private int associatedTypeIdOpen;
+    private int associatedTypeIdOpened;
 }
