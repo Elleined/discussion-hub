@@ -19,7 +19,6 @@ public class ForumService {
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
-    private final CommentUpvoteTransactionService commentUpvoteTransactionService;
     private final WSService wsService;
     private final NotificationService notificationService;
 
@@ -139,10 +138,6 @@ public class ForumService {
     public boolean isNotValidUpvoteValue(int commentId, int newUpvoteValue) {
         CommentDTO commentDTO = commentService.getById(commentId);
         return commentService.isNotValidUpvoteValue(commentDTO.getUpvote(), newUpvoteValue);
-    }
-
-    public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) {
-        return commentUpvoteTransactionService.isUserAlreadyUpvoteComment(respondentId, commentId);
     }
 
     public boolean isPostDeleted(int postId) {

@@ -18,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ModalTrackerRepository modalTrackerRepository;
+    private final BlockService blockService;
 
     public int save(User user) {
         int userId = userRepository.save(user).getId();
@@ -29,10 +30,6 @@ public class UserService {
         return userRepository.fetchIdByEmail(email);
     }
 
-    public Set<User> getAllBlockedUsers(int userId) {
-        return userRepository.fetchAllBlockedUserOf(userId);
-    }
-
     public ModalTracker getTrackerOfUserById(int userId) {
         return modalTrackerRepository.findById(userId).orElse(null);
     }
@@ -41,30 +38,24 @@ public class UserService {
         modalTrackerRepository.deleteById(userId);
     }
 
+    public Set<User> getAllBlockedUsers(int userId) {
+        return userRepository.fetchAllBlockedUserOf(userId);
+    }
+
     public void blockUser(int userId, int userToBeBlockedId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
-        User userToBeBlocked = userRepository.findById(userToBeBlockedId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userToBeBlockedId + " does not exists!"));
-        user.getBlockedUsers().add(userToBeBlocked);
-        userRepository.save(user);
-        log.debug("User {} blocked User {} successfully", userId, userToBeBlockedId);
+        blockService.blockUser(userId, userToBeBlockedId);
     }
 
     public void unBlockUser(int userId, int userToBeUnblockedId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
-        User userToBeUnBlocked = userRepository.findById(userToBeUnblockedId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userToBeUnblockedId + " does not exists!"));
-        user.getBlockedUsers().remove(userToBeUnBlocked);
-        userRepository.save(user);
-        log.debug("User {} unblocked user {} successfully", userId, userToBeUnblockedId);
+        blockService.unBlockUser(userId, userToBeUnblockedId);
     }
 
     public boolean isBlockedBy(int userId, int userToCheckId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
-        return user.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userToCheckId);
+        return blockService.isBlockedBy(userId, userToCheckId);
     }
 
     public boolean isYouBeenBlockedBy(int userId, int suspectedUserId) {
-        User suspected = userRepository.findById(suspectedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + suspectedUserId + " does not exists!"));
-        return suspected.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userId);
+        return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
     }
 
     public boolean isEmailExists(String email) {

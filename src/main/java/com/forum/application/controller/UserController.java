@@ -53,11 +53,6 @@ public class UserController {
         return ResponseEntity.ok("User with id of " + userToBeUnblockedId + " unblocked successfully");
     }
 
-    @GetMapping("/getTracker")
-    public ModalTracker getTrackerByUserId(@PathVariable("userId") int userId) {
-        return userService.getTrackerOfUserById(userId);
-    }
-
     @GetMapping("/isBlockedBy/{userToCheckId}")
     public boolean isBlockedBy(@PathVariable("userId") int userId,
                                @PathVariable("userToCheckId") int userToCheckId) {
@@ -68,5 +63,16 @@ public class UserController {
     public boolean isYouBeenBlockedBy(@PathVariable("userId") int userId,
                                       @PathVariable("suspectedBlockerId") int suspectedBlockerId) {
         return userService.isYouBeenBlockedBy(userId, suspectedBlockerId);
+    }
+
+    @GetMapping("/getTracker")
+    public ModalTracker getTrackerByUserId(@PathVariable("userId") int userId) {
+        return userService.getTrackerOfUserById(userId);
+    }
+
+    @DeleteMapping("/deleteTracker")
+    public ResponseEntity<ModalTracker> deleteTrackerByUserId(@PathVariable("userId") int userId) {
+        userService.deleteTrackerOfUserById(userId);
+        return ResponseEntity.noContent().build();
     }
 }

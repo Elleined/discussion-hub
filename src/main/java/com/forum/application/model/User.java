@@ -29,6 +29,34 @@ public class User {
     @Column(name = "picture")
     private String picture;
 
+    @ManyToMany
+    @JoinTable(
+            name = "tbl_comment_upvotes",
+            joinColumns = @JoinColumn(
+                    name = "user_id",
+                    referencedColumnName = "user_id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "upvoted_comment_id",
+                    referencedColumnName = "comment_id"
+            )
+    )
+    private Set<Comment> upvotedComments;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "tbl_blocked_user",
+            joinColumns = @JoinColumn(name = "user_id",
+                    referencedColumnName = "user_id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "blocked_user_id",
+                    referencedColumnName = "user_id"
+            )
+    )
+    private Set<User> blockedUsers;
+
+
     // user id reference is in post table
     @OneToMany(mappedBy = "author")
     @Setter(AccessLevel.NONE)
@@ -43,19 +71,4 @@ public class User {
     @OneToMany(mappedBy = "replier")
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
-
-    // user id reference is in comment upvote transaction table
-    @OneToMany(mappedBy = "respondent")
-    @Setter(AccessLevel.NONE)
-    private List<CommentUpvoteTransaction> commentUpvoteTransactions;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "tbl_blocked_user",
-            joinColumns = @JoinColumn(name = "user_id",
-                    referencedColumnName = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "blocked_user_id",
-                    referencedColumnName = "user_id")
-    )
-    private Set<User> blockedUsers;
 }

@@ -220,6 +220,20 @@ function getTracker(userId) {
     });
 }
 
+function deleteTracker(userId) {
+    return $.ajax({
+        type: "GET",
+        url: "/forum/api/users/" + userId + "/deleteTracker",
+        async: false,
+        success: function(response) {
+            alert("User with id of " + userId + " modal tracker deleted successfully!")
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Deleting the modal tracker of user with id of " + userId + " failed");
+        }
+    });
+}
+
 function isBlockedBy(userToCheckId) {
     const userId = $("#userId").val();
 

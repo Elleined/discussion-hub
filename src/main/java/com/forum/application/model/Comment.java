@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tbl_forum_comment")
@@ -57,8 +58,6 @@ public class Comment {
     @OneToMany(mappedBy = "comment")
     private List<Reply> replies;
 
-    // comment id reference is in comment upvote transaction table
-    @OneToMany(mappedBy = "comment")
-    @Setter(AccessLevel.NONE)
-    private List<CommentUpvoteTransaction> commentUpvoteTransactions;
+    @ManyToMany(mappedBy = "upvotedComments")
+    private Set<User> upvotingUsers;
 }

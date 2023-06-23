@@ -22,7 +22,6 @@ public class CommentService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final ReplyService replyService;
-    private final CommentUpvoteTransactionService commentUpvoteTransactionService;
     private final CommentRepository commentRepository;
 
     public int save(int commenterId, int postId, String body) {
@@ -164,6 +163,5 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         comment.setUpvote(newUpvoteCount);
         commentRepository.save(comment);
-        commentUpvoteTransactionService.save(respondentId, commentId);
     }
 }
