@@ -66,6 +66,10 @@ public class PostService {
         int userId = userService.getIdByEmail(loginEmailSession);
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        if (userId != post.getAuthor().getId()) {
+            log.debug("Will not mark as unread because the current user are not the author of the post");
+            return;
+        }
         post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)

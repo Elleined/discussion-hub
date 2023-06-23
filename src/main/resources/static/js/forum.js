@@ -112,13 +112,14 @@ $(document).ready(function() {
         commentSubscription.unsubscribe();
         const userId = $("#userId").val();
         deleteTracker(userId);
-        updateAllCommentNotificationStatus();
     });
 
     $("#commentModal").on("show.bs.modal", function() {
         const userId = $("#userId").val();
         const postId = $(".card-body #commentBtn").attr("href").split("/")[2];
+
         saveTracker(userId, postId, "COMMENT");
+        updateAllCommentNotificationStatusOfPostById(postId, "READ");
     });
 
     $("#replyModal").on("hidden.bs.modal", function() {
@@ -533,7 +534,7 @@ function updateAllCommentNotificationStatusOfPostById(postId, newStatus) {
             newStatus: newStatus
         },
         success: function(response) {
-            alert("Notification status of all updated successfully!");
+            console.log("Notification status of all updated successfully!");
         },
         error: function(xhr, status, error) {
             alert("Updating all notification of this post comments failed!");
