@@ -45,9 +45,9 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 
-    public ModalTracker saveTrackerOfUserById(int userId, int associateTypeIdOpened, String type) {
+    public ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
         ModalTracker modalTracker = ModalTracker.builder()
-                .userId(userId)
+                .receiverId(receiverId)
                 .associatedTypeIdOpened(associateTypeIdOpened)
                 .type(Type.valueOf(type))
                 .build();

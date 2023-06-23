@@ -67,7 +67,7 @@ public class PostService {
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         if (userId != post.getAuthor().getId()) {
-            log.debug("Will not mark as unread because the current user are not the author of the post");
+            log.debug("Will not mark as unread because the current user with id of " + userId + " are not the author of the post who is " + post.getAuthor().getId());
             return;
         }
         post.getComments()

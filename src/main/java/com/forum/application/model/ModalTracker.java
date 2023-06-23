@@ -13,8 +13,8 @@ import lombok.*;
 public class ModalTracker {
 
     @Id
-    @Column(name = "user_id")
-    private int userId;
+    @Column(name = "receiver_user_id")
+    private int receiverId;
 
     @Column(name = "modal_type")
     @Enumerated(EnumType.STRING)

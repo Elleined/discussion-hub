@@ -219,24 +219,6 @@ function saveTracker(userId, associatedTypeId, type) {
     });
 }
 
-function getTracker(userId) {
-    return $.ajax({
-        type: "GET",
-        url: "/forum/api/users/" + userId + "/getTracker",
-        async: false,
-        success: function(modalTracker, response) {
-            if(modalTracker === null) {
-                alert("User have an modal open!");
-                return;
-            }
-            alert(modalTracker.userId);
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Getting the modal tracker of user with id of " + userId + " failed");
-        }
-    });
-}
-
 function deleteTracker(userId) {
     return $.ajax({
         type: "DELETE",
@@ -263,6 +245,7 @@ function isUserBlocked(id) {
             return blockedBy || youBeenBlockedBy;
 }
 
+// Use isUserBlocked method instead
 function isBlockedBy(userToCheckId) {
     const userId = $("#userId").val();
 
@@ -279,6 +262,7 @@ function isBlockedBy(userToCheckId) {
     });
 }
 
+// Use isUserBlocked method instead
 function isYouBeenBlockedBy(suspectedBlockerId) {
     const userId = $("#userId").val();
     return $.ajax({
@@ -593,23 +577,22 @@ function disconnect() {
 function onConnected() {
     console.log("Web Socket Connected!!!");
 
-    const authorId = $("#userId").val();
+    const currentUserId = $("#userId").val();
     stompClient.subscribe("/user/notification/comments", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
-        if (json.respondentId == authorId) return; // If the post author commented in his own post it will not generate a notification block
+        if (json.respondentId == currentUserId) return; // If the post author commented in his own post it will not generate a notification block
 
         updateTotalNotificationCount();
         if($("#notificationCommentItem_" + json.respondentId).length) {
             updateNotification(json.respondentId, json.type);
             return;
         }
-
         generateNotificationBlock(json);
     });
 
     stompClient.subscribe("/user/notification/replies", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
-        if (json.respondentId == authorId) return; // If the post author replied in his own post it will not generate a notification block
+        if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
 
         updateTotalNotificationCount();
         if($("#notificationReplyItem_" + json.respondentId).length) {

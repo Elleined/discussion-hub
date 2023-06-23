@@ -68,11 +68,11 @@ public class UserController {
     }
 
     @PostMapping("/saveTracker")
-    public ResponseEntity<ModalTracker> saveTracker(@PathVariable("userId") int userId,
+    public ResponseEntity<ModalTracker> saveTracker(@PathVariable("userId") int receiverId,
                                                     @RequestParam("associatedTypeId") int associateTypeId,
                                                     @RequestParam("type") String type) {
 
-        ModalTracker modalTracker = userService.saveTrackerOfUserById(userId, associateTypeId, type);
+        ModalTracker modalTracker = userService.saveTrackerOfUserById(receiverId, associateTypeId, type);
         return ResponseEntity.ok(modalTracker);
     }
 

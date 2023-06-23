@@ -116,7 +116,7 @@ public class CommentService {
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         if (userId != comment.getCommenter().getId()) {
-            log.debug("Will not mark as unread because the current user are not the commenter of the comment");
+            log.debug("Will not mark as unread because the current user with id of " + userId + " are not the commenter of the comment " + comment.getCommenter().getId());
             return;
         }
         comment.getReplies()
