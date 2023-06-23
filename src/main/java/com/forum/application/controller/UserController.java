@@ -2,6 +2,7 @@ package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.User;
 import com.forum.application.service.CommentService;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/getAllBlockedUsers")
-    public Set<User> getAllBlockedUserOf(@PathVariable("userId") int userId) {
+    public Set<UserDTO> getAllBlockedUserOf(@PathVariable("userId") int userId) {
         return userService.getAllBlockedUsers(userId);
     }
 

@@ -1,5 +1,6 @@
 package com.forum.application.service;
 
+import com.forum.application.dto.UserDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.User;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,8 +40,11 @@ public class UserService {
         modalTrackerRepository.deleteById(userId);
     }
 
-    public Set<User> getAllBlockedUsers(int userId) {
-        return userRepository.fetchAllBlockedUserOf(userId);
+    public Set<UserDTO> getAllBlockedUsers(int userId) {
+        return userRepository.fetchAllBlockedUserOf(userId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toSet());
     }
 
     public void blockUser(int userId, int userToBeBlockedId) {
@@ -68,5 +73,9 @@ public class UserService {
 
     public User getById(int userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
+    }
+
+    public UserDTO convertToDTO(User user) {
+        return new UserDTO(user.getName());
     }
 }
