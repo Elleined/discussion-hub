@@ -5,6 +5,7 @@ import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.dto.notification.ReplyNotificationResponse;
+import com.forum.application.model.Type;
 import com.forum.application.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class NotificationService {
                 .respondentPicture(commenter.getPicture())
                 .respondentId(commenterId)
                 .uri("/posts/" + postId + "/comments")
-                .type(NotificationResponse.Type.COMMENT)
+                .type(Type.COMMENT)
                 .build();
 
         final String subscriberId = String.valueOf(postDTO.getAuthorId());
@@ -48,7 +49,7 @@ public class NotificationService {
                 .respondentId(replierId)
                 .uri("/posts/comments/" + commentId + "/replies")
                 .commentURI("/posts/" + commentDTO.getPostId() + "/comments")
-                .type(NotificationResponse.Type.REPLY)
+                .type(Type.REPLY)
                 .build();
 
         final String subscriberId = String.valueOf(commentDTO.getCommenterId());

@@ -202,12 +202,30 @@ function subscribeToCommentReplies() {
         });
 }
 
+function getTracker(userId) {
+    return $.ajax({
+        type: "GET",
+        url: "/forum/api/users/" + userId + "/getTracker",
+        async: false,
+        success: function(modalTracker, response) {
+            if(modalTracker === null) {
+                alert("User have an modal open!");
+                return;
+            }
+            alert(modalTracker.userId);
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Getting the modal tracker of user with id of " + userId + " failed");
+        }
+    });
+}
+
 function isBlockedBy(userToCheckId) {
     const userId = $("#userId").val();
 
     return $.ajax({
         type: "GET",
-        url: "/forum/api/users/isBlockedBy/" + userId + "/" + userToCheckId,
+        url: "/forum/api/users/" + userId + "/isBlockedBy/" + userToCheckId,
         async: false,
         success: function(isBlockedBy, response) {
             console.log("Is " + userToCheckId + " blocked by " + userId + ": " + isBlockedBy);
@@ -222,7 +240,7 @@ function isYouBeenBlockedBy(suspectedBlockerId) {
     const userId = $("#userId").val();
     return $.ajax({
         type: "GET",
-        url: "/forum/api/users/isYouBeenBlockedBy/" + userId + "/" + suspectedBlockerId,
+        url: "/forum/api/users/" + userId + "/isYouBeenBlockedBy/" + suspectedBlockerId,
         async: false,
         success: function(isYouBeenBlockedBy, response) {
             console.log("Is you been blocked by " + userId + ": " + isYouBeenBlockedBy);

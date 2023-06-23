@@ -1,7 +1,9 @@
 package com.forum.application.service;
 
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.model.ModalTracker;
 import com.forum.application.model.User;
+import com.forum.application.repository.ModalTrackerRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ModalTrackerRepository modalTrackerRepository;
 
     public int save(User user) {
         int userId = userRepository.save(user).getId();
@@ -28,6 +31,14 @@ public class UserService {
 
     public Set<User> getAllBlockedUsers(int userId) {
         return userRepository.fetchAllBlockedUserOf(userId);
+    }
+
+    public ModalTracker getTrackerOfUserById(int userId) {
+        return modalTrackerRepository.findById(userId).orElse(null);
+    }
+
+    public void deleteTrackerOfUserById(int userId) {
+        modalTrackerRepository.deleteById(userId);
     }
 
     public void blockUser(int userId, int userToBeBlockedId) {

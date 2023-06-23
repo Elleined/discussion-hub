@@ -1,5 +1,6 @@
 package com.forum.application.dto.notification;
 
+import com.forum.application.model.Type;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,8 +12,4 @@ public class NotificationResponse {
     private int respondentId;
     private String uri;
     private Type type;
-
-    public enum Type {
-        COMMENT, REPLY
-    }
 }
