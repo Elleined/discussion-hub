@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.dto.ReplyDTO;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
@@ -22,11 +23,8 @@ public class CommentController {
     private final UserService userService;
 
     @GetMapping
-    public List<CommentDTO> getAllCommentsOf(@PathVariable("postId") int postId,
-                                             HttpSession session) {
-        String email = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(email);
-        return forumService.getAllCommentsOf(userId, postId);
+    public List<CommentDTO> getAllCommentsOf(@PathVariable("postId") int postId) {
+        return forumService.getAllCommentsOf(postId);
     }
 
     @GetMapping("/{commentId}")
@@ -94,12 +92,11 @@ public class CommentController {
         return ResponseEntity.ok(commentDTO);
     }
 
-    @PatchMapping("/notificationStatus/batchUpdate")
-    public ResponseEntity<List<CommentDTO>> updateAllNotificationStatus(@RequestParam("commentIds") List<Integer> commentIds,
-                                                                      @RequestParam("newStatus") NotificationStatus newStatus) {
-        forumService.updateAllCommentNotificationStatus(commentIds, newStatus);
-
-        List<CommentDTO> comments = forumService.getAllCommentById(commentIds);
-        return ResponseEntity.ok(comments);
+    @PatchMapping("/{commentId}/repliesNotificationStatus/batchUpdate")
+    public ResponseEntity<List<ReplyDTO>> updateAllRepliesNotificationStatusByCommentId(@PathVariable("commentId") int commentId,
+                                                                                        @RequestParam("newStatus") NotificationStatus newStatus) {
+        forumService.updateAllRepliesNotificationStatusByCommentId(commentId, newStatus);
+        List<ReplyDTO> replies = forumService.getAllRepliesOf(commentId);
+        return ResponseEntity.ok(replies);
     }
 }

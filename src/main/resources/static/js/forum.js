@@ -112,6 +112,7 @@ $(document).ready(function() {
         commentSubscription.unsubscribe();
         const userId = $("#userId").val();
         deleteTracker(userId);
+        updateAllCommentNotificationStatus();
     });
 
     $("#commentModal").on("show.bs.modal", function() {
@@ -519,6 +520,23 @@ function updateReplyBody(replyId, newReplyBody) {
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
+        }
+    });
+}
+
+function updateAllCommentNotificationStatusOfPostById(postId, newStatus) {
+    return $.ajax({
+        type: "PATCH",
+        url: "/forum/api/posts/" + postId + "/commentsNotificationStatus/batchUpdate",
+        async: false,
+        data: {
+            newStatus: newStatus
+        },
+        success: function(response) {
+            alert("Notification status of all updated successfully!");
+        },
+        error: function(xhr, status, error) {
+            alert("Updating all notification of this post comments failed!");
         }
     });
 }

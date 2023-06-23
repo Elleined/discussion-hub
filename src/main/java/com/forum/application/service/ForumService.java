@@ -5,6 +5,7 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ForumService {
     private final ReplyService replyService;
     private final WSService wsService;
     private final NotificationService notificationService;
+    private final HttpSession session;
 
     public int savePost(int authorId, String body) {
         return postService.save(authorId, body);
@@ -69,28 +71,20 @@ public class ForumService {
         wsService.broadcastReply(replyId);
     }
 
-    public List<PostDTO> getAllPost(int userId) {
-        return postService.getAll(userId);
+    public List<PostDTO> getAllPost() {
+        return postService.getAll();
     }
 
     public List<PostDTO> getAllByAuthorId(int authorId) {
         return postService.getAllByAuthorId(authorId);
     }
 
-    public List<CommentDTO> getAllCommentsOf(int userId, int postId) {
-        return commentService.getAllCommentsOf(userId, postId);
+    public List<CommentDTO> getAllCommentsOf(int postId) {
+        return commentService.getAllCommentsOf(postId);
     }
 
-    public List<ReplyDTO> getAllRepliesOf(int userId, int commentId) {
-        return replyService.getAllRepliesOf(userId, commentId);
-    }
-
-    public List<CommentDTO> getAllCommentById(List<Integer> commentIds) {
-        return commentService.getAllById(commentIds);
-    }
-
-    public List<ReplyDTO> getAllRepliesById(List<Integer> replyIds) {
-        return replyService.getAllById(replyIds);
+    public List<ReplyDTO> getAllRepliesOf(int commentId) {
+        return replyService.getAllRepliesOf(commentId);
     }
 
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
@@ -119,16 +113,16 @@ public class ForumService {
         commentService.updateNotificationStatus(commentId, newStatus);
     }
 
-    public void updateAllCommentNotificationStatus(List<Integer> commentIds, NotificationStatus newStatus) {
-        commentService.batchUpdateNotificationStatus(commentIds, newStatus);
+    public void updateAllCommentsNotificationStatusByPostId(int postId, String newStatus) {
+        postService.batchUpdateOfCommentsNotificationStatusByPostId(postId, NotificationStatus.valueOf(newStatus));
     }
 
     public void updateReplyNotificationStatus(int replyId, NotificationStatus newStatus) {
         replyService.updateNotificationStatus(replyId, newStatus);
     }
 
-    public void updateAllReplyNotificationStatus(List<Integer> replyIds, NotificationStatus newStatus) {
-        replyService.batchUpdateNotificationStatus(replyIds, newStatus);
+    public void updateAllRepliesNotificationStatusByCommentId(int commentId, NotificationStatus newStatus) {
+        commentService.batchUpdateOfRepliesNotificationStatusByCommentId(commentId, newStatus);
     }
 
     public String getCommentSectionStatus(int postId) {

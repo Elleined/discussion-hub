@@ -22,12 +22,8 @@ public class ReplyController {
     private final UserService userService;
 
     @GetMapping
-    public List<ReplyDTO> getAllRepliesOf(@PathVariable("commentId") int commentId,
-                                          HttpSession session) {
-
-        String email = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(email);
-        return forumService.getAllRepliesOf(userId, commentId);
+    public List<ReplyDTO> getAllRepliesOf(@PathVariable("commentId") int commentId) {
+        return forumService.getAllRepliesOf(commentId);
     }
 
     @GetMapping("/{replyId}")
@@ -78,14 +74,5 @@ public class ReplyController {
 
         ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);
-    }
-
-    @PatchMapping("/notificationStatus/batchUpdate")
-    public ResponseEntity<List<ReplyDTO>> updateAllNotificationStatus(@RequestParam("replyIds") List<Integer> replyIds,
-                                                                    @RequestParam("newStatus") NotificationStatus newStatus) {
-        forumService.updateAllReplyNotificationStatus(replyIds, newStatus);
-
-        List<ReplyDTO> replies = forumService.getAllRepliesById(replyIds);
-        return ResponseEntity.ok(replies);
     }
 }

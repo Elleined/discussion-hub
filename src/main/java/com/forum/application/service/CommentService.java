@@ -23,6 +23,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final ReplyService replyService;
     private final CommentRepository commentRepository;
+    private final HttpSession session;
 
     public int save(int commenterId, int postId, String body) {
         User commenter = userService.getById(commenterId);
@@ -52,7 +53,10 @@ public class CommentService {
         return comment.getStatus() == Status.INACTIVE;
     }
 
-    public List<CommentDTO> getAllCommentsOf(int userId, int postId) {
+    public List<CommentDTO> getAllCommentsOf(int postId) {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
+
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getComments()
                 .stream()
@@ -69,14 +73,6 @@ public class CommentService {
         return this.convertToDTO(comment);
     }
 
-    public List<CommentDTO> getAllById(List<Integer> commentIds) {
-        return commentRepository.findAllById(commentIds)
-                .stream()
-                .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .map(this::convertToDTO)
-                .toList();
-    }
-
     public List<CommentDTO> getAllUnreadCommentsOf(int userId) {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
@@ -85,6 +81,8 @@ public class CommentService {
                 .map(Post::getComments)
                 .flatMap(comments -> comments.stream()
                         .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                        .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
+                        .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
                 .map(this::convertToDTO)
                 .toList();
@@ -112,13 +110,19 @@ public class CommentService {
         log.debug("Comment with id of {} notification status updated to {}", commentId, newStatus);
     }
 
-    public void batchUpdateNotificationStatus(List<Integer> commentIds, NotificationStatus newStatus) {
-        commentRepository.findAllById(commentIds)
-                .stream()
-                .map(Comment::getId)
-                .forEach(id -> updateNotificationStatus(id, newStatus));
-    }
+    public void batchUpdateOfRepliesNotificationStatusByCommentId(int commentId, NotificationStatus newStatus) {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
 
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        comment.getReplies()
+                .stream()
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
+                .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
+                .map(Reply::getId)
+                .forEach(replyId -> replyService.updateNotificationStatus(replyId, newStatus));
+    }
     public boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
         int next = newUpvoteCount + 1;
         int previous = newUpvoteCount - 1;

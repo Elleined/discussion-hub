@@ -5,6 +5,7 @@ import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.ReplyRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class ReplyService {
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
+    private final HttpSession session;
 
     public int save(int replierId, int commentId, String body) {
         User replier = userService.getById(replierId);
@@ -59,14 +61,10 @@ public class ReplyService {
         log.debug("Reply with id of {} notification status updated successfully to {}", reply, newStatus);
     }
 
-    public void batchUpdateNotificationStatus(List<Integer> replyIds, NotificationStatus newStatus) {
-        replyRepository.findAllById(replyIds)
-                .stream()
-                .map(Reply::getId)
-                .forEach(id -> updateNotificationStatus(id, newStatus));
-    }
+    public List<ReplyDTO> getAllRepliesOf(int commentId) {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
 
-    public List<ReplyDTO> getAllRepliesOf(int userId, int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()
                 .stream()
@@ -74,14 +72,6 @@ public class ReplyService {
                 .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
                 .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
-                .map(this::convertToDTO)
-                .toList();
-    }
-
-    public List<ReplyDTO> getAllById(List<Integer> replyIds) {
-        return replyRepository.findAllById(replyIds)
-                .stream()
-                .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .map(this::convertToDTO)
                 .toList();
     }
@@ -99,6 +89,8 @@ public class ReplyService {
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                        .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
+                        .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
                 .map(this::convertToDTO)
                 .toList();

@@ -1,5 +1,6 @@
 package com.forum.application.controller;
 
+import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.model.Post;
 import com.forum.application.service.ForumService;
@@ -22,10 +23,8 @@ public class PostController {
 
 
     @GetMapping
-    public List<PostDTO> getAllPost(HttpSession session) {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
-        return forumService.getAllPost(userId);
+    public List<PostDTO> getAllPost() {
+        return forumService.getAllPost();
     }
 
     @GetMapping("/{postId}")
@@ -80,5 +79,14 @@ public class PostController {
 
         PostDTO postDTO = forumService.getPostById(postId);
         return ResponseEntity.ok(postDTO);
+    }
+
+    @PatchMapping("/{postId}/commentsNotificationStatus/batchUpdate")
+    public ResponseEntity<List<CommentDTO>> updateAllCommentNotificationStatusByPostId(@PathVariable("postId") int postId,
+                                                                        @RequestParam("newStatus") String newStatus) {
+        forumService.updateAllCommentsNotificationStatusByPostId(postId, newStatus);
+
+        List<CommentDTO> comments = forumService.getAllCommentsOf(postId);
+        return ResponseEntity.ok(comments);
     }
 }

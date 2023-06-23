@@ -2,12 +2,10 @@ package com.forum.application.service;
 
 import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.Comment;
-import com.forum.application.model.Post;
+import com.forum.application.model.*;
 import com.forum.application.model.Post.CommentSectionStatus;
-import com.forum.application.model.Status;
-import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,7 @@ public class PostService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final CommentService commentService;
+    private final HttpSession session;
 
     public int save(int authorId, String body) {
         User author = userService.getById(authorId);
@@ -62,6 +61,19 @@ public class PostService {
         log.debug("Comment section of Post with id of {} are now {}", postId, post.getCommentSectionStatus().name());
     }
 
+    public void batchUpdateOfCommentsNotificationStatusByPostId(int postId, NotificationStatus newStatus) {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
+
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        post.getComments()
+                .stream()
+                .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
+                .map(Comment::getId)
+                .forEach(commentId -> commentService.updateNotificationStatus(commentId, newStatus));
+    }
     public boolean isDeleted(int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getStatus() == Status.INACTIVE;
@@ -72,7 +84,10 @@ public class PostService {
         return this.convertToDTO(post);
     }
 
-    public List<PostDTO> getAll(int userId) {
+    public List<PostDTO> getAll() {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
+
         return postRepository.findAll()
                 .stream()
                 .filter(post -> post.getStatus() == Status.ACTIVE)
