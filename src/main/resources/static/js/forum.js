@@ -212,7 +212,7 @@ function saveTracker(userId, associatedTypeId, type) {
             type: type
         },
         success: function(modalTracker, response) {
-            console.log("Saving the modal tracker for user with id of " + userId + " successful!");
+            console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
         },
         error: function(xhr, status, error) {
             alert("Error Occurred! Saving the modal tracker for this user failed!");
@@ -701,9 +701,12 @@ function generateCommentBlock(commentDto) {
         const commentId = replyURI.split("/")[3];
         setReplyModalTitle(commentId);
 
-       subscribeToCommentReplies();
+        subscribeToCommentReplies();
 
         getAllReplies(replyURI);
+
+        const userId = $("#userId").val();
+        saveTracker(userId, commentId, "REPLY");
     });
 }
 
@@ -1102,6 +1105,9 @@ function generateNotificationBlock(notificationResponse) {
            subscribeToCommentReplies();
 
             getAllReplies(replyURI);
+
+            const userId = $("#userId").val();
+            saveTracker(userId, commentId, "REPLY");
 
             $("#replyModal").modal('show');
             const postId = commentURI.split("/")[2];
