@@ -66,13 +66,4 @@ public class ReplyController {
         ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);
     }
-
-    @PatchMapping("/notificationStatus/{replyId}")
-    public ResponseEntity<ReplyDTO> updateNotificationStatus(@PathVariable("replyId") int replyId,
-                                                             @RequestParam("newStatus") NotificationStatus newStatus) {
-        forumService.updateReplyNotificationStatus(replyId, newStatus);
-
-        ReplyDTO replyDTO = forumService.getReplyById(replyId);
-        return ResponseEntity.ok(replyDTO);
-    }
 }

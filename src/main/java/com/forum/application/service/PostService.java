@@ -61,23 +61,6 @@ public class PostService {
         log.debug("Comment section of Post with id of {} are now {}", postId, post.getCommentSectionStatus().name());
     }
 
-    public void batchUpdateOfCommentsNotificationStatusByPostId(int postId, NotificationStatus newStatus) {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
-
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        if (userId != post.getAuthor().getId()) {
-            log.debug("Will not mark as unread because the current user with id of " + userId + " are not the author of the post who is " + post.getAuthor().getId());
-            return;
-        }
-        post.getComments()
-                .stream()
-                .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
-                .map(Comment::getId)
-                .forEach(commentId -> commentService.updateNotificationStatus(commentId, newStatus));
-    }
     public boolean isDeleted(int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getStatus() == Status.INACTIVE;

@@ -5,7 +5,6 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ public class ForumService {
     private final ReplyService replyService;
     private final WSService wsService;
     private final NotificationService notificationService;
-    private final HttpSession session;
 
     public int savePost(int authorId, String body) {
         return postService.save(authorId, body);
@@ -80,10 +78,12 @@ public class ForumService {
     }
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
+        commentService.updateAllCommentNotificatioStatusByPostId(postId, NotificationStatus.READ);
         return commentService.getAllCommentsOf(postId);
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
+        replyService.updateAllRepliesByCommentId(commentId, NotificationStatus.READ);
         return replyService.getAllRepliesOf(commentId);
     }
 
@@ -107,22 +107,6 @@ public class ForumService {
     public void updateReplyBody(int replyId, String newReplyBody) {
         replyService.updateReplyBody(replyId, newReplyBody);
         wsService.broadcastReply(replyId);
-    }
-
-    public void updateCommentNotificationStatus(int commentId, NotificationStatus newStatus) {
-        commentService.updateNotificationStatus(commentId, newStatus);
-    }
-
-    public void updateAllCommentsNotificationStatusByPostId(int postId, String newStatus) {
-        postService.batchUpdateOfCommentsNotificationStatusByPostId(postId, NotificationStatus.valueOf(newStatus));
-    }
-
-    public void updateReplyNotificationStatus(int replyId, NotificationStatus newStatus) {
-        replyService.updateNotificationStatus(replyId, newStatus);
-    }
-
-    public void updateAllRepliesNotificationStatusByCommentId(int commentId, NotificationStatus newStatus) {
-        commentService.batchUpdateOfRepliesNotificationStatusByCommentId(commentId, newStatus);
     }
 
     public String getCommentSectionStatus(int postId) {

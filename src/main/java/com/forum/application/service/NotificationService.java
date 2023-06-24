@@ -1,12 +1,9 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.PostDTO;
-import com.forum.application.dto.notification.NotificationResponse;
+import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.notification.ReplyNotificationResponse;
-import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +24,15 @@ public class NotificationService {
         final PostDTO postDTO = postService.getById(postId);
         final User commenter = userService.getById(commenterId);
 
+        boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
+        log.debug("isModalOpen: {} ", isModalOpen);
         var commentNotificationResponse = CommentNotificationResponse.builder()
                 .message(commenter.getName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
                 .respondentPicture(commenter.getPicture())
                 .respondentId(commenterId)
                 .uri("/posts/" + postId + "/comments")
                 .type(Type.COMMENT)
+                .isModalOpen(isModalOpen)
                 .build();
 
         final String subscriberId = String.valueOf(postDTO.getAuthorId());
@@ -45,6 +45,8 @@ public class NotificationService {
         final CommentDTO commentDTO = commentService.getById(commentId);
         final User replier = userService.getById(replierId);
 
+        boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
+
         var replyNotificationResponse = ReplyNotificationResponse.replyNotificationBuilder()
                 .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
@@ -52,6 +54,7 @@ public class NotificationService {
                 .uri("/posts/comments/" + commentId + "/replies")
                 .commentURI("/posts/" + commentDTO.getPostId() + "/comments")
                 .type(Type.REPLY)
+                .isModalOpen(isModalOpen)
                 .build();
 
         final String subscriberId = String.valueOf(commentDTO.getCommenterId());

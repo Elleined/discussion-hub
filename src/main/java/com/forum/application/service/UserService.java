@@ -5,7 +5,6 @@ import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
-import com.forum.application.repository.ModalTrackerRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +19,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ModalTrackerRepository modalTrackerRepository;
     private final BlockService blockService;
-
+    private final ModalTrackerService modalTrackerService;
     public int save(User user) {
         int userId = userRepository.save(user).getId();
         log.debug("User registered successfully! with id of {}", userId);
@@ -46,20 +44,19 @@ public class UserService {
     }
 
     public ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
-        ModalTracker modalTracker = ModalTracker.builder()
-                .receiverId(receiverId)
-                .associatedTypeIdOpened(associateTypeIdOpened)
-                .type(Type.valueOf(type))
-                .build();
-        return modalTrackerRepository.save(modalTracker);
+        return modalTrackerService.saveTrackerOfUserById(receiverId, associateTypeIdOpened, type);
     }
 
     public ModalTracker getTrackerOfUserById(int userId) {
-        return modalTrackerRepository.findById(userId).orElse(null);
+        return modalTrackerService.getTrackerOfUserById(userId);
     }
 
     public void deleteTrackerOfUserById(int userId) {
-        modalTrackerRepository.deleteById(userId);
+        modalTrackerService.deleteTrackerOfUserById(userId);
+    }
+
+    public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
+        return modalTrackerService.isModalOpen(userId, associatedTypeId, type);
     }
 
     public Set<UserDTO> getAllBlockedUsers(int userId) {

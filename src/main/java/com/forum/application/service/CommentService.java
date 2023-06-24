@@ -29,12 +29,14 @@ public class CommentService {
         User commenter = userService.getById(commenterId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
+        // if the current user is not the author return
+        NotificationStatus status = userService.isModalOpen(post.getAuthor().getId(), postId, Type.COMMENT) ? NotificationStatus.READ : NotificationStatus.UNREAD;
         Comment comment = Comment.builder()
                 .body(body)
                 .dateCreated(LocalDateTime.now())
                 .post(post)
                 .commenter(commenter)
-                .notificationStatus(NotificationStatus.UNREAD)
+                .notificationStatus(status)
                 .status(Status.ACTIVE)
                 .build();
 
@@ -103,31 +105,33 @@ public class CommentService {
         log.debug("Comment with id of {} updated with the new body of {}", commentId, newBody);
     }
 
-    public void updateNotificationStatus(int commentId, NotificationStatus newStatus) {
+    private void updateNotificationStatus(int commentId, NotificationStatus newStatus) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         comment.setNotificationStatus(newStatus);
         commentRepository.save(comment);
         log.debug("Comment with id of {} notification status updated to {}", commentId, newStatus);
     }
 
-    public void batchUpdateOfRepliesNotificationStatusByCommentId(int commentId, NotificationStatus newStatus) {
+    public void updateAllCommentNotificatioStatusByPostId(int postId, NotificationStatus newStatus) {
         String loginEmailSession = (String) session.getAttribute("email");
         int userId = userService.getIdByEmail(loginEmailSession);
 
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        if (userId != comment.getCommenter().getId()) {
-            log.debug("Will not mark as unread because the current user with id of " + userId + " are not the commenter of the comment " + comment.getCommenter().getId());
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        if (userId != post.getAuthor().getId()) {
+            log.debug("Will not mark as unread because the current user with id of {} are not the author of the post who is {}", userId, post.getAuthor().getId());
             return;
         }
-        comment.getReplies()
+        log.debug("Will mark all as read becuase the current user with id of {} is the author of the post {}", userId, post.getAuthor().getId());
+        post.getComments()
                 .stream()
-                .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
-                .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
-                .map(Reply::getId)
-                .forEach(replyId -> replyService.updateNotificationStatus(replyId, newStatus));
+                .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
+                .map(Comment::getId)
+                .forEach(commentId -> this.updateNotificationStatus(commentId, newStatus));
     }
-    public boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
+
+    boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
         int next = newUpvoteCount + 1;
         int previous = newUpvoteCount - 1;
         return oldUpvoteCount != next && oldUpvoteCount != previous;
@@ -162,7 +166,7 @@ public class CommentService {
                 .build();
     }
 
-    public void setStatus(int commentId) {
+    void setStatus(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         comment.setStatus(Status.INACTIVE);
         commentRepository.save(comment);

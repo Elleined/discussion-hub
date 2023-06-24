@@ -1,5 +1,6 @@
 package com.forum.application.service;
 
+import com.forum.application.model.Type;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,5 +29,13 @@ class UserServiceTest {
         int yourId = 1;
         int suspectedBlockerId = 3;
         assertTrue(userService.isYouBeenBlockedBy(yourId, suspectedBlockerId), "This user does not blocked you");
+    }
+
+    @Test
+    void isModalOpen() {
+        int userId = 1;
+        int associatedTypeId = 5; // Post or Comment id
+        Type type = Type.COMMENT;
+        assertTrue(userService.isModalOpen(userId, associatedTypeId, type), "This user does not have an open modal!");
     }
 }

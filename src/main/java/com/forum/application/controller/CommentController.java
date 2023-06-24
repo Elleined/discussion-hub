@@ -1,7 +1,6 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.ReplyDTO;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
@@ -81,22 +80,5 @@ public class CommentController {
 
         CommentDTO commentDTO = forumService.getCommentById(commentId);
         return ResponseEntity.ok(commentDTO);
-    }
-
-    @PatchMapping("/notificationStatus/{commentId}")
-    public ResponseEntity<CommentDTO> updateNotificationStatus(@PathVariable("commentId") int commentId,
-                                                               @RequestParam("newStatus") NotificationStatus newStatus) {
-        forumService.updateCommentNotificationStatus(commentId, newStatus);
-
-        CommentDTO commentDTO = forumService.getCommentById(commentId);
-        return ResponseEntity.ok(commentDTO);
-    }
-
-    @PatchMapping("/{commentId}/repliesNotificationStatus/batchUpdate")
-    public ResponseEntity<List<ReplyDTO>> updateAllRepliesNotificationStatusByCommentId(@PathVariable("commentId") int commentId,
-                                                                                        @RequestParam("newStatus") NotificationStatus newStatus) {
-        forumService.updateAllRepliesNotificationStatusByCommentId(commentId, newStatus);
-        List<ReplyDTO> replies = forumService.getAllRepliesOf(commentId);
-        return ResponseEntity.ok(replies);
     }
 }

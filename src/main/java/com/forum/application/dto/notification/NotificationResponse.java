@@ -12,4 +12,5 @@ public class NotificationResponse {
     private int respondentId;
     private String uri;
     private Type type;
+    private boolean isModalOpen;
 }

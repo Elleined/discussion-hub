@@ -27,13 +27,14 @@ public class ReplyService {
         User replier = userService.getById(replierId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
 
+        NotificationStatus status = userService.isModalOpen(comment.getCommenter().getId(), commentId, Type.REPLY) ? NotificationStatus.READ : NotificationStatus.UNREAD;
         Reply reply = Reply.builder()
                 .body(body)
                 .dateCreated(LocalDateTime.now())
                 .replier(replier)
                 .comment(comment)
                 .status(Status.ACTIVE)
-                .notificationStatus(NotificationStatus.UNREAD)
+                .notificationStatus(status)
                 .build();
 
         replyRepository.save(reply);
@@ -54,11 +55,31 @@ public class ReplyService {
         log.debug("Reply with id of {} updated with the new body of {}", replyId, newReplyBody);
     }
 
-    public void updateNotificationStatus(int replyId, NotificationStatus newStatus) {
+    private void updateNotificationStatus(int replyId, NotificationStatus newStatus) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         reply.setNotificationStatus(newStatus);
         replyRepository.save(reply);
         log.debug("Reply with id of {} notification status updated successfully to {}", reply, newStatus);
+    }
+
+    public void updateAllRepliesByCommentId(int commentId, NotificationStatus newStatus) {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        if (userId != comment.getCommenter().getId()) {
+            log.trace("Will not mark as unread because the current user with id of {} are not the commenter of the comment {}", userId, comment.getCommenter().getId());
+            return;
+        }
+        log.trace("Will mark all as read because the current user with id of {} is the commenter of the comment {}", userId, comment.getCommenter().getId());
+
+        comment.getReplies()
+                .stream()
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
+                .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
+                .map(Reply::getId)
+                .forEach(replyId -> this.updateNotificationStatus(replyId, newStatus));
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
@@ -113,7 +134,7 @@ public class ReplyService {
                 .build();
     }
 
-    public void setStatus(int replyId) {
+    void setStatus(int replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         reply.setStatus(Status.INACTIVE);
         replyRepository.save(reply);

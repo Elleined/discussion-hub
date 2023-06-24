@@ -74,6 +74,10 @@ $(document).ready(function() {
         subscribeToPostComments();
 
         getAllCommentsOf(commentURI);
+
+        const userId = $("#userId").val();
+        saveTracker(userId, postId, "COMMENT");
+
         event.preventDefault();
     });
 
@@ -110,21 +114,18 @@ $(document).ready(function() {
     // Below this making sure that socket and stompClient is closed
     $("#commentModal").on("hidden.bs.modal", function() {
         commentSubscription.unsubscribe();
+
         const userId = $("#userId").val();
         deleteTracker(userId);
     });
 
-    $("#commentModal").on("show.bs.modal", function() {
-        const userId = $("#userId").val();
-        const postId = $(".card-body #commentBtn").attr("href").split("/")[2];
-
-        saveTracker(userId, postId, "COMMENT");
-        updateAllCommentNotificationStatusOfPostById(postId, "READ");
-    });
-
     $("#replyModal").on("hidden.bs.modal", function() {
         replySubscription.unsubscribe();
+
+        const userId = $("#userId").val();
+        deleteTracker(userId);
     });
+
 
     $("#logoutBtn").on("click", function() {
         disconnect();
@@ -509,23 +510,6 @@ function updateReplyBody(replyId, newReplyBody) {
     });
 }
 
-function updateAllCommentNotificationStatusOfPostById(postId, newStatus) {
-    return $.ajax({
-        type: "PATCH",
-        url: "/forum/api/posts/" + postId + "/commentsNotificationStatus/batchUpdate",
-        async: false,
-        data: {
-            newStatus: newStatus
-        },
-        success: function(response) {
-            console.log("Notification status of all updated successfully!");
-        },
-        error: function(xhr, status, error) {
-            alert("Updating all notification of this post comments failed!");
-        }
-    });
-}
-
 function deletePost(postURI) {
     $.ajax({
         type: "DELETE",
@@ -576,11 +560,11 @@ function disconnect() {
 
 function onConnected() {
     console.log("Web Socket Connected!!!");
-
     const currentUserId = $("#userId").val();
     stompClient.subscribe("/user/notification/comments", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
         if (json.respondentId == currentUserId) return; // If the post author commented in his own post it will not generate a notification block
+        if (json.modalOpen) return; // If the post author modal is open this will not generate a notification block
 
         updateTotalNotificationCount();
         if($("#notificationCommentItem_" + json.respondentId).length) {
@@ -593,6 +577,7 @@ function onConnected() {
     stompClient.subscribe("/user/notification/replies", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
         if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
+        if (json.modalOpen) return; // If the comment author modal is open this will not generate a notification block
 
         updateTotalNotificationCount();
         if($("#notificationReplyItem_" + json.respondentId).length) {
