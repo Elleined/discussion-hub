@@ -5,11 +5,12 @@ A Online Discussion Board(Forum) Using Web Socket and REST API
 - Create, Edit, and Delete a Post
 - Create, Edit, and Delete a Comment in a post real time
 - Create, Edit, and Delete a Reply in a comment real time
-- Recieve Comment notification
+- Receive Comment notification
 - Receive Reply notification
 - Comment Upvote
 - Comment and Reply READ and UNREAD flag for notification
-  - Comments and Replies will only be mark as READ only when the author of the post or commenter of the comment open the associated modal
+  - Comments and Replies will only be mark as READ only when the author of the post or commentor of the comment open the associated modal
+  - Also Comments and Replies will only generate notification for unread comments and replies
 - Comment and Reply count UI update when deleting or saving either the two
 - Author can close the comment section for his/her every post
 - User can block another user
