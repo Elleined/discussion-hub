@@ -13,4 +13,5 @@ public class NotificationResponse {
     private String uri;
     private Type type;
     private boolean isModalOpen;
+    private int count;
 }

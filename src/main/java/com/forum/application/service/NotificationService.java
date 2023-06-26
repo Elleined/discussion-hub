@@ -19,13 +19,14 @@ public class NotificationService {
     private final UserService userService;
     private final PostService postService;
     private final CommentService commentService;
+    private final ReplyService replyService;
 
     public void broadcastCommentNotification(int postId, int commenterId) {
         final PostDTO postDTO = postService.getById(postId);
         final User commenter = userService.getById(commenterId);
 
         boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
-        log.debug("isModalOpen: {} ", isModalOpen);
+        int count = commentService.getNotificationCountForRespondent(postDTO.getAuthorId(), postId, commenterId);
         var commentNotificationResponse = CommentNotificationResponse.builder()
                 .message(commenter.getName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
                 .respondentPicture(commenter.getPicture())
@@ -33,6 +34,7 @@ public class NotificationService {
                 .uri("/posts/" + postId + "/comments")
                 .type(Type.COMMENT)
                 .isModalOpen(isModalOpen)
+                .count(count)
                 .build();
 
         final String subscriberId = String.valueOf(postDTO.getAuthorId());
@@ -46,7 +48,7 @@ public class NotificationService {
         final User replier = userService.getById(replierId);
 
         boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
-
+        int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replierId);
         var replyNotificationResponse = ReplyNotificationResponse.replyNotificationBuilder()
                 .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
@@ -54,6 +56,7 @@ public class NotificationService {
                 .uri("/posts/comments/" + commentId + "/replies")
                 .commentURI("/posts/" + commentDTO.getPostId() + "/comments")
                 .type(Type.REPLY)
+                .count(count)
                 .isModalOpen(isModalOpen)
                 .build();
 

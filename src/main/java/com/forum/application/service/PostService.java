@@ -2,8 +2,11 @@ package com.forum.application.service;
 
 import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.*;
+import com.forum.application.model.Comment;
+import com.forum.application.model.Post;
 import com.forum.application.model.Post.CommentSectionStatus;
+import com.forum.application.model.Status;
+import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

@@ -4,12 +4,10 @@ import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
-import com.forum.application.model.Type;
-import com.forum.application.model.User;
 import com.forum.application.service.CommentService;
+import com.forum.application.service.PostService;
 import com.forum.application.service.ReplyService;
 import com.forum.application.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +20,7 @@ import java.util.Set;
 @RequestMapping("/forum/api/users/{userId}")
 public class UserController {
     private final UserService userService;
+    private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
 

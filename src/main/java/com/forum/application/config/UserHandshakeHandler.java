@@ -2,7 +2,6 @@ package com.forum.application.config;
 
 import com.forum.application.service.UserService;
 import com.sun.security.auth.UserPrincipal;
-import jakarta.persistence.Column;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
