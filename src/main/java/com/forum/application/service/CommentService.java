@@ -29,7 +29,6 @@ public class CommentService {
         User commenter = userService.getById(commenterId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
-        // if the current user is not the author return
         NotificationStatus status = userService.isModalOpen(post.getAuthor().getId(), postId, Type.COMMENT) ? NotificationStatus.READ : NotificationStatus.UNREAD;
         Comment comment = Comment.builder()
                 .body(body)
@@ -75,19 +74,24 @@ public class CommentService {
         return this.convertToDTO(comment);
     }
 
-    public List<CommentDTO> getAllUnreadCommentsOf(int userId) {
-        User user = userService.getById(userId);
-        List<Post> posts = user.getPosts();
-
-        return posts.stream()
-                .map(Post::getComments)
-                .flatMap(comments -> comments.stream()
-                        .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                        .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
-                        .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
-                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
+    public List<CommentDTO> getAllUnreadCommentsOf(int authorId, int postId) {
+        User author = userService.getById(authorId);
+        Post post = author.getPosts().stream().filter(userPost -> userPost.getId() == postId).findFirst().orElseThrow(() -> new ResourceNotFoundException("Author with id of " + authorId + " does not have post with id of " + postId));
+        return post.getComments()
+                .stream()
+                .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
+                .filter(comment -> !userService.isBlockedBy(authorId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(authorId, comment.getCommenter().getId()))
                 .map(this::convertToDTO)
                 .toList();
+    }
+
+    public int getNotificationCountForRespondent(int authorId, int postId, int respondentId) {
+        return (int) getAllUnreadCommentsOf(authorId, postId)
+                .stream()
+                .filter(comment -> comment.getCommenterId() == respondentId)
+                .count();
     }
 
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
@@ -112,7 +116,7 @@ public class CommentService {
         log.debug("Comment with id of {} notification status updated to {}", commentId, newStatus);
     }
 
-    public void updateAllCommentNotificatioStatusByPostId(int postId, NotificationStatus newStatus) {
+    public void updateAllCommentNotificationStatusByPostId(int postId, NotificationStatus newStatus) {
         String loginEmailSession = (String) session.getAttribute("email");
         int userId = userService.getIdByEmail(loginEmailSession);
 

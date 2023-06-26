@@ -78,7 +78,7 @@ public class ForumService {
     }
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
-        commentService.updateAllCommentNotificatioStatusByPostId(postId, NotificationStatus.READ);
+        commentService.updateAllCommentNotificationStatusByPostId(postId, NotificationStatus.READ);
         return commentService.getAllCommentsOf(postId);
     }
 

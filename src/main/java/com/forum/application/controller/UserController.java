@@ -25,14 +25,31 @@ public class UserController {
     private final CommentService commentService;
     private final ReplyService replyService;
 
-    @GetMapping("/unreadComments")
-    public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int userId) {
-        return commentService.getAllUnreadCommentsOf(userId);
+
+    @GetMapping("/unreadComments/{postId}")
+    public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int authorId,
+                                                 @PathVariable("postId") int postId) {
+        return commentService.getAllUnreadCommentsOf(authorId, postId);
     }
 
-    @GetMapping("/unreadReplies")
-    public List<ReplyDTO> getAllUnreadReplies(@PathVariable("userId") int userId) {
-        return replyService.getAllUnreadReplyOf(userId);
+    @GetMapping("/unreadComments/{postId}/{respondentId}")
+    public int getCommentNotificationCountForRespondent(@PathVariable("userId") int authorId,
+                                                        @PathVariable("postId") int postId,
+                                                        @PathVariable("respondentId") int respondentId) {
+        return commentService.getNotificationCountForRespondent(authorId, postId, respondentId);
+    }
+
+    @GetMapping("/unreadReplies/{commentId}")
+    public List<ReplyDTO> getAllUnreadReplies(@PathVariable("userId") int commenterId,
+                                              @PathVariable("commentId") int commentId) {
+        return replyService.getAllUnreadReplyOf(commenterId, commentId);
+    }
+
+    @GetMapping("/unreadReplies/{commentId}/{respondentId}")
+    public int getReplyNotificationCountForRespondent(@PathVariable("userId") int commenterId,
+                                                      @PathVariable("commentId") int commentId,
+                                                      @PathVariable("respondentId") int respondentId) {
+        return replyService.getNotificationCountForRespondent(commenterId, commentId, respondentId);
     }
 
     @GetMapping("/getAllBlockedUsers")
