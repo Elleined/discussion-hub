@@ -65,4 +65,8 @@ public class NotificationService {
 
         log.debug("Reply notification successfully sent to {}", subscriberId);
     }
+
+    public long getAllUnreadNotificationCount(int userId) {
+        return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId);
+    }
 }

@@ -87,6 +87,10 @@ public class ForumService {
         return replyService.getAllRepliesOf(commentId);
     }
 
+    public long getAllUnreadNotificationCount(int userId) {
+        return notificationService.getAllUnreadNotificationCount(userId);
+    }
+
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
         return commentService.updateUpvote(respondentId, commentId, newUpvoteCount);
     }

@@ -32,9 +32,11 @@ public class ForumController {
 
         int userId = userService.getIdByEmail(email);
         List<PostDTO> posts = forumService.getAllPost();
+        long totalNotifCount = forumService.getAllUnreadNotificationCount(userId);
 
         model.addAttribute("userId", userId);
         model.addAttribute("posts", posts);
+        model.addAttribute("totalNotifCount", totalNotifCount);
         return "forum";
     }
 

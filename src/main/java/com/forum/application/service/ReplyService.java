@@ -115,6 +115,20 @@ public class ReplyService {
                 .toList();
     }
 
+    public long getAllUnreadRepliesCount(int userId) {
+        User user = userService.getById(userId);
+        List<Comment> comments = user.getComments();
+
+        return comments.stream()
+                .map(Comment::getReplies)
+                .flatMap(replies -> replies.stream()
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                        .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
+                        .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
+                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
+                .count();
+    }
+
     public int getNotificationCountForRespondent(int commenterId, int commentId, int respondentId) {
         return (int) getAllUnreadReplyOf(commenterId, commentId)
                 .stream()
