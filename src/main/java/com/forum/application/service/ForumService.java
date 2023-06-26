@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -89,6 +91,10 @@ public class ForumService {
 
     public long getAllUnreadNotificationCount(int userId) {
         return notificationService.getAllUnreadNotificationCount(userId);
+    }
+
+    public Set<NotificationResponse> getAllNotification(int userId) {
+        return notificationService.getAllNotification(userId);
     }
 
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {

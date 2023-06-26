@@ -1,6 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -87,7 +89,7 @@ public class CommentService {
                 .toList();
     }
 
-    public long getAllUnreadCommentsCount(int userId) {
+    public List<CommentDTO> getAllUnreadCommentsOf(int userId) {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
 
@@ -98,7 +100,12 @@ public class CommentService {
                         .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
-                .count();
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    public long getAllUnreadCommentsCount(int userId) {
+        return getAllUnreadCommentsOf(userId).size();
     }
 
     public int getNotificationCountForRespondent(int authorId, int postId, int respondentId) {

@@ -115,7 +115,7 @@ public class ReplyService {
                 .toList();
     }
 
-    public long getAllUnreadRepliesCount(int userId) {
+    public List<ReplyDTO> getAllUnreadReplyOf(int userId) {
         User user = userService.getById(userId);
         List<Comment> comments = user.getComments();
 
@@ -126,7 +126,12 @@ public class ReplyService {
                         .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
-                .count();
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    public long getAllUnreadRepliesCount(int userId) {
+        return getAllUnreadReplyOf(userId).size();
     }
 
     public int getNotificationCountForRespondent(int commenterId, int commentId, int respondentId) {

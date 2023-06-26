@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,11 +34,13 @@ public class ForumController {
 
         int userId = userService.getIdByEmail(email);
         List<PostDTO> posts = forumService.getAllPost();
+        Set<NotificationResponse> notifications = forumService.getAllNotification(userId);
         long totalNotifCount = forumService.getAllUnreadNotificationCount(userId);
 
         model.addAttribute("userId", userId);
         model.addAttribute("posts", posts);
         model.addAttribute("totalNotifCount", totalNotifCount);
+        model.addAttribute("notifications", notifications);
         return "forum";
     }
 

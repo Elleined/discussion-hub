@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.notification.CommentNotificationResponse;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.dto.notification.ReplyNotificationResponse;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
@@ -10,6 +11,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -22,12 +29,52 @@ public class NotificationService {
     private final ReplyService replyService;
 
     public void broadcastCommentNotification(int postId, int commenterId) {
+        var commentNotificationResponse = convertToCommentNotification(postId, commenterId);
+
+        int authorId = postService.getById(postId).getAuthorId();
+        final String subscriberId = String.valueOf(authorId);
+        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/comments", commentNotificationResponse);
+
+        log.debug("Comment notification successfully sent to {}", subscriberId);
+    }
+
+    public void broadcastReplyNotification(int commentId, int replierId) {
+        var replyNotificationResponse = convertToReplyNotification(commentId, replierId);
+
+        int commenterId = commentService.getById(commentId).getCommenterId();
+        final String subscriberId = String.valueOf(commenterId);
+        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
+
+        log.debug("Reply notification successfully sent to {}", subscriberId);
+    }
+
+    public long getAllUnreadNotificationCount(int userId) {
+        return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId);
+    }
+
+    public Set<NotificationResponse> getAllNotification(int userId) {
+        List<NotificationResponse> commentNotifications = commentService.getAllUnreadCommentsOf(userId)
+                .stream()
+                .map(comment -> convertToCommentNotification(comment.getPostId(), comment.getCommenterId()))
+                .toList();
+
+        List<NotificationResponse> replyNotifications = replyService.getAllUnreadReplyOf(userId)
+                .stream()
+                .map(reply -> convertToReplyNotification(reply.getCommentId(), reply.getReplierId()))
+                .toList();
+
+        return Stream.of(commentNotifications, replyNotifications)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+    }
+
+    NotificationResponse convertToCommentNotification(int postId, int commenterId) {
         final PostDTO postDTO = postService.getById(postId);
         final User commenter = userService.getById(commenterId);
 
         boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
         int count = commentService.getNotificationCountForRespondent(postDTO.getAuthorId(), postId, commenterId);
-        var commentNotificationResponse = CommentNotificationResponse.builder()
+        return CommentNotificationResponse.builder()
                 .message(commenter.getName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
                 .respondentPicture(commenter.getPicture())
                 .respondentId(commenterId)
@@ -36,20 +83,15 @@ public class NotificationService {
                 .isModalOpen(isModalOpen)
                 .count(count)
                 .build();
-
-        final String subscriberId = String.valueOf(postDTO.getAuthorId());
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/comments", commentNotificationResponse);
-
-        log.debug("Comment notification successfully sent to {}", subscriberId);
     }
 
-    public void broadcastReplyNotification(int commentId, int replierId) {
+    NotificationResponse convertToReplyNotification(int commentId, int replierId) {
         final CommentDTO commentDTO = commentService.getById(commentId);
         final User replier = userService.getById(replierId);
 
         boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
         int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replierId);
-        var replyNotificationResponse = ReplyNotificationResponse.replyNotificationBuilder()
+        return ReplyNotificationResponse.replyNotificationBuilder()
                 .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
                 .respondentId(replierId)
@@ -59,14 +101,5 @@ public class NotificationService {
                 .count(count)
                 .isModalOpen(isModalOpen)
                 .build();
-
-        final String subscriberId = String.valueOf(commentDTO.getCommenterId());
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
-
-        log.debug("Reply notification successfully sent to {}", subscriberId);
-    }
-
-    public long getAllUnreadNotificationCount(int userId) {
-        return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId);
     }
 }
