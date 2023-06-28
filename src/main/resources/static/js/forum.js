@@ -78,6 +78,7 @@ $(document).ready(function() {
         const userId = $("#userId").val();
         saveTracker(userId, postId, "COMMENT");
 
+        updateTotalNotifCount(userId, postId);
         event.preventDefault();
     });
 
@@ -144,6 +145,25 @@ $(document).ready(function() {
     });
     // insert here
 });
+
+function updateTotalNotifCount(authorId, postId) {
+    const totalNotifCountElement = $("#totalNotifCount");
+    const notifCount = totalNotifCountElement.attr("aria-valuetext");
+   
+    $.ajax({
+        type: "GET",
+        url: "/forum/api/users/" + authorId + "/unreadCommentCountOfSpecificPost/" + postId,
+        success: function(count, response) {
+            const newTotalNotifCount = parseInt(notifCount) - count;
+            totalNotifCountElement.text(newTotalNotifCount + "+");
+            totalNotifCountElement.attr("aria-valuetext", newTotalNotifCount);
+            console.log("Updating the totalNotifCount success!");
+        },
+        error: function(xhr, status, error) {
+            alert("Updating the totalNotifCount failed!");
+        }
+    });
+}
 
 function subscribeToPostComments() {
 // SendTo URI of Comment

@@ -29,6 +29,12 @@ public class UserController {
         return commentService.getAllUnreadCommentsOfSpecificPostById(authorId, postId);
     }
 
+    @GetMapping("/unreadCommentCountOfSpecificPost/{postId}")
+    public int getNotificationCountForSpecificPost(@PathVariable("userId") int authorId,
+                                                   @PathVariable("postId") int postId) {
+        return commentService.getNotificationCountForSpecificPost(authorId, postId);
+    }
+
     @GetMapping("/unreadComments/{postId}/{respondentId}")
     public int getCommentNotificationCountForRespondent(@PathVariable("userId") int authorId,
                                                         @PathVariable("postId") int postId,

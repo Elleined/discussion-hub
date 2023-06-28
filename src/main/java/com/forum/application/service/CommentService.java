@@ -113,6 +113,11 @@ public class CommentService {
                 .count();
     }
 
+    public int getNotificationCountForSpecificPost(int authorId, int postId) {
+        return getAllUnreadCommentsOfSpecificPostById(authorId, postId).size();
+    }
+
+
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
         this.setUpvote(respondentId, commentId, newUpvoteCount);
 
