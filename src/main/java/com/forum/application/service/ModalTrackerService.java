@@ -27,8 +27,9 @@ public class ModalTrackerService {
         return modalTrackerRepository.findById(userId).orElse(null);
     }
 
-    public void deleteTrackerOfUserById(int userId) {
-        modalTrackerRepository.deleteById(userId);
+    public void deleteTrackerOfUserById(int userId, Type type) {
+        ModalTracker modalTracker = getTrackerOfUserById(userId);
+        if (modalTracker.getType() == type) modalTrackerRepository.deleteById(userId);
     }
 
     public boolean isModalOpen(int userId, int associatedTypeId, Type type) {

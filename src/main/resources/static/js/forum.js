@@ -116,14 +116,14 @@ $(document).ready(function() {
         commentSubscription.unsubscribe();
 
         const userId = $("#userId").val();
-        deleteTracker(userId);
+        deleteTracker(userId, "COMMENT");
     });
 
     $("#replyModal").on("hidden.bs.modal", function() {
         replySubscription.unsubscribe();
 
         const userId = $("#userId").val();
-        deleteTracker(userId);
+        deleteTracker(userId, "REPLY");
     });
 
 
@@ -220,11 +220,14 @@ function saveTracker(userId, associatedTypeId, type) {
     });
 }
 
-function deleteTracker(userId) {
+function deleteTracker(userId, type) {
     return $.ajax({
         type: "DELETE",
         url: "/forum/api/users/" + userId + "/deleteTracker",
         async: false,
+        data: {
+            type: type
+        },
         success: function(response) {
             console.log("User with id of " + userId + " modal tracker deleted successfully!")
         },

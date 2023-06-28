@@ -51,8 +51,8 @@ public class UserService {
         return modalTrackerService.getTrackerOfUserById(userId);
     }
 
-    public void deleteTrackerOfUserById(int userId) {
-        modalTrackerService.deleteTrackerOfUserById(userId);
+    public void deleteTrackerOfUserById(int userId, String type) {
+        modalTrackerService.deleteTrackerOfUserById(userId, Type.valueOf(type));
     }
 
     public boolean isModalOpen(int userId, int associatedTypeId, Type type) {

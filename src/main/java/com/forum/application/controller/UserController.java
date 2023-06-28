@@ -96,8 +96,9 @@ public class UserController {
     }
 
     @DeleteMapping("/deleteTracker")
-    public ResponseEntity<ModalTracker> deleteTrackerByUserId(@PathVariable("userId") int userId) {
-        userService.deleteTrackerOfUserById(userId);
+    public ResponseEntity<ModalTracker> deleteTrackerByUserId(@PathVariable("userId") int userId,
+                                                              @RequestParam("type") String type) {
+        userService.deleteTrackerOfUserById(userId, type);
         return ResponseEntity.noContent().build();
     }
 }
