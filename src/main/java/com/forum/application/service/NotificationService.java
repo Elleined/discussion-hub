@@ -53,12 +53,12 @@ public class NotificationService {
     }
 
     public Set<NotificationResponse> getAllNotification(int userId) {
-        List<NotificationResponse> commentNotifications = commentService.getAllUnreadCommentsOf(userId)
+        List<NotificationResponse> commentNotifications = commentService.getAllUnreadCommentOfAllPostByAuthorId(userId)
                 .stream()
                 .map(comment -> convertToCommentNotification(comment.getPostId(), comment.getCommenterId()))
                 .toList();
 
-        List<NotificationResponse> replyNotifications = replyService.getAllUnreadReplyOf(userId)
+        List<NotificationResponse> replyNotifications = replyService.getAllUnreadRepliesOfAllCommentsByAuthorId(userId)
                 .stream()
                 .map(reply -> convertToReplyNotification(reply.getCommentId(), reply.getReplierId()))
                 .toList();

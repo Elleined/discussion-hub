@@ -102,7 +102,7 @@ public class ReplyService {
         return this.convertToDTO(reply);
     }
 
-    public List<ReplyDTO> getAllUnreadReplyOf(int commenterId, int commentId) {
+    public List<ReplyDTO> getAllUnreadRepliesOfSpecificCommentById(int commenterId, int commentId) {
         User commenter = userService.getById(commenterId);
         Comment comment = commenter.getComments().stream().filter(userComment -> userComment.getId() == commentId).findFirst().orElseThrow(() -> new ResourceNotFoundException("Commenter with id of " + commenterId + " does not have a comment with id of " + commentId));
         return comment.getReplies()
@@ -115,7 +115,7 @@ public class ReplyService {
                 .toList();
     }
 
-    public List<ReplyDTO> getAllUnreadReplyOf(int userId) {
+    public List<ReplyDTO> getAllUnreadRepliesOfAllCommentsByAuthorId(int userId) {
         User user = userService.getById(userId);
         List<Comment> comments = user.getComments();
 
@@ -131,11 +131,11 @@ public class ReplyService {
     }
 
     public long getAllUnreadRepliesCount(int userId) {
-        return getAllUnreadReplyOf(userId).size();
+        return getAllUnreadRepliesOfAllCommentsByAuthorId(userId).size();
     }
 
     public int getNotificationCountForRespondent(int commenterId, int commentId, int respondentId) {
-        return (int) getAllUnreadReplyOf(commenterId, commentId)
+        return (int) getAllUnreadRepliesOfSpecificCommentById(commenterId, commentId)
                 .stream()
                 .filter(reply -> reply.getReplierId() == respondentId)
                 .count();

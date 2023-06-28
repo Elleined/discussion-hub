@@ -1,7 +1,6 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -76,7 +74,7 @@ public class CommentService {
         return this.convertToDTO(comment);
     }
 
-    public List<CommentDTO> getAllUnreadCommentsOf(int authorId, int postId) {
+    public List<CommentDTO> getAllUnreadCommentsOfSpecificPostById(int authorId, int postId) {
         User author = userService.getById(authorId);
         Post post = author.getPosts().stream().filter(userPost -> userPost.getId() == postId).findFirst().orElseThrow(() -> new ResourceNotFoundException("Author with id of " + authorId + " does not have post with id of " + postId));
         return post.getComments()
@@ -89,7 +87,7 @@ public class CommentService {
                 .toList();
     }
 
-    public List<CommentDTO> getAllUnreadCommentsOf(int userId) {
+    public List<CommentDTO> getAllUnreadCommentOfAllPostByAuthorId(int userId) {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
 
@@ -105,11 +103,11 @@ public class CommentService {
     }
 
     public long getAllUnreadCommentsCount(int userId) {
-        return getAllUnreadCommentsOf(userId).size();
+        return getAllUnreadCommentOfAllPostByAuthorId(userId).size();
     }
 
     public int getNotificationCountForRespondent(int authorId, int postId, int respondentId) {
-        return (int) getAllUnreadCommentsOf(authorId, postId)
+        return (int) getAllUnreadCommentsOfSpecificPostById(authorId, postId)
                 .stream()
                 .filter(comment -> comment.getCommenterId() == respondentId)
                 .count();

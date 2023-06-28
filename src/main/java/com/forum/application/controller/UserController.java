@@ -5,7 +5,6 @@ import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.service.CommentService;
-import com.forum.application.service.PostService;
 import com.forum.application.service.ReplyService;
 import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import java.util.Set;
 @RequestMapping("/forum/api/users/{userId}")
 public class UserController {
     private final UserService userService;
-    private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
 
@@ -28,7 +26,7 @@ public class UserController {
     @GetMapping("/unreadComments/{postId}")
     public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int authorId,
                                                  @PathVariable("postId") int postId) {
-        return commentService.getAllUnreadCommentsOf(authorId, postId);
+        return commentService.getAllUnreadCommentsOfSpecificPostById(authorId, postId);
     }
 
     @GetMapping("/unreadComments/{postId}/{respondentId}")
@@ -41,7 +39,7 @@ public class UserController {
     @GetMapping("/unreadReplies/{commentId}")
     public List<ReplyDTO> getAllUnreadReplies(@PathVariable("userId") int commenterId,
                                               @PathVariable("commentId") int commentId) {
-        return replyService.getAllUnreadReplyOf(commenterId, commentId);
+        return replyService.getAllUnreadRepliesOfSpecificCommentById(commenterId, commentId);
     }
 
     @GetMapping("/unreadReplies/{commentId}/{respondentId}")
