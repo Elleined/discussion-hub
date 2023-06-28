@@ -87,6 +87,17 @@ public class CommentService {
                 .toList();
     }
 
+    public int getNotificationCountForRespondent(int authorId, int postId, int respondentId) {
+        return (int) getAllUnreadCommentsOfSpecificPostById(authorId, postId)
+                .stream()
+                .filter(comment -> comment.getCommenterId() == respondentId)
+                .count();
+    }
+
+    public int getNotificationCountForSpecificPost(int authorId, int postId) {
+        return getAllUnreadCommentsOfSpecificPostById(authorId, postId).size();
+    }
+
     public List<CommentDTO> getAllUnreadCommentOfAllPostByAuthorId(int userId) {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
@@ -105,18 +116,6 @@ public class CommentService {
     public long getAllUnreadCommentsCount(int userId) {
         return getAllUnreadCommentOfAllPostByAuthorId(userId).size();
     }
-
-    public int getNotificationCountForRespondent(int authorId, int postId, int respondentId) {
-        return (int) getAllUnreadCommentsOfSpecificPostById(authorId, postId)
-                .stream()
-                .filter(comment -> comment.getCommenterId() == respondentId)
-                .count();
-    }
-
-    public int getNotificationCountForSpecificPost(int authorId, int postId) {
-        return getAllUnreadCommentsOfSpecificPostById(authorId, postId).size();
-    }
-
 
     public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) {
         this.setUpvote(respondentId, commentId, newUpvoteCount);

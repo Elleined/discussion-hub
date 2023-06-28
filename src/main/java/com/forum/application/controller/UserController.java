@@ -48,6 +48,12 @@ public class UserController {
         return replyService.getAllUnreadRepliesOfSpecificCommentById(commenterId, commentId);
     }
 
+    @GetMapping("/unreadReplyCountOfSpecificComment/{commentId}")
+    public int getReplyCountForSpecificComment(@PathVariable("userId") int commenterId,
+                                               @PathVariable("commentId") int commentId) {
+        return replyService.getReplyNotificationCountForSpecificComment(commenterId, commentId);
+    }
+
     @GetMapping("/unreadReplies/{commentId}/{respondentId}")
     public int getReplyNotificationCountForRespondent(@PathVariable("userId") int commenterId,
                                                       @PathVariable("commentId") int commentId,

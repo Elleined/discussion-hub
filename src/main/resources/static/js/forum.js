@@ -78,7 +78,7 @@ $(document).ready(function() {
         const userId = $("#userId").val();
         saveTracker(userId, postId, "COMMENT");
 
-        updateTotalNotifCount(userId, postId);
+        updateTotalNotifCount(userId, postId, "COMMENT");
         event.preventDefault();
     });
 
@@ -145,25 +145,6 @@ $(document).ready(function() {
     });
     // insert here
 });
-
-function updateTotalNotifCount(authorId, postId) {
-    const totalNotifCountElement = $("#totalNotifCount");
-    const notifCount = totalNotifCountElement.attr("aria-valuetext");
-   
-    $.ajax({
-        type: "GET",
-        url: "/forum/api/users/" + authorId + "/unreadCommentCountOfSpecificPost/" + postId,
-        success: function(count, response) {
-            const newTotalNotifCount = parseInt(notifCount) - count;
-            totalNotifCountElement.text(newTotalNotifCount + "+");
-            totalNotifCountElement.attr("aria-valuetext", newTotalNotifCount);
-            console.log("Updating the totalNotifCount success!");
-        },
-        error: function(xhr, status, error) {
-            alert("Updating the totalNotifCount failed!");
-        }
-    });
-}
 
 function subscribeToPostComments() {
 // SendTo URI of Comment
@@ -533,6 +514,25 @@ function updateReplyBody(replyId, newReplyBody) {
     });
 }
 
+function updateTotalNotifCount(userId, id, type) {
+    const totalNotifCountElement = $("#totalNotifCount");
+    const notifCount = totalNotifCountElement.attr("aria-valuetext");
+    const url = type === "REPLY" ? "/unreadReplyCountOfSpecificComment/" : "/unreadCommentCountOfSpecificPost/";
+    $.ajax({
+        type: "GET",
+        url: "/forum/api/users/" + userId + url + id,
+        success: function(count, response) {
+            const newTotalNotifCount = parseInt(notifCount) - count;
+            totalNotifCountElement.text(newTotalNotifCount + "+");
+            totalNotifCountElement.attr("aria-valuetext", newTotalNotifCount);
+            console.log("Updating the totalNotifCount success!");
+        },
+        error: function(xhr, status, error) {
+            // Ignore this error
+        }
+    });
+}
+
 function deletePost(postURI) {
     $.ajax({
         type: "DELETE",
@@ -730,6 +730,8 @@ function generateCommentBlock(commentDto) {
 
         const userId = $("#userId").val();
         saveTracker(userId, commentId, "REPLY");
+
+        updateTotalNotifCount(userId, commentId, "REPLY");
     });
 }
 
@@ -1135,6 +1137,8 @@ function generateNotificationBlock(notificationResponse) {
             $("#replyModal").modal('show');
             const postId = commentURI.split("/")[2];
             getCommentSectionStatus(postId);
+
+            updateTotalNotifCount(userId, commentId, "REPLY");
         }
     });
 }
