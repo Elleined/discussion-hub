@@ -570,8 +570,8 @@ function onConnected() {
         if (json.modalOpen) return; // If the post author modal is open this will not generate a notification block
 
         updateTotalNotificationCount();
-        if($("#notificationCommentItem_" + json.respondentId).length) {
-            updateNotification(json.respondentId, json.type);
+        if($("#notificationCommentItem_" + json.respondentId + "_" + json.id).length) {
+            updateNotification(json.respondentId, json.id, json.type);
             return;
         }
         generateNotificationBlock(json);
@@ -583,8 +583,8 @@ function onConnected() {
         if (json.modalOpen) return; // If the comment author modal is open this will not generate a notification block
 
         updateTotalNotificationCount();
-        if($("#notificationReplyItem_" + json.respondentId).length) {
-            updateNotification(json.respondentId, json.type);
+        if($("#notificationReplyItem_" + json.respondentId + "_" + json.id) .length) {
+            updateNotification(json.respondentId, json.id, json.type);
             return;
         }
 
@@ -595,14 +595,14 @@ function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
 
-function updateNotification(respondentId, type) {
+function updateNotification(respondentId, id, type) {
     if (type === "REPLY") {
-        const messageCount = $("#messageReplyCount_" + respondentId);
+        const messageCount = $("#messageReplyCount_" + respondentId + "_" + id);
         const newMessageCount = parseInt(messageCount.text()) + 1;
         messageCount.text(newMessageCount + "+");
         return
     }
-    const messageCount = $("#messageCommentCount_" + respondentId);
+    const messageCount = $("#messageCommentCount_" + respondentId + "_" + id);
     const newMessageCount = parseInt(messageCount.text()) + 1;
     messageCount.text(newMessageCount + "+");
 }
@@ -1036,8 +1036,8 @@ function updateReplyCount(commentId, operation) {
 function generateNotificationBlock(notificationResponse) {
     const notificationContainer = $("#notificationContainer");
 
-    const notificationItemId = notificationResponse.type === "REPLY" ? "notificationReplyItem_" + notificationResponse.respondentId
-        : "notificationCommentItem_" + notificationResponse.respondentId;
+    const notificationItemId = notificationResponse.type === "REPLY" ? "notificationReplyItem_" + notificationResponse.respondentId + "_" + notificationResponse.id
+        : "notificationCommentItem_" + notificationResponse.respondentId + "_" + notificationResponse.id;
     const notificationItem = $("<li>")
         .attr({
             "class": "d-inline-flex position-relative ms-2 dropdown-item",
@@ -1045,8 +1045,8 @@ function generateNotificationBlock(notificationResponse) {
         })
         .appendTo(notificationContainer);
 
-    const messageCountId = notificationResponse.type === "REPLY" ? "messageReplyCount_" + notificationResponse.respondentId
-        : "messageCommentCount_" + notificationResponse.respondentId;
+    const messageCountId = notificationResponse.type === "REPLY" ? "messageReplyCount_" + notificationResponse.respondentId + "_" + notificationResponse.id
+        : "messageCommentCount_" + notificationResponse.respondentId + "_" + notificationResponse.id;
     const messageCount = $("<span>")
         .attr({
             "class": "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle",

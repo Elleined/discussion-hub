@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class NotificationResponse {
+    private int id;
     private String message;
     private String respondentPicture;
     private int respondentId;

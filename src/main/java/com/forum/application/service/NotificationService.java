@@ -75,6 +75,7 @@ public class NotificationService {
         boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
         int count = commentService.getNotificationCountForRespondent(postDTO.getAuthorId(), postId, commenterId);
         return CommentNotificationResponse.builder()
+                .id(postId)
                 .message(commenter.getName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
                 .respondentPicture(commenter.getPicture())
                 .respondentId(commenterId)
@@ -92,6 +93,7 @@ public class NotificationService {
         boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
         int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replierId);
         return ReplyNotificationResponse.replyNotificationBuilder()
+                .id(commentId)
                 .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
                 .respondentId(replierId)
