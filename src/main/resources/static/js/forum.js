@@ -1,6 +1,7 @@
 'use strict';
 import * as SaveRepository from './modules/save_repository.js';
 import * as GetRepository from './modules/get_repository.js';
+import * as UpdateRepository from './modules/update_repository.js';
 
 const socket = new SockJS("/websocket");
 const stompClient = Stomp.over(socket);
@@ -47,9 +48,6 @@ $(document).ready(function() {
         editPostBtnSave.removeClass("d-none");
 
         editPostBtnSave.on("click", function(event) {
-            postContent.attr("contenteditable", "false");
-            editPostBtnSave.addClass("d-none");
-
             updatePostBody(href, postContent.text());
         });
     });
@@ -128,7 +126,6 @@ $(document).ready(function() {
         const userId = $("#userId").val();
         deleteTracker(userId, "REPLY");
     });
-
 
     $("#logoutBtn").on("click", function() {
         disconnect();
@@ -333,9 +330,9 @@ async function saveReply(body) {
 
 async function getAllCommentsOf(commentURI) {
     try {
-        const commentDTOs = await GetRepository.getAllCommentsOf(commentURI);
         $(".modal-body #commentSection").empty(); // Removes the recent comments in the modal
 
+        const commentDTOs = await GetRepository.getAllCommentsOf(commentURI);
         $.each(commentDTOs, function(index, commentDto) {
             generateCommentBlock(commentDto);
         });
@@ -346,10 +343,10 @@ async function getAllCommentsOf(commentURI) {
 
 async function getAllReplies(replyURI) {
     try {
-        const replyDTOs = await GetRepository.getAllRepliesOf(replyURI);
         $(".modal-body #replySection").empty(); // Removes the recent comments in the modal
 
-        $.each(replyDtos, function(index, replyDto) {
+        const replyDTOs = await GetRepository.getAllRepliesOf(replyURI);
+        $.each(replyDTOs, function(index, replyDto) {
             generateReplyBlock(replyDto);
         });
     } catch (error) {
@@ -374,104 +371,76 @@ async function getCommentSectionStatus(postId) {
     }
 }
 
-function updateCommentSectionStatus(postId, newStatus) {
-    $.ajax({
-        type: "PATCH",
-        url: "/forum/api/posts/commentSectionStatus/" + postId,
-        data: {
-            newStatus: newStatus
-        },
-        success: function(response) {
-            console.log("Comment section status update successfully to " + newStatus);
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! " + xhr.responseText);
-        }
-    });
+async function updateCommentSectionStatus(postId, newStatus) {
+    try {
+        await UpdateRepository.updateCommentSectionStatus(postId, newStatus);
+        console.log("Comment section status updated successfully to " + newStatus);
+    } catch (error) {
+        alert("Updating comment section status failed! " + error);
+    }
 }
 
-function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
-    $.ajax({
-        type: "PATCH",
-        url: "/forum/api" + commentURI + "/upvote/" + commentId,
-        data: {
-            newUpvoteCount: newUpvoteCount
-        },
-        success: function(commentDto, response) {
-            console.log("Comment with id of " + commentId + "updated successfully with new upvote count of " + newUpvoteCount);
-        },
-        error: function(xhr, status, error) {
-            $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
-            alert(xhr.responseText);
-        }
-    });
+async function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
+    try {
+        await UpdateRepository.updateCommentUpvote(commentId, newUpvoteCount, commentURI);
+        $("#upvoteValue" + commentId).text(newUpvoteCount);
+        console.log("Comment with id of " + commentId + " updated successfully with new upvote count of " + newUpvoteCount);
+    } catch (error) {
+        $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
+        alert("Updating the comment upvote count failed! " + error);
+    }
 }
 
-function updatePostBody(href, newPostBody) {
-    $.ajax({
-        type: "PATCH",
-        url: "/forum/api" + href,
-        data: {
-            newPostBody: newPostBody
-        },
-        success: function(response) {
-            console.log("Post updated successfully with new body of " + newPostBody);
-        },
-        error: function(xhr, status, error) {
-            alert("Updating the post body failed!");
-        }
-    });
+async function updatePostBody(href, newPostBody) {
+    try {
+        await UpdateRepository.updatePostBody(href, newPostBody);
+        console.log("Post updated successfully with new body of " + newPostBody);
+
+        const postId = href.split("/")[3];
+        $("#postBody" + postId).attr("contenteditable", "false");
+        $("#editPostBtnSave" + postId).addClass("d-none");
+    } catch (error) {
+        alert("Updating the post body failed! " + error);
+    }
 }
 
-function updateCommentBody(commentId, newCommentBody) {
-    $.ajax({
-        type: "PATCH",
-        url: "/forum/api" + commentURI + "/body/" + commentId,
-        data: {
-            newCommentBody: newCommentBody
-        },
-        success: function(commentDto, response) {
-            console.log("Comment with id of " + commentId + "updated successfully with new comment body of " + newCommentBody);
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
-    });
+async function updateCommentBody(commentId, newCommentBody) {
+    try {
+        await UpdateRepository.updateCommentBody(commentId, newCommentBody, commentURI);
+        console.log("Comment with id of " + commentId + " updated successfully with new comment body of " + newCommentBody);
+
+        $("#commentBody" + commentId).attr("contenteditable", "false");
+        $("#editCommentSaveBtn" + commentId).hide();
+    } catch (error) {
+        alert("Updating comment body failed! " + error);
+    }
 }
 
-function updateReplyBody(replyId, newReplyBody) {
-    $.ajax({
-        type: "PATCH",
-        url: "/forum/api" + replyURI + "/body/" + replyId,
-        data: {
-            newReplyBody: newReplyBody
-        },
-        success: function(commentDto, response) {
-            console.log("Reply with id of " + replyId + "updated successfully with new reply body of " + newReplyBody);
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
-    });
+async function updateReplyBody(replyId, newReplyBody) {
+    try {
+        await UpdateRepository.updateReplyBody(replyId, newReplyBody, replyURI);
+        console.log("Reply with id of " + replyId + " updated successfully with new reply body of " + newReplyBody);
+
+        $("#replyBody" + replyId).attr("contenteditable", "false");
+        $("#editReplySaveBtn" + replyId).hide();
+    } catch (error) {
+        alert("Updating reply body failed! " + error);
+    }
 }
 
-function updateTotalNotifCount(userId, id, type) {
+async function updateTotalNotifCount(userId, id, type) {
     const totalNotifCountElement = $("#totalNotifCount");
     const notifCount = totalNotifCountElement.attr("aria-valuetext");
-    const url = type === "REPLY" ? "/unreadReplyCountOfSpecificComment/" : "/unreadCommentCountOfSpecificPost/";
-    $.ajax({
-        type: "GET",
-        url: "/forum/api/users/" + userId + url + id,
-        success: function(count, response) {
-            const newTotalNotifCount = parseInt(notifCount) - count;
-            totalNotifCountElement.text(newTotalNotifCount + "+");
-            totalNotifCountElement.attr("aria-valuetext", newTotalNotifCount);
-            console.log("Updating the totalNotifCount success!");
-        },
-        error: function(xhr, status, error) {
-            // Ignore this error
-        }
-    });
+    try {
+        const count = await UpdateRepository.updateTotalNotificationCount(userId, id, type);
+
+        const newTotalNotifCount = parseInt(notifCount) - count;
+        totalNotifCountElement.text(newTotalNotifCount + "+");
+        totalNotifCountElement.attr("aria-valuetext", newTotalNotifCount);
+        console.log("Updating the total notification count success!");
+    } catch (error) {
+        alert("Updating total notification count failed! " + error);
+    }
 }
 
 function deletePost(postURI) {
@@ -684,10 +653,10 @@ function generateCommentBlock(commentDto) {
 
         subscribeToCommentReplies();
 
-        getAllReplies(replyURI);
-
         const userId = $("#userId").val();
         saveTracker(userId, commentId, "REPLY");
+
+        getAllReplies(replyURI);
 
         updateTotalNotifCount(userId, commentId, "REPLY");
     });
@@ -788,7 +757,6 @@ function generateCommentUpvoteBlock(container, dto) {
         if (isClicked) return;
         let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
         const newUpvoteValue = originalUpdateValue + 1;
-        $("#upvoteValue" + dto.id).text(newUpvoteValue);
         updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
         isClicked = true;
     });
@@ -798,7 +766,6 @@ function generateCommentUpvoteBlock(container, dto) {
         if (isClicked) return;
         let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
         const newUpvoteValue = originalUpdateValue - 1;
-        $("#upvoteValue" + dto.id).text(newUpvoteValue);
         updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
         isClicked = true;
     });
@@ -886,8 +853,6 @@ function generateCommentHeader(container, dto) {
 
             // Adding the editCommentSaveBtn click listener only when user clicks the editCommentBtn
             editCommentSaveBtn.on("click", function() {
-                commentBodyText.attr("contenteditable", "false");
-                editCommentSaveBtn.hide();
                 updateCommentBody(dto.id, commentBodyText.text());
             });
         });
@@ -976,8 +941,6 @@ function generateReplyHeader(container, dto) {
 
             // Adding the editReplySaveBtn click listener only when user clicks the editReplyBtn
             editReplySaveBtn.on("click", function() {
-                replyBody.attr("contenteditable", "false");
-                editReplySaveBtn.hide();
                 updateReplyBody(dto.id, replyBody.text());
             });
         });
@@ -1087,10 +1050,10 @@ function generateNotificationBlock(notificationResponse) {
 
            subscribeToCommentReplies();
 
-            getAllReplies(replyURI);
-
             const userId = $("#userId").val();
             saveTracker(userId, commentId, "REPLY");
+
+            getAllReplies(replyURI);
 
             $("#replyModal").modal('show');
             const postId = commentURI.split("/")[2];
