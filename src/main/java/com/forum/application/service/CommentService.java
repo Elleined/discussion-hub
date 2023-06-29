@@ -149,6 +149,8 @@ public class CommentService {
             return;
         }
         log.debug("Will mark all as read becuase the current user with id of {} is the author of the post {}", userId, post.getAuthor().getId());
+        boolean isAllRead = post.getComments().stream().allMatch(comment -> comment.getNotificationStatus() == NotificationStatus.READ);
+        if (isAllRead) return;
         post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
