@@ -1,6 +1,6 @@
 'use strict';
 import * as SaveRepository from './modules/save_repository.js';
-import * as RetrieveRepository from './modules/retrieve_repository.js';
+import * as GetRepository from './modules/get_repository.js';
 
 const socket = new SockJS("/websocket");
 const stompClient = Stomp.over(socket);
@@ -71,14 +71,14 @@ $(document).ready(function() {
 
         const postId = commentURI.split("/")[2];
         setCommentModalTitle(postId);
-        getCommentSectionStatus(postId);
 
         subscribeToPostComments();
 
-        getAllCommentsOf(commentURI);
-
         const userId = $("#userId").val();
         saveTracker(userId, postId, "COMMENT");
+
+        getAllCommentsOf(commentURI);
+        getCommentSectionStatus(postId);
 
         updateTotalNotifCount(userId, postId, "COMMENT");
         event.preventDefault();
@@ -331,63 +331,47 @@ async function saveReply(body) {
     }
 }
 
-function getAllCommentsOf(commentURI) {
-    $.ajax({
-        type: "GET",
-        url: "/forum/api" + commentURI,
-        success: function(commentDTOs, response) {
-            $(".modal-body #commentSection").empty(); // Removes the recent comments in the modal
+async function getAllCommentsOf(commentURI) {
+    try {
+        const commentDTOs = await GetRepository.getAllCommentsOf(commentURI);
+        $(".modal-body #commentSection").empty(); // Removes the recent comments in the modal
 
-            $.each(commentDTOs, function(index, commentDto) {
-                generateCommentBlock(commentDto);
-            });
-        },
-        error: function(xhr, status, error) {
-            alert("Getting all comments failed!");
-        }
-    });
+        $.each(commentDTOs, function(index, commentDto) {
+            generateCommentBlock(commentDto);
+        });
+    } catch (error) {
+        alert("Getting all comments failed! " + error);
+    }
 }
 
-function getAllReplies(replyURI) {
-    $.ajax({
-        type: "GET",
-        url: "/forum/api" + replyURI,
-        success: function(replyDtos, response) {
-            const replySection = $(".modal-body #replySection");
-            replySection.empty(); // Removes the recent comments in the modal
+async function getAllReplies(replyURI) {
+    try {
+        const replyDTOs = await GetRepository.getAllRepliesOf(replyURI);
+        $(".modal-body #replySection").empty(); // Removes the recent comments in the modal
 
-            $.each(replyDtos, function(index, replyDto) {
-                generateReplyBlock(replyDto);
-            });
-        },
-        error: function(xhr, response, error) {
-            alert("Error Occurred!" + xhr.responseText);
-        }
-    });
+        $.each(replyDtos, function(index, replyDto) {
+            generateReplyBlock(replyDto);
+        });
+    } catch (error) {
+        alert("Getting all replies failed! " + error);
+    }
 }
 
-
-function getCommentSectionStatus(postId) {
-    $.ajax({
-        type: "GET",
-        url: "/forum/api/posts/commentSectionStatus/" + postId,
-        success: function(commentSectionStatus, response) {
-            if (commentSectionStatus === "CLOSED") {
-                $(".disabledCommentAndReplySectionInfo").show();
-
-                $(".replyModal #replyForm").hide();
-                $(".commentModal #commentForm").hide();
-                return;
-            }
-            $(".disabledCommentAndReplySectionInfo").hide();
-
-            $(".replyModal #replyForm").show();
-            $(".commentModal #commentForm").show();
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
+async function getCommentSectionStatus(postId) {
+    try {
+        const commentSectionStatus = await GetRepository.getCommentSectionStatus(postId);
+        if (commentSectionStatus === "CLOSED") {
+            $(".disabledCommentAndReplySectionInfo").show();
+            $(".replyModal #replyForm").hide();
+            $(".commentModal #commentForm").hide();
+            return;
         }
-    });
+        $(".disabledCommentAndReplySectionInfo").hide();
+        $(".replyModal #replyForm").show();
+        $(".commentModal #commentForm").show();
+    } catch (error) {
+        alert("Getting the comment section status failed! " + error);
+    }
 }
 
 function updateCommentSectionStatus(postId, newStatus) {
