@@ -439,7 +439,7 @@ async function updateTotalNotifCount(userId, id, type) {
         totalNotifCountElement.attr("aria-valuetext", newTotalNotifCount);
         console.log("Updating the total notification count success!");
     } catch (error) {
-        alert("Updating total notification count failed! " + error);
+        // alert("Updating total notification count failed! " + error); // ignore this becuase the current user might not be the author of the post or the commenter of the comment
     }
 }
 

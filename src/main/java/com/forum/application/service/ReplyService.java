@@ -72,8 +72,6 @@ public class ReplyService {
             return;
         }
         log.trace("Will mark all as read because the current user with id of {} is the commenter of the comment {}", userId, comment.getCommenter().getId());
-        boolean isAllRead = comment.getReplies().stream().allMatch(reply -> reply.getNotificationStatus() == NotificationStatus.READ);
-        if (isAllRead) return;
         comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)

@@ -145,12 +145,10 @@ public class CommentService {
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         if (userId != post.getAuthor().getId()) {
-            log.debug("Will not mark as unread because the current user with id of {} are not the author of the post who is {}", userId, post.getAuthor().getId());
+            log.trace("Will not mark as unread because the current user with id of {} are not the author of the post who is {}", userId, post.getAuthor().getId());
             return;
         }
-        log.debug("Will mark all as read becuase the current user with id of {} is the author of the post {}", userId, post.getAuthor().getId());
-        boolean isAllRead = post.getComments().stream().allMatch(comment -> comment.getNotificationStatus() == NotificationStatus.READ);
-        if (isAllRead) return;
+        log.trace("Will mark all as read becuase the current user with id of {} is the author of the post {}", userId, post.getAuthor().getId());
         post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
