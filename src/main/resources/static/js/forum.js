@@ -1,4 +1,6 @@
 'use strict';
+import * as SaveRepository from './modules/save_repository.js';
+import * as RetrieveRepository from './modules/retrieve_repository.js';
 
 const socket = new SockJS("/websocket");
 const stompClient = Stomp.over(socket);
@@ -203,41 +205,6 @@ function subscribeToCommentReplies() {
         });
 }
 
-function saveTracker(userId, associatedTypeId, type) {
-    return $.ajax({
-        type: "POST",
-        url: "/forum/api/users/" + userId + "/saveTracker",
-        async: false,
-        data: {
-            associatedTypeId: associatedTypeId,
-            type: type
-        },
-        success: function(modalTracker, response) {
-            console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Saving the modal tracker for this user failed!");
-        }
-    });
-}
-
-function deleteTracker(userId, type) {
-    return $.ajax({
-        type: "DELETE",
-        url: "/forum/api/users/" + userId + "/deleteTracker",
-        async: false,
-        data: {
-            type: type
-        },
-        success: function(response) {
-            console.log("User with id of " + userId + " modal tracker deleted successfully!")
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Deleting the modal tracker of user with id of " + userId + " failed");
-        }
-    });
-}
-
 function isUserBlocked(id) {
           let blockedBy, youBeenBlockedBy;
             isBlockedBy(id).done(function(data) {
@@ -325,53 +292,43 @@ function blockUser(href) {
     });
 }
 
-function savePost(body) {
-    $.ajax({
-        type: "POST",
-        url: "/forum/api/posts",
-        data: {
-            body: body
-        },
-        success: function(response, status, xhr) {
-            console.log(xhr.responseText);
-            window.location.href = "/forum";
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
-    });
+async function saveTracker(userId, associatedTypeId, type) {
+    try {
+        await SaveRepository.saveTracker(userId, associatedTypeId, type);
+        console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
+    } catch (error) {
+        alert("Error Occurred! Saving the modal tracker for this user failed!");
+    }
 }
 
-function saveComment(body) {
-    $.ajax({
-        type: "POST",
-        url: "/forum/api" + commentURI,
-        data: {
-            body: body
-        },
-        success: function(response, status, xhr) {
-            console.log("Returned CommentDTO" + xhr.responseText);
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
-    });
+async function savePost(body) {
+    try {
+        const savedPost = await SaveRepository.savePost(body);
+        console.log("Post saved successfully");
+        console.table(savedPost);
+    } catch (error) {
+        alert(error);
+    }
 }
 
-function saveReply(body) {
-    $.ajax({
-        type: "POST",
-        url: "/forum/api" + replyURI,
-        data: {
-            body: body
-        },
-        success: function(response, status, xhr) {
-            console.log("Returned ReplyDTO " + xhr.responseText);
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
-    });
+async function saveComment(body) {
+    try {
+        const savedComment = await SaveRepository.saveComment(body, commentURI);
+        console.log("Comment saved successfully");
+        console.table(savedComment);
+    } catch (error) {
+        alert(error);
+    }
+}
+
+async function saveReply(body) {
+    try {
+        const savedReply = await SaveRepository.saveReply(body, replyURI);
+        console.log("Reply saved successfully");
+        console.table(savedReply);
+    } catch (error) {
+        alert(error);
+    }
 }
 
 function getAllCommentsOf(commentURI) {
@@ -568,6 +525,23 @@ function deleteReply(deleteReplyURI) {
         },
         error: function(xhr, status, error) {
             alert("Error Occurred! Deletion of reply failed!");
+        }
+    });
+}
+
+function deleteTracker(userId, type) {
+    return $.ajax({
+        type: "DELETE",
+        url: "/forum/api/users/" + userId + "/deleteTracker",
+        async: false,
+        data: {
+            type: type
+        },
+        success: function(response) {
+            console.log("User with id of " + userId + " modal tracker deleted successfully!")
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Deleting the modal tracker of user with id of " + userId + " failed");
         }
     });
 }
