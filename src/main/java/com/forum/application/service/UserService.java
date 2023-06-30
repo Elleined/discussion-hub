@@ -87,8 +87,8 @@ public class UserService {
         return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
     }
 
-    public int mentionUser(MentionDTO mentionDTO) {
-        return mentionService.save(mentionDTO.mentioningUserId(), mentionDTO.mentionedUserId(), Type.valueOf(mentionDTO.type()), mentionDTO.typeId());
+    public int mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) {
+        return mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
     }
 
     public MentionDTO getMentionById(int mentionId) {
@@ -96,8 +96,8 @@ public class UserService {
         return mentionService.convertToDTO(mention);
     }
 
-    public List<MentionDTO> getAllReceiveMentions(int userId) {
-        return mentionService.getAllReceiveMentions(userId);
+    public List<MentionDTO> getAllUnreadReceiveMentions(int userId) {
+        return mentionService.getAllUnreadReceiveMentions(userId);
     }
     public UserDTO convertToDTO(User user) {
         return new UserDTO(user.getName());

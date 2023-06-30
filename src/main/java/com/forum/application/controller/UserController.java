@@ -5,6 +5,7 @@ import com.forum.application.dto.MentionDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
+import com.forum.application.model.Type;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.ReplyService;
 import com.forum.application.service.UserService;
@@ -115,18 +116,25 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/mentionUser")
-    public ResponseEntity<?> mentionUser(@RequestBody MentionDTO mentionDTO) {
-        if (userService.isBlockedBy(mentionDTO.mentioningUserId(), mentionDTO.mentionedUserId())) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionDTO.mentionedUserId() + " because you already blocked this user");
-        if (userService.isYouBeenBlockedBy(mentionDTO.mentioningUserId(), mentionDTO.mentionedUserId())) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionDTO.mentionedUserId() + " because this user blocked you already!");
+    @PostMapping("/mentionUser/{mentionedUserId}")
+    public ResponseEntity<?> mentionUser(@PathVariable("userId") int mentioningUserId,
+                                         @PathVariable("mentionedUserId") int mentionedUserId,
+                                         @RequestBody MentionDTO mentionDTO) {
+        if (userService.isBlockedBy(mentioningUserId, mentionedUserId)) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionedUserId + " because you already blocked this user");
+        if (userService.isYouBeenBlockedBy(mentioningUserId, mentionedUserId)) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionedUserId + " because this user blocked you already!");
 
-        int mentionId = userService.mentionUser(mentionDTO);
+        int mentionId = userService.mentionUser(
+                mentioningUserId,
+                mentionedUserId,
+                Type.valueOf(mentionDTO.type()),
+                mentionDTO.typeId());
+
         MentionDTO savedMention = userService.getMentionById(mentionId);
         return ResponseEntity.ok(savedMention);
     }
 
     @GetMapping("/receiveMentions")
     public List<MentionDTO> getAllReceiveMentions(@PathVariable("userId") int userId) {
-        return userService.getAllReceiveMentions(userId);
+        return userService.getAllUnreadReceiveMentions(userId);
     }
 }

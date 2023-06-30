@@ -46,10 +46,11 @@ public class MentionService {
         return mentionRepository.findById(mentionId).orElseThrow(() -> new ResourceNotFoundException("Mention with id of " + mentionId + " does not exists!"));
     }
 
-    public List<MentionDTO> getAllReceiveMentions(int userId) {
+    public List<MentionDTO> getAllUnreadReceiveMentions(int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         return user.getReceiveMentions()
                 .stream()
+                .filter(mention -> mention.getStatus() == NotificationStatus.UNREAD)
                 .map(this::convertToDTO)
                 .toList();
     }
@@ -60,6 +61,8 @@ public class MentionService {
                 .mentionedUserId(mention.getMentionedUser().getId())
                 .type(mention.getType().name())
                 .typeId(mention.getTypeId())
+                .notificationStatus(mention.getStatus().name())
+                .createdAt(mention.getCreatedAt())
                 .build();
     }
 }
