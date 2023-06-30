@@ -116,7 +116,10 @@ public class UserController {
     }
 
     @PostMapping("/mentionUser")
-    public ResponseEntity<MentionDTO> mentionUser(@RequestBody MentionDTO mentionDTO) {
+    public ResponseEntity<?> mentionUser(@RequestBody MentionDTO mentionDTO) {
+        if (userService.isBlockedBy(mentionDTO.mentioningUserId(), mentionDTO.mentionedUserId())) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionDTO.mentionedUserId() + " because you already blocked this user");
+        if (userService.isYouBeenBlockedBy(mentionDTO.mentioningUserId(), mentionDTO.mentionedUserId())) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionDTO.mentionedUserId() + " because this user blocked you already!");
+
         int mentionId = userService.mentionUser(mentionDTO);
         MentionDTO savedMention = userService.getMentionById(mentionId);
         return ResponseEntity.ok(savedMention);

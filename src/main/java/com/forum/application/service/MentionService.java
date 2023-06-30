@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MentionService {
     private final UserRepository userRepository;
-    private final BlockService blockService;
     private final MentionRepository mentionRepository;
 
     int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) {
@@ -45,8 +44,6 @@ public class MentionService {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         return user.getReceiveMentions()
                 .stream()
-                .filter(mention -> !blockService.isBlockedBy(userId, mention.getMentioningUser().getId()))
-                .filter(mention -> !blockService.isYouBeenBlockedBy(userId, mention.getMentioningUser().getId()))
                 .map(this::convertToDTO)
                 .toList();
     }
