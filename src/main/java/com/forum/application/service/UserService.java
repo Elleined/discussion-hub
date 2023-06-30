@@ -48,7 +48,7 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 
-    public List<User> getAllByProperty(String name) {
+    public List<String> getAllByProperty(String name) {
         return userRepository.fetchAllByProperty(name);
     }
 

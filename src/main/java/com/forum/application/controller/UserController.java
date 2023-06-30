@@ -142,4 +142,9 @@ public class UserController {
         userService.deleteAllReceiveMentions(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/getAllByProperty")
+    public List<String> getAllByProperty(@RequestParam("name") String name) {
+        return userService.getAllByProperty(name);
+    }
 }

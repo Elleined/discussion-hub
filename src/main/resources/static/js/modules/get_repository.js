@@ -43,6 +43,24 @@ const getCommentSectionStatus = postId => {
     return deferred.promise();
 };
 
+const getAllUsernames = name => {
+    const deferred = $.Deferred();
+    $.ajax({
+        type: "GET",
+        url: `/forum/api/users/0/getAllByProperty`,
+        data: {
+            name: name
+        },
+        success: function(response) {
+            deferred.resolve(response);
+        },
+        error: function(xhr, status, error) {
+            deferred.reject(error);
+        }
+    });
+    return deferred.promise();
+};
+
 export {
     getAllCommentsOf,
     getAllRepliesOf,
