@@ -43,8 +43,6 @@ class UserRepositoryTest {
     @Test
     void fetchAllByProperty() {
         String name = "user";
-        userRepository.fetchAllByProperty(name).stream()
-                .map(User::getName)
-                .forEach(System.out::println);
+        userRepository.fetchAllByProperty(name).forEach(System.out::println);
     }
 }
