@@ -1,7 +1,9 @@
 package com.forum.application.service;
 
+import com.forum.application.dto.MentionDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.model.Mention;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final BlockService blockService;
     private final ModalTrackerService modalTrackerService;
+    private final MentionService mentionService;
+
     public int save(User user) {
         int userId = userRepository.save(user).getId();
         log.debug("User registered successfully! with id of {}", userId);
@@ -42,6 +47,9 @@ public class UserService {
     public User getById(int userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
+    public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
+        return modalTrackerService.isModalOpen(userId, associatedTypeId, type);
+    }
 
     public ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
         return modalTrackerService.saveTrackerOfUserById(receiverId, associateTypeIdOpened, type);
@@ -55,9 +63,6 @@ public class UserService {
         modalTrackerService.deleteTrackerOfUserById(userId, Type.valueOf(type));
     }
 
-    public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
-        return modalTrackerService.isModalOpen(userId, associatedTypeId, type);
-    }
 
     public Set<UserDTO> getAllBlockedUsers(int userId) {
         return userRepository.fetchAllBlockedUserOf(userId)
@@ -82,6 +87,18 @@ public class UserService {
         return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
     }
 
+    public int mentionUser(MentionDTO mentionDTO) {
+        return mentionService.save(mentionDTO.mentioningUserId(), mentionDTO.mentionedUserId(), Type.valueOf(mentionDTO.type()), mentionDTO.typeId());
+    }
+
+    public MentionDTO getMentionById(int mentionId) {
+        Mention mention = mentionService.getById(mentionId);
+        return mentionService.convertToDTO(mention);
+    }
+
+    public List<MentionDTO> getAllReceiveMentions(int userId) {
+        return mentionService.getAllReceiveMentions(userId);
+    }
     public UserDTO convertToDTO(User user) {
         return new UserDTO(user.getName());
     }

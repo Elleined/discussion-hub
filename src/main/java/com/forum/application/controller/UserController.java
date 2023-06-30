@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.dto.MentionDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
@@ -112,5 +113,17 @@ public class UserController {
                                                               @RequestParam("type") String type) {
         userService.deleteTrackerOfUserById(userId, type);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/mentionUser")
+    public ResponseEntity<MentionDTO> mentionUser(@RequestBody MentionDTO mentionDTO) {
+        int mentionId = userService.mentionUser(mentionDTO);
+        MentionDTO savedMention = userService.getMentionById(mentionId);
+        return ResponseEntity.ok(savedMention);
+    }
+
+    @GetMapping("/receiveMentions")
+    public List<MentionDTO> getAllReceiveMentions(@PathVariable("userId") int userId) {
+        return userService.getAllReceiveMentions(userId);
     }
 }

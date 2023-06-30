@@ -56,7 +56,6 @@ public class User {
     )
     private Set<User> blockedUsers;
 
-
     // user id reference is in post table
     @OneToMany(mappedBy = "author")
     @Setter(AccessLevel.NONE)
@@ -71,4 +70,14 @@ public class User {
     @OneToMany(mappedBy = "replier")
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
+
+    // user id reference is in mention user
+    @OneToMany(mappedBy = "mentioningUser")
+    @Setter(AccessLevel.NONE)
+    private List<Mention> sentMentions;
+
+    // user id reference is in mention user
+    @OneToMany(mappedBy = "mentionedUser")
+    @Setter(AccessLevel.NONE)
+    private List<Mention> receiveMentions;
 }
