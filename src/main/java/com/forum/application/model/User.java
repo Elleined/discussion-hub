@@ -43,7 +43,7 @@ public class User {
     )
     private Set<Comment> upvotedComments;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "tbl_blocked_user",
             joinColumns = @JoinColumn(name = "user_id",
