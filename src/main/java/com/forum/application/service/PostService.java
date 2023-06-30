@@ -134,16 +134,23 @@ public class PostService {
     }
 
     private int getTotalCommentsAndReplies(Post post) {
+        String loginEmailSession = (String) session.getAttribute("email");
+        int userId = userService.getIdByEmail(loginEmailSession);
+        
         int commentCount = (int) post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
                 .count();
 
         int commentRepliesCount = (int) post.getComments()
                 .stream()
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
-                        .filter(reply -> reply.getStatus() == Status.ACTIVE))
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                        .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
+                        .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId())))
                 .count();
 
         return commentCount + commentRepliesCount;
