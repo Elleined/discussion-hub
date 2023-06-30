@@ -99,6 +99,11 @@ public class UserService {
     public List<MentionDTO> getAllUnreadReceiveMentions(int userId) {
         return mentionService.getAllUnreadReceiveMentions(userId);
     }
+
+    public void deleteAllReceiveMentions(int userId) {
+        mentionService.deleteAllReceiveMentions(userId);
+    }
+
     public UserDTO convertToDTO(User user) {
         return new UserDTO(user.getName());
     }

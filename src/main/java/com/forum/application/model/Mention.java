@@ -46,5 +46,9 @@ public class Mention {
 
     @Column(name = "notification_status")
     @Enumerated(EnumType.STRING)
-    private NotificationStatus status;
+    private NotificationStatus notificationStatus;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }
