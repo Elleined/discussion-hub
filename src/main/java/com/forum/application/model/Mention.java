@@ -3,6 +3,8 @@ package com.forum.application.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "tbl_mention_user")
@@ -38,4 +40,11 @@ public class Mention {
 
     @Column(name = "type_id")
     private int typeId;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "notification_status")
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus status;
 }
