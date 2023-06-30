@@ -47,6 +47,11 @@ public class UserService {
     public User getById(int userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
+
+    public List<User> getAllByProperty(String name) {
+        return userRepository.fetchAllByProperty(name);
+    }
+
     public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
         return modalTrackerService.isModalOpen(userId, associatedTypeId, type);
     }

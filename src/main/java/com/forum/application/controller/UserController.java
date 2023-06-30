@@ -24,7 +24,6 @@ public class UserController {
     private final CommentService commentService;
     private final ReplyService replyService;
 
-
     @GetMapping("/unreadComments/{postId}")
     public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int authorId,
                                                  @PathVariable("postId") int postId) {
@@ -37,7 +36,7 @@ public class UserController {
         return commentService.getNotificationCountForSpecificPost(authorId, postId);
     }
 
-    @GetMapping("/unreadComments/{postId}/{respondentId}")
+    @GetMapping("/unreadCommentCountForRespondent/{postId}/{respondentId}")
     public int getCommentNotificationCountForRespondent(@PathVariable("userId") int authorId,
                                                         @PathVariable("postId") int postId,
                                                         @PathVariable("respondentId") int respondentId) {
@@ -56,7 +55,7 @@ public class UserController {
         return replyService.getReplyNotificationCountForSpecificComment(commenterId, commentId);
     }
 
-    @GetMapping("/unreadReplies/{commentId}/{respondentId}")
+    @GetMapping("/unreadReplyCountForRespondent/{commentId}/{respondentId}")
     public int getReplyNotificationCountForRespondent(@PathVariable("userId") int commenterId,
                                                       @PathVariable("commentId") int commentId,
                                                       @PathVariable("respondentId") int respondentId) {

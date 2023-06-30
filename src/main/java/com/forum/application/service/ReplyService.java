@@ -114,16 +114,17 @@ public class ReplyService {
                 .toList();
     }
 
-    public int getReplyNotificationCountForSpecificComment(int commenterId, int commentId) {
-        return getAllUnreadRepliesOfSpecificCommentById(commenterId, commentId).size();
-    }
-
     public int getNotificationCountForRespondent(int commenterId, int commentId, int respondentId) {
         return (int) getAllUnreadRepliesOfSpecificCommentById(commenterId, commentId)
                 .stream()
                 .filter(reply -> reply.getReplierId() == respondentId)
                 .count();
     }
+
+    public int getReplyNotificationCountForSpecificComment(int commenterId, int commentId) {
+        return getAllUnreadRepliesOfSpecificCommentById(commenterId, commentId).size();
+    }
+
 
     public List<ReplyDTO> getAllUnreadRepliesOfAllCommentsByAuthorId(int userId) {
         User user = userService.getById(userId);

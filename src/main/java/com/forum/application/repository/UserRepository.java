@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query("SELECT u.email FROM User u")
     List<String> fetchAllEmail();
+
+    @Query("SELECT u FROM User u WHERE u.name LIKE CONCAT('%', :name, '%')")
+    List<User> fetchAllByProperty(@Param("name") String name);
 }

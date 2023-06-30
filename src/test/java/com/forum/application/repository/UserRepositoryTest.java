@@ -39,4 +39,12 @@ class UserRepositoryTest {
         int userId = 1;
         userRepository.fetchAllBlockedUserOf(userId).forEach(user -> System.out.println(user.getName()));
     }
+
+    @Test
+    void fetchAllByProperty() {
+        String name = "user";
+        userRepository.fetchAllByProperty(name).stream()
+                .map(User::getName)
+                .forEach(System.out::println);
+    }
 }

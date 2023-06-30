@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +50,7 @@ public class NotificationService {
 
     public long getAllUnreadNotificationCount(int userId) {
         return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId);
+        // return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId) + mentionService.getAllUnreadReceiveMentions(userId).size();
     }
 
     public Set<NotificationResponse> getAllNotification(int userId) {

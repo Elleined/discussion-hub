@@ -38,4 +38,5 @@ class UserServiceTest {
         Type type = Type.COMMENT;
         assertTrue(userService.isModalOpen(userId, associatedTypeId, type), "This user does not have an open modal!");
     }
+
 }
