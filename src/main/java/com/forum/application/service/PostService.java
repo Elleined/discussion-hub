@@ -136,7 +136,7 @@ public class PostService {
     private int getTotalCommentsAndReplies(Post post) {
         String loginEmailSession = (String) session.getAttribute("email");
         int userId = userService.getIdByEmail(loginEmailSession);
-        
+
         int commentCount = (int) post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
