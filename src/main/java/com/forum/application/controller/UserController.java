@@ -144,7 +144,7 @@ public class UserController {
     }
 
     @GetMapping("/getAllByProperty")
-    public List<String> getAllByProperty(@RequestParam("name") String name) {
+    public List<UserDTO> getAllByProperty(@RequestParam("name") String name) {
         return userService.getAllByProperty(name);
     }
 }

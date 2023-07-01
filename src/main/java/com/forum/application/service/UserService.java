@@ -48,8 +48,11 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 
-    public List<String> getAllByProperty(String name) {
-        return userRepository.fetchAllByProperty(name);
+    public List<UserDTO> getAllByProperty(String name) {
+        return userRepository.fetchAllByProperty(name)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 
     public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
@@ -110,6 +113,10 @@ public class UserService {
     }
 
     public UserDTO convertToDTO(User user) {
-        return new UserDTO(user.getName());
+        return UserDTO.builder()
+                .id(user.getId())
+                .picture(user.getPicture())
+                .name(user.getName())
+                .build();
     }
 }

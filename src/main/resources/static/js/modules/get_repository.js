@@ -64,5 +64,6 @@ const getAllUsernames = name => {
 export {
     getAllCommentsOf,
     getAllRepliesOf,
-    getCommentSectionStatus
+    getCommentSectionStatus,
+    getAllUsernames
 };
