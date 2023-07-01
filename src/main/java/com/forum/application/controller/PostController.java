@@ -53,10 +53,7 @@ public class PostController {
         String loginEmailSession = (String) session.getAttribute("email");
         int authorId = userService.getIdByEmail(loginEmailSession);
         int postId = forumService.savePost(authorId, body);
-        if (mentionedUserIds != null) {
-            mentionedUserIds.forEach(System.out::println);
-            forumService.mentionUsers(authorId, mentionedUserIds, Type.POST, postId); // might be bug because if post doesnt get stored this will be null
-        }
+        if (mentionedUserIds != null) forumService.mentionUsers(authorId, mentionedUserIds, Type.POST, postId); // might be bug because if post doesnt get stored this will be null
 
         PostDTO postDTO = forumService.getPostById(postId);
         return ResponseEntity.ok(postDTO);

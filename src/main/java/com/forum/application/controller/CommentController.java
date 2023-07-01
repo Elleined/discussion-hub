@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.model.Type;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +35,7 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<?> saveComment(@PathVariable("postId") int postId,
                                          @RequestParam("body") String body,
+                                         @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds,
                                          HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Comment body cannot be empty!");
@@ -46,6 +49,8 @@ public class CommentController {
         if (userService.isYouBeenBlockedBy(commenterId, authorId)) return ResponseEntity.badRequest().body("Cannot comment because this user block you already!");
 
         int commentId = forumService.saveComment(commenterId, postId, body);
+        if (mentionedUserIds != null) forumService.mentionUsers(commenterId, mentionedUserIds, Type.COMMENT, commentId); // might be bug because if post doesnt get stored this will be null
+
         CommentDTO fetchedComment = forumService.getCommentById(commentId);
         return ResponseEntity.ok(fetchedComment);
     }

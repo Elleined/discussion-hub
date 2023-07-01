@@ -44,5 +44,6 @@ function bindGeneratedButton(userId, username, inputField) {
 
         inputField.val(updatedInput);
         mentionedUsersId.add(userId);
+        inputField.focus();
     });
 }

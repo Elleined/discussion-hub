@@ -31,6 +31,7 @@ $(document).ready(function() {
         }
 
         $("#postBody").val("");
+        mentionedUsersId.clear();
     });
 
     $("#postBody").on("input", function(event) {
@@ -108,9 +109,20 @@ $(document).ready(function() {
 
         const body = $("#commentBody").val();
         if ($.trim(body) === '') return;
-        saveComment(body);
+        if (mentionedUsersId !== null) {
+            SaveRepository.saveComment(body, commentURI, mentionedUsersId);
+        } else {
+            SaveRepository.saveComment(body, commentURI);
+        }
 
         $("#commentBody").val("");
+        mentionedUsersId.clear();
+    });
+
+    $("#commentBody").on("input", function() {
+        const userId = $("#userId").val();
+        const mentionList = $("#commentMentionList");
+        mention(userId, $(this), mentionList);
     });
 
     $(".replyModal #replyForm").on("submit", function(event) {
@@ -122,7 +134,6 @@ $(document).ready(function() {
 
         $("#replyBody").val("");
     });
-
 
     // Below this making sure that socket and stompClient is closed
     $("#commentModal").on("hidden.bs.modal", function() {
@@ -306,16 +317,6 @@ async function saveTracker(userId, associatedTypeId, type) {
         console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
     } catch (error) {
         alert("Error Occurred! Saving the modal tracker for this user failed!");
-    }
-}
-
-async function saveComment(body) {
-    try {
-        const savedComment = await SaveRepository.saveComment(body, commentURI);
-        console.log("Comment saved successfully");
-        console.table(savedComment);
-    } catch (error) {
-        alert(error);
     }
 }
 
