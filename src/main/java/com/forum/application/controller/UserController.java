@@ -125,8 +125,8 @@ public class UserController {
         int mentionId = userService.mentionUser(
                 mentioningUserId,
                 mentionedUserId,
-                Type.valueOf(mentionDTO.type()),
-                mentionDTO.typeId());
+                Type.valueOf(mentionDTO.getType()),
+                mentionDTO.getTypeId());
 
         MentionDTO savedMention = userService.getMentionById(mentionId);
         return ResponseEntity.ok(savedMention);

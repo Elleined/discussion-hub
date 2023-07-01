@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Mention {
 
     @Id

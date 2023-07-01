@@ -1,6 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.dto.MentionDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.notification.NotificationResponse;
@@ -27,6 +28,7 @@ public class NotificationService {
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final MentionService mentionService;
 
     public void broadcastCommentNotification(int postId, int commenterId) {
         var commentNotificationResponse = convertToCommentNotification(postId, commenterId);
@@ -46,6 +48,19 @@ public class NotificationService {
         simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
 
         log.debug("Reply notification successfully sent to {}", subscriberId);
+    }
+
+    public void broadcastMentionNotification(int mentionId) {
+        MentionDTO mentionDTO = mentionService.convertToDTO(mentionService.getById(mentionId));
+        User mentioningUser = userService.getById(mentionDTO.getMentioningUserId());
+        String message = switch (Type.valueOf(mentionDTO.getType())) {
+            case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mentionDTO.getTypeId()).getBody() + "\"";
+            case COMMENT -> mentioningUser.getName() + " mention you in a comment " + "\"" + commentService.getById(mentionDTO.getTypeId()).getBody() + "\"";
+            case REPLY -> mentioningUser.getName() + " mention you in a reply " + "\"" + replyService.getById(mentionDTO.getTypeId()).getBody() + "\"";
+        };
+        mentionDTO.setMessage(message);
+        final String subscriberId = String.valueOf(mentionDTO.getMentionedUserId());
+        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/mentions", mentionDTO);
     }
 
     public long getAllUnreadNotificationCount(int userId) {

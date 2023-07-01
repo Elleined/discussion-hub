@@ -46,7 +46,9 @@ public class ForumService {
     }
 
     public void mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) {
-        usersToBeMentionIds.forEach(usersToBeMentionId -> mentionService.save(mentioningUserId, usersToBeMentionId, type, typeId));
+        usersToBeMentionIds.stream()
+                .map(usersToBeMentionId -> mentionService.save(mentioningUserId, usersToBeMentionId, type, typeId))
+                .forEach(notificationService::broadcastMentionNotification);
     }
 
     public PostDTO getPostById(int postId) {

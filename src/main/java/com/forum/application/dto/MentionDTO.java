@@ -1,9 +1,18 @@
 package com.forum.application.dto;
 
 import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Builder
-public record MentionDTO(int mentioningUserId, int mentionedUserId, String type, int typeId, LocalDateTime createdAt, String notificationStatus) {
+@Data
+public class MentionDTO {
+    int mentioningUserId;
+    int mentionedUserId;
+    String type;
+    int typeId;
+    LocalDateTime createdAt;
+    String notificationStatus;
+    String message;
 }

@@ -546,6 +546,7 @@ function onConnected() {
     stompClient.subscribe("/user/notification/mentions", function(mentionResponse) {
         const json = JSON.parse(mentionResponse.body);
         updateTotalNotificationCount();
+        alert(`Message: ${json.message}`);
     });
 }
 function onError() {
