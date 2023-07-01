@@ -12,7 +12,7 @@ $(document).ready(function() {
     if (lastWord.startsWith("@")) {
       // Perform your desired actions when a mention is detected
       const username = lastWord.substring(1); // Extract the username without the "@"
-      fetchAllUsernames(username)
+      fetchAllUsernames(1, username)
         .then(users => {
             console.log("User mentioned: " + username);
             users.forEach(user => {
@@ -51,6 +51,8 @@ function bindGeneratedButton(userId, username) {
         const input = inputField.val().trim().replace(username, "");
         const name = $("#nameSpan_" + userId).text().trim();
         const updatedInput = input + name;
+
+
         inputField.val(updatedInput);
         mentionedUsers.add(userId);
     });

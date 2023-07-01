@@ -17,8 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MentionService {
     private final UserRepository userRepository;
-    private final ModalTrackerService modalTrackerService;
     private final MentionRepository mentionRepository;
+    private final ModalTrackerService modalTrackerService;
+    private final BlockService blockService;
 
     int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) {
         User mentioningUser = userRepository.findById(mentioningUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentioningUserId +  " does not exists"));
@@ -38,6 +39,15 @@ public class MentionService {
         mentionRepository.save(mention);
         log.debug("User with id of {} mentioned user with id of {} successfully!", mentioningUserId, mentionedUserId);
         return mention.getId();
+    }
+
+    List<User> getAllByProperty(int userId, String name) {
+        return userRepository.fetchAllByProperty(name)
+                .stream()
+                .filter(user -> user.getId() != userId)
+                .filter(user -> !blockService.isBlockedBy(userId, user.getId()))
+                .filter(user -> !blockService.isYouBeenBlockedBy(userId, user.getId()))
+                .toList();
     }
 
     Mention getById(int mentionId) {

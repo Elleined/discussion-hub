@@ -43,11 +43,11 @@ const getCommentSectionStatus = postId => {
     return deferred.promise();
 };
 
-const getAllUsernames = name => {
+const getAllUsernames = (userId, name) => {
     const deferred = $.Deferred();
     $.ajax({
         type: "GET",
-        url: `/forum/api/users/0/getAllByProperty`,
+        url: `/forum/api/users/${userId}/getAllByProperty`,
         data: {
             name: name
         },

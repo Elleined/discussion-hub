@@ -48,8 +48,8 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 
-    public List<UserDTO> getAllByProperty(String name) {
-        return userRepository.fetchAllByProperty(name)
+    public List<UserDTO> getAllByProperty(int userId, String name) {
+        return mentionService.getAllByProperty(userId, name)
                 .stream()
                 .map(this::convertToDTO)
                 .toList();
