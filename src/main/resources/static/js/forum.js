@@ -24,7 +24,7 @@ $(document).ready(function() {
         const body = $("#postBody").val();
         if ($.trim(body) === '') return;
 
-        if (mentionedUsersId !== null) {
+        if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
             SaveRepository.savePost(body, mentionedUsersId);
         } else {
            SaveRepository.savePost(body);
@@ -109,7 +109,7 @@ $(document).ready(function() {
 
         const body = $("#commentBody").val();
         if ($.trim(body) === '') return;
-        if (mentionedUsersId !== null) {
+        if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
             SaveRepository.saveComment(body, commentURI, mentionedUsersId);
         } else {
             SaveRepository.saveComment(body, commentURI);
@@ -130,9 +130,21 @@ $(document).ready(function() {
 
         const body = $("#replyBody").val();
         if ($.trim(body) === '') return;
-        saveReply(body);
+
+        if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
+            SaveRepository.saveReply(body, replyURI, mentionedUsersId);
+        } else {
+            SaveRepository.saveReply(body, replyURI);
+        }
 
         $("#replyBody").val("");
+        mentionedUsersId.clear();
+    });
+
+    $("#replyBody").on("input", function(event) {
+        const userId = $("#userId").val();
+        const mentionList = $("#replyMentionList");
+        mention(userId, $(this), mentionList);
     });
 
     // Below this making sure that socket and stompClient is closed
@@ -317,16 +329,6 @@ async function saveTracker(userId, associatedTypeId, type) {
         console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
     } catch (error) {
         alert("Error Occurred! Saving the modal tracker for this user failed!");
-    }
-}
-
-async function saveReply(body) {
-    try {
-        const savedReply = await SaveRepository.saveReply(body, replyURI);
-        console.log("Reply saved successfully");
-        console.table(savedReply);
-    } catch (error) {
-        alert(error);
     }
 }
 

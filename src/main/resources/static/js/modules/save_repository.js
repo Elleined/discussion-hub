@@ -62,16 +62,21 @@ const saveComment = (body, commentURI, mentionedUserIds) => {
     return deferred.promise();
 };
 
-const saveReply = (body, replyURI) => {
+const saveReply = (body, replyURI, mentionedUserIds) => {
+    const dataArray = Array.from(mentionedUserIds);
+
     const deferred = $.Deferred();
     $.ajax({
         type: "POST",
         url: "/forum/api" + replyURI,
         data: {
-            body: body
+            body: body,
+            mentionedUserIds: dataArray.join(",")
         },
-        success: function(response, status, xhr) {
+        success: function(response) {
             deferred.resolve(response);
+            console.log("Reply saved sucessfully!");
+            console.table(response);
         },
         error: function(xhr, status, error) {
             deferred.reject(xhr.responseText);

@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.model.Type;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +35,7 @@ public class ReplyController {
     @PostMapping
     public ResponseEntity<?> saveReply(@PathVariable("commentId") int commentId,
                                        @RequestParam("body") String body,
+                                       @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds,
                                        HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Reply body cannot be empty!");
@@ -46,6 +49,7 @@ public class ReplyController {
         if (userService.isYouBeenBlockedBy(replierId, commenterId)) return ResponseEntity.badRequest().body("Cannot reply because this user block you already!");
 
         int replyId = forumService.saveReply(replierId, commentId, body);
+        if (mentionedUserIds != null) forumService.mentionUsers(replierId, mentionedUserIds, Type.REPLY, replyId); // might be bug because if post doesnt get stored this will be null
         ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);
     }
