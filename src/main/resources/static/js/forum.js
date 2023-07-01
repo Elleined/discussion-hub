@@ -515,6 +515,7 @@ function disconnect() {
 function onConnected() {
     console.log("Web Socket Connected!!!");
     const currentUserId = $("#userId").val();
+
     stompClient.subscribe("/user/notification/comments", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
         if (json.respondentId == currentUserId) return; // If the post author commented in his own post it will not generate a notification block
@@ -540,6 +541,11 @@ function onConnected() {
         }
 
         generateNotificationBlock(json);
+    });
+
+    stompClient.subscribe("/user/notification/mentions", function(mentionResponse) {
+        const json = JSON.parse(mentionResponse.body);
+        updateTotalNotificationCount();
     });
 }
 function onError() {
