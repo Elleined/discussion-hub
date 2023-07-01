@@ -1,5 +1,6 @@
 import { getAllUsernames as fetchAllUsernames } from './modules/get_repository.js';
 
+let mentionedUsers = new Set();
 $(document).ready(function() {
     $("#email").focus();
 
@@ -51,5 +52,6 @@ function bindGeneratedButton(userId, username) {
         const name = $("#nameSpan_" + userId).text().trim();
         const updatedInput = input + name;
         inputField.val(updatedInput);
+        mentionedUsers.add(userId);
     });
 }
