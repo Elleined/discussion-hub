@@ -6,6 +6,7 @@ import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;
+import com.forum.application.model.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class ForumService {
     private final ReplyService replyService;
     private final WSService wsService;
     private final NotificationService notificationService;
+    private final MentionService mentionService;
 
     public int savePost(int authorId, String body) {
         return postService.save(authorId, body);
@@ -41,6 +43,10 @@ public class ForumService {
         wsService.broadcastReply(replyId);
         notificationService.broadcastReplyNotification(commentId, replierId);
         return replyId;
+    }
+
+    public void mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) {
+        usersToBeMentionIds.forEach(usersToBeMentionId -> mentionService.save(mentioningUserId, usersToBeMentionId, type, typeId));
     }
 
     public PostDTO getPostById(int postId) {

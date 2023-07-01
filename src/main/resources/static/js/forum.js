@@ -2,6 +2,7 @@
 import * as SaveRepository from './modules/save_repository.js';
 import * as GetRepository from './modules/get_repository.js';
 import * as UpdateRepository from './modules/update_repository.js';
+import { mention, mentionedUsersId } from './modules/mention_user.js';
 
 const socket = new SockJS("/websocket");
 const stompClient = Stomp.over(socket);
@@ -22,9 +23,20 @@ $(document).ready(function() {
 
         const body = $("#postBody").val();
         if ($.trim(body) === '') return;
-        savePost(body);
+
+        if (mentionedUsersId !== null) {
+            SaveRepository.savePost(body, mentionedUsersId);
+        } else {
+           SaveRepository.savePost(body);
+        }
 
         $("#postBody").val("");
+    });
+
+    $("#postBody").on("input", function(event) {
+        const userId = $("#userId").val();
+        const mentionList = $("#postMentionList");
+        mention(userId, $(this), mentionList);
     });
 
     $(".card-title #postDeleteBtn").on("click", function(event) {
@@ -247,7 +259,6 @@ function isYouBeenBlockedBy(suspectedBlockerId) {
     });
 }
 
-
 function setCommentModalTitle(postId) {
     $.ajax({
         type: "GET",
@@ -295,16 +306,6 @@ async function saveTracker(userId, associatedTypeId, type) {
         console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
     } catch (error) {
         alert("Error Occurred! Saving the modal tracker for this user failed!");
-    }
-}
-
-async function savePost(body) {
-    try {
-        const savedPost = await SaveRepository.savePost(body);
-        console.log("Post saved successfully");
-        console.table(savedPost);
-    } catch (error) {
-        alert(error);
     }
 }
 

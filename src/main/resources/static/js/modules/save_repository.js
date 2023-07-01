@@ -18,13 +18,15 @@ const saveTracker = (userId, associatedTypeId, type) => {
     return deferred.promise();
 }
 
-const savePost = body => {
+const savePost = (body, mentionedUserIds) => {
+    const dataArray = Array.from(mentionedUserIds);
     const deferred = $.Deferred();
     $.ajax({
         type: "POST",
         url: "/forum/api/posts",
         data: {
-            body: body
+            body: body,
+            mentionedUserIds: dataArray.join(",")
         },
         success: function(response) {
             deferred.resolve(response);

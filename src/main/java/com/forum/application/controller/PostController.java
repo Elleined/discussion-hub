@@ -2,6 +2,7 @@ package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
 import com.forum.application.model.Post;
+import com.forum.application.model.Type;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,14 +45,19 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<?> savePost(@RequestParam("body") String body,
+                                      @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds,
                                       HttpSession session) {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Post body cannot be empty!");
 
         String loginEmailSession = (String) session.getAttribute("email");
         int authorId = userService.getIdByEmail(loginEmailSession);
-
         int postId = forumService.savePost(authorId, body);
+        if (mentionedUserIds != null) {
+            mentionedUserIds.forEach(System.out::println);
+            forumService.mentionUsers(authorId, mentionedUserIds, Type.POST, postId); // might be bug because if post doesnt get stored this will be null
+        }
+
         PostDTO postDTO = forumService.getPostById(postId);
         return ResponseEntity.ok(postDTO);
     }
