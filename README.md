@@ -8,6 +8,7 @@ A Online Discussion Board(Forum) Using Web Socket and REST API
 - Receive Comment notification
 - Receive Reply notification
 - Comment Upvote
+- Mention another user in Post, Comment, and Reply
 - Comment and Reply READ and UNREAD flag for notification
   - Comments and Replies will only be mark as READ only when the author of the post or commentor of the comment open the associated modal
   - Also Comments and Replies will only generate notification for unread comments and replies
