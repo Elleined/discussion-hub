@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.MentionDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.Mention;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
@@ -11,6 +12,7 @@ import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -19,12 +21,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
     private final BlockService blockService;
     private final ModalTrackerService modalTrackerService;
     private final MentionService mentionService;
+    private final UserMapper userMapper;
 
     public int save(User user) {
         int userId = userRepository.save(user).getId();
@@ -51,7 +55,7 @@ public class UserService {
     public List<UserDTO> getAllByProperty(int userId, String name) {
         return mentionService.getAllByProperty(userId, name)
                 .stream()
-                .map(this::convertToDTO)
+                .map(userMapper::toDTO)
                 .toList();
     }
 
@@ -75,7 +79,7 @@ public class UserService {
     public Set<UserDTO> getAllBlockedUsers(int userId) {
         return userRepository.fetchAllBlockedUserOf(userId)
                 .stream()
-                .map(this::convertToDTO)
+                .map(userMapper::toDTO)
                 .collect(Collectors.toSet());
     }
 
@@ -110,13 +114,5 @@ public class UserService {
 
     public void deleteAllReceiveMentions(int userId) {
         mentionService.deleteAllReceiveMentions(userId);
-    }
-
-    public UserDTO convertToDTO(User user) {
-        return UserDTO.builder()
-                .id(user.getId())
-                .picture(user.getPicture())
-                .name(user.getName())
-                .build();
     }
 }

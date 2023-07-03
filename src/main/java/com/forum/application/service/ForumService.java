@@ -10,6 +10,7 @@ import com.forum.application.model.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class ForumService {
 
     private final PostService postService;
