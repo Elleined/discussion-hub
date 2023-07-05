@@ -6,6 +6,7 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.dto.notification.ReplyNotificationResponse;
+import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class NotificationService {
     private final ReplyService replyService;
     private final MentionService mentionService;
 
-    public void broadcastCommentNotification(int postId, int commenterId) {
+    void broadcastCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
         var commentNotificationResponse = convertToCommentNotification(postId, commenterId);
 
         int authorId = postService.getById(postId).getAuthorId();
@@ -40,7 +41,7 @@ public class NotificationService {
         log.debug("Comment notification successfully sent to {}", subscriberId);
     }
 
-    public void broadcastReplyNotification(int commentId, int replierId) {
+    void broadcastReplyNotification(int commentId, int replierId) throws ResourceNotFoundException {
         var replyNotificationResponse = convertToReplyNotification(commentId, replierId);
 
         int commenterId = commentService.getById(commentId).getCommenterId();
@@ -50,8 +51,8 @@ public class NotificationService {
         log.debug("Reply notification successfully sent to {}", subscriberId);
     }
 
-    public void broadcastMentionNotification(int mentionId) {
-        MentionDTO mentionDTO = mentionService.convertToDTO(mentionService.getById(mentionId));
+    void broadcastMentionNotification(int mentionId) throws ResourceNotFoundException {
+        MentionDTO mentionDTO = mentionService.toDTO(mentionService.getById(mentionId));
         User mentioningUser = userService.getById(mentionDTO.getMentioningUserId());
         String message = switch (Type.valueOf(mentionDTO.getType())) {
             case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mentionDTO.getTypeId()).getBody() + "\"";
@@ -63,12 +64,12 @@ public class NotificationService {
         simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/mentions", mentionDTO);
     }
 
-    public long getAllUnreadNotificationCount(int userId) {
+    long getAllUnreadNotificationCount(int userId) throws ResourceNotFoundException {
         return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId);
         // return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId) + mentionService.getAllUnreadReceiveMentions(userId).size();
     }
 
-    public Set<NotificationResponse> getAllNotification(int userId) {
+    Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
         List<NotificationResponse> commentNotifications = commentService.getAllUnreadCommentOfAllPostByAuthorId(userId)
                 .stream()
                 .map(comment -> convertToCommentNotification(comment.getPostId(), comment.getCommenterId()))
@@ -85,7 +86,7 @@ public class NotificationService {
                 .collect(Collectors.toSet());
     }
 
-    NotificationResponse convertToCommentNotification(int postId, int commenterId) {
+    NotificationResponse convertToCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
         final PostDTO postDTO = postService.getById(postId);
         final User commenter = userService.getById(commenterId);
 
@@ -103,7 +104,7 @@ public class NotificationService {
                 .build();
     }
 
-    NotificationResponse convertToReplyNotification(int commentId, int replierId) {
+    NotificationResponse convertToReplyNotification(int commentId, int replierId) throws ResourceNotFoundException {
         final CommentDTO commentDTO = commentService.getById(commentId);
         final User replier = userService.getById(replierId);
 

@@ -9,7 +9,6 @@ import com.forum.application.model.Post.CommentSectionStatus;
 import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ public class PostService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final CommentService commentService;
-    private final HttpSession session;
     private final PostMapper postMapper;
 
     public int save(int authorId, String body) {

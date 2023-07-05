@@ -2,6 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.dto.MentionDTO;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.mapper.MentionMapper;
 import com.forum.application.model.*;
 import com.forum.application.repository.MentionRepository;
 import com.forum.application.repository.UserRepository;
@@ -22,8 +23,9 @@ public class MentionService {
     private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
     private final BlockService blockService;
+    private final MentionMapper mentionMapper;
 
-    int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) {
+    int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws ResourceNotFoundException {
         User mentioningUser = userRepository.findById(mentioningUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentioningUserId +  " does not exists"));
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentionedUserId +  " does not exists"));
 
@@ -52,11 +54,11 @@ public class MentionService {
                 .toList();
     }
 
-    Mention getById(int mentionId) {
+    Mention getById(int mentionId) throws ResourceNotFoundException {
         return mentionRepository.findById(mentionId).orElseThrow(() -> new ResourceNotFoundException("Mention with id of " + mentionId + " does not exists!"));
     }
 
-    void deleteAllReceiveMentions(int userId) {
+    void deleteAllReceiveMentions(int userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         user.getReceiveMentions().forEach(mention -> {
             mention.setStatus(Status.INACTIVE);
@@ -64,24 +66,17 @@ public class MentionService {
         });
     }
 
-    List<MentionDTO> getAllUnreadReceiveMentions(int userId) {
+    List<MentionDTO> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         return user.getReceiveMentions()
                 .stream()
                 .filter(mention -> mention.getStatus() == Status.ACTIVE)
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
-                .map(this::convertToDTO)
+                .map(mentionMapper::toDTO)
                 .toList();
     }
 
-    public MentionDTO convertToDTO(Mention mention) {
-        return MentionDTO.builder()
-                .mentioningUserId(mention.getMentioningUser().getId())
-                .mentionedUserId(mention.getMentionedUser().getId())
-                .type(mention.getType().name())
-                .typeId(mention.getTypeId())
-                .notificationStatus(mention.getNotificationStatus().name())
-                .createdAt(mention.getCreatedAt())
-                .build();
+    public MentionDTO toDTO(Mention mention) {
+        return mentionMapper.toDTO(mention);
     }
 }

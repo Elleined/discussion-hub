@@ -42,7 +42,7 @@ public class UserService {
         return userRepository.fetchIdByEmail(email);
     }
 
-    public User getCurrentUser() {
+    public User getCurrentUser() throws NoLoggedInUserException {
         String loginEmailSession = (String) session.getAttribute("email");
         if (loginEmailSession == null) throw new NoLoggedInUserException("However you see this error message please login first in the browser then come back here!");
         int userId = getIdByEmail(loginEmailSession);
@@ -57,7 +57,7 @@ public class UserService {
         return userRepository.existsById(userId);
     }
 
-    public User getById(int userId) {
+    public User getById(int userId) throws ResourceNotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 
@@ -114,7 +114,7 @@ public class UserService {
 
     public MentionDTO getMentionById(int mentionId) {
         Mention mention = mentionService.getById(mentionId);
-        return mentionService.convertToDTO(mention);
+        return mentionService.toDTO(mention);
     }
 
     public List<MentionDTO> getAllUnreadReceiveMentions(int userId) {
