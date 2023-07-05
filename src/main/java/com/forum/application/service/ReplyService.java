@@ -2,10 +2,10 @@ package com.forum.application.service;
 
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.mapper.ReplyMapper;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.ReplyRepository;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class ReplyService {
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
-    private final HttpSession session;
+    private final ReplyMapper replyMapper;
 
     public int save(int replierId, int commentId, String body) {
         User replier = userService.getById(replierId);
@@ -92,13 +92,13 @@ public class ReplyService {
                 .filter(reply -> !userService.isBlockedBy(currentUserId, reply.getReplier().getId()))
                 .filter(reply -> !userService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
-                .map(this::convertToDTO)
+                .map(replyMapper::toDTO)
                 .toList();
     }
 
     public ReplyDTO getById(int replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
-        return this.convertToDTO(reply);
+        return replyMapper.toDTO(reply);
     }
 
     public List<ReplyDTO> getAllUnreadRepliesOfSpecificCommentById(int commenterId, int commentId) {
@@ -110,7 +110,7 @@ public class ReplyService {
                 .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
                 .filter(reply -> !userService.isBlockedBy(commenterId, reply.getReplier().getId()))
                 .filter(reply -> !userService.isYouBeenBlockedBy(commenterId, reply.getReplier().getId()))
-                .map(this::convertToDTO)
+                .map(replyMapper::toDTO)
                 .toList();
     }
 
@@ -137,29 +137,12 @@ public class ReplyService {
                         .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
-                .map(this::convertToDTO)
+                .map(replyMapper::toDTO)
                 .toList();
     }
 
     public long getAllUnreadRepliesCount(int userId) {
         return getAllUnreadRepliesOfAllCommentsByAuthorId(userId).size();
-    }
-
-    ReplyDTO convertToDTO(Reply reply) {
-        return ReplyDTO.builder()
-                .id(reply.getId())
-                .body(reply.getBody())
-                .replierName(reply.getReplier().getName())
-                .dateCreated(reply.getDateCreated())
-                .formattedDate(Formatter.formatDate(reply.getDateCreated()))
-                .formattedTime(Formatter.formatTime(reply.getDateCreated()))
-                .commentId(reply.getComment().getId())
-                .replierId(reply.getReplier().getId())
-                .replierPicture(reply.getReplier().getPicture())
-                .status(reply.getStatus().name())
-                .postId(reply.getComment().getPost().getId())
-                .notificationStatus(reply.getNotificationStatus().name())
-                .build();
     }
 
     void setStatus(int replyId) {
