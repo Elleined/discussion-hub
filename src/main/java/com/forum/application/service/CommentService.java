@@ -211,4 +211,10 @@ public class CommentService {
         respondent.getUpvotedComments().add(comment);
         userService.save(respondent);
     }
+
+    public int getTotalReplies(Comment comment) {
+        return (int) comment.getReplies().stream()
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                .count();
+    }
 }
