@@ -32,12 +32,12 @@ public class ForumController {
         String email = (String) session.getAttribute("email");
         if (email == null) return "redirect:/";
 
-        int userId = userService.getIdByEmail(email);
+        int currentUserId = userService.getCurrentUser().getId();
         List<PostDTO> posts = forumService.getAllPost();
-        Set<NotificationResponse> notifications = forumService.getAllNotification(userId);
-        long totalNotifCount = forumService.getAllUnreadNotificationCount(userId);
+        Set<NotificationResponse> notifications = forumService.getAllNotification(currentUserId);
+        long totalNotifCount = forumService.getAllUnreadNotificationCount(currentUserId);
 
-        model.addAttribute("userId", userId);
+        model.addAttribute("userId", currentUserId);
         model.addAttribute("posts", posts);
         model.addAttribute("totalNotifCount", totalNotifCount);
         model.addAttribute("notifications", notifications);

@@ -65,34 +65,32 @@ public class ReplyService {
     }
 
     public void updateAllRepliesByCommentId(int commentId, NotificationStatus newStatus) {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
+        int currentUserId = userService.getCurrentUser().getId();
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        if (userId != comment.getCommenter().getId()) {
-            log.trace("Will not mark as unread because the current user with id of {} are not the commenter of the comment {}", userId, comment.getCommenter().getId());
+        if (currentUserId != comment.getCommenter().getId()) {
+            log.trace("Will not mark as unread because the current user with id of {} are not the commenter of the comment {}", currentUserId, comment.getCommenter().getId());
             return;
         }
-        log.trace("Will mark all as read because the current user with id of {} is the commenter of the comment {}", userId, comment.getCommenter().getId());
+        log.trace("Will mark all as read because the current user with id of {} is the commenter of the comment {}", currentUserId, comment.getCommenter().getId());
         comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
-                .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
+                .filter(reply -> !userService.isBlockedBy(currentUserId, reply.getReplier().getId()))
+                .filter(reply -> !userService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .map(Reply::getId)
                 .forEach(replyId -> this.updateNotificationStatus(replyId, newStatus));
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
+        int currentUserId = userService.getCurrentUser().getId();
 
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         return comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
-                .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
+                .filter(reply -> !userService.isBlockedBy(currentUserId, reply.getReplier().getId()))
+                .filter(reply -> !userService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
                 .map(this::convertToDTO)
                 .toList();

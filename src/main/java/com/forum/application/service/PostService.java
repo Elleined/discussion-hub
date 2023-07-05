@@ -2,6 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.mapper.PostMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Post.CommentSectionStatus;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,6 +29,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentService commentService;
     private final HttpSession session;
+    private final PostMapper postMapper;
 
     public int save(int authorId, String body) {
         User author = userService.getById(authorId);
@@ -73,20 +74,19 @@ public class PostService {
 
     public PostDTO getById(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        return this.convertToDTO(post);
+        return postMapper.toDTO(post);
     }
 
     public List<PostDTO> getAll() {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
+        int currentUserId = userService.getCurrentUser().getId();
 
         return postRepository.findAll()
                 .stream()
                 .filter(post -> post.getStatus() == Status.ACTIVE)
-                .filter(post -> !userService.isBlockedBy(userId, post.getAuthor().getId()))
-                .filter(post -> !userService.isYouBeenBlockedBy(userId, post.getAuthor().getId()))
+                .filter(post -> !userService.isBlockedBy(currentUserId, post.getAuthor().getId()))
+                .filter(post -> !userService.isYouBeenBlockedBy(currentUserId, post.getAuthor().getId()))
                 .sorted(Comparator.comparing(Post::getDateCreated).reversed())
-                .map(this::convertToDTO)
+                .map(postMapper::toDTO)
                 .toList();
     }
 
@@ -95,7 +95,7 @@ public class PostService {
         return postRepository.fetchAllByAuthorId(authorId)
                 .stream()
                 .filter(post -> post.getStatus() == Status.ACTIVE)
-                .map(this::convertToDTO)
+                .map(postMapper::toDTO)
                 .sorted(Comparator.comparing(PostDTO::getDateCreated).reversed())
                 .toList();
     }
@@ -103,25 +103,6 @@ public class PostService {
     public String getCommentSectionStatus(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getCommentSectionStatus().name();
-    }
-
-
-    public PostDTO convertToDTO(Post post) {
-        if (post.getComments() == null) post.setComments(new ArrayList<>());
-        int totalCommentAndReplies = this.getTotalCommentsAndReplies(post);
-        return PostDTO.builder()
-                .id(post.getId())
-                .body(post.getBody())
-                .dateCreated(post.getDateCreated())
-                .formattedDateCreated(Formatter.formatDateWithoutYear(post.getDateCreated()))
-                .formattedTimeCreated(Formatter.formatTime(post.getDateCreated()))
-                .authorName(post.getAuthor().getName())
-                .authorId(post.getAuthor().getId())
-                .authorPicture(post.getAuthor().getPicture())
-                .totalCommentAndReplies(totalCommentAndReplies)
-                .status(post.getStatus().name())
-                .commentSectionStatus(post.getCommentSectionStatus().name())
-                .build();
     }
 
     private void setStatus(int postId) throws ResourceNotFoundException {
@@ -135,15 +116,14 @@ public class PostService {
                 .forEach(commentService::setStatus);
     }
 
-    private int getTotalCommentsAndReplies(Post post) {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
+    public int getTotalCommentsAndReplies(Post post) {
+        int currentUserId = userService.getCurrentUser().getId();
 
         int commentCount = (int) post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .count();
 
         int commentRepliesCount = (int) post.getComments()
@@ -151,8 +131,8 @@ public class PostService {
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                        .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
-                        .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId())))
+                        .filter(reply -> !userService.isBlockedBy(currentUserId, reply.getReplier().getId()))
+                        .filter(reply -> !userService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId())))
                 .count();
 
         return commentCount + commentRepliesCount;

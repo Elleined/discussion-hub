@@ -5,7 +5,6 @@ import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ public class CommentService {
     private final PostRepository postRepository;
     private final ReplyService replyService;
     private final CommentRepository commentRepository;
-    private final HttpSession session;
 
     public int save(int commenterId, int postId, String body) {
         User commenter = userService.getById(commenterId);
@@ -57,15 +55,14 @@ public class CommentService {
     }
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
+        int currentUserId = userService.getCurrentUser().getId();
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .sorted(Comparator.comparingInt(Comment::getUpvote).reversed())
                 .map(this::convertToDTO)
                 .toList();
@@ -142,20 +139,19 @@ public class CommentService {
     }
 
     public void updateAllCommentNotificationStatusByPostId(int postId, NotificationStatus newStatus) {
-        String loginEmailSession = (String) session.getAttribute("email");
-        int userId = userService.getIdByEmail(loginEmailSession);
+        int currentUserId = userService.getCurrentUser().getId();
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        if (userId != post.getAuthor().getId()) {
-            log.trace("Will not mark as unread because the current user with id of {} are not the author of the post who is {}", userId, post.getAuthor().getId());
+        if (currentUserId != post.getAuthor().getId()) {
+            log.trace("Will not mark as unread because the current user with id of {} are not the author of the post who is {}", currentUserId, post.getAuthor().getId());
             return;
         }
-        log.trace("Will mark all as read becuase the current user with id of {} is the author of the post {}", userId, post.getAuthor().getId());
+        log.trace("Will mark all as read becuase the current user with id of {} is the author of the post {}", currentUserId, post.getAuthor().getId());
         post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .map(Comment::getId)
                 .forEach(commentId -> this.updateNotificationStatus(commentId, newStatus));
     }

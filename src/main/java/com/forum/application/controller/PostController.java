@@ -50,10 +50,10 @@ public class PostController {
 
         if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Post body cannot be empty!");
 
-        String loginEmailSession = (String) session.getAttribute("email");
-        int authorId = userService.getIdByEmail(loginEmailSession);
-        int postId = forumService.savePost(authorId, body);
-        if (mentionedUserIds != null) forumService.mentionUsers(authorId, mentionedUserIds, Type.POST, postId); // might be bug because if post doesnt get stored this will be null
+        int currentUserId = userService.getCurrentUser().getId();
+
+        int postId = forumService.savePost(currentUserId, body);
+        if (mentionedUserIds != null) forumService.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId); // might be bug because if post doesnt get stored this will be null
 
         PostDTO postDTO = forumService.getPostById(postId);
         return ResponseEntity.ok(postDTO);

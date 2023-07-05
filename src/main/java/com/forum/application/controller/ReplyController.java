@@ -42,14 +42,13 @@ public class ReplyController {
         if (forumService.isPostCommentSectionClosedByCommentId(commentId)) return ResponseEntity.badRequest().body("Cannot reply to this comment because author already closed the comment section for this post!");
         if (forumService.isCommentDeleted(commentId)) return ResponseEntity.badRequest().body("The comment you trying to reply is either be deleted or does not exists anymore!");
 
-        String email = (String) session.getAttribute("email");
-        int replierId = userService.getIdByEmail(email);
+        int currentUserId = userService.getCurrentUser().getId();
 
         int commenterId = forumService.getCommentById(commentId).getCommenterId();
-        if (userService.isYouBeenBlockedBy(replierId, commenterId)) return ResponseEntity.badRequest().body("Cannot reply because this user block you already!");
+        if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) return ResponseEntity.badRequest().body("Cannot reply because this user block you already!");
 
-        int replyId = forumService.saveReply(replierId, commentId, body);
-        if (mentionedUserIds != null) forumService.mentionUsers(replierId, mentionedUserIds, Type.REPLY, replyId); // might be bug because if post doesnt get stored this will be null
+        int replyId = forumService.saveReply(currentUserId, commentId, body);
+        if (mentionedUserIds != null) forumService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId); // might be bug because if post doesnt get stored this will be null
         ReplyDTO replyDTO = forumService.getReplyById(replyId);
         return ResponseEntity.ok(replyDTO);
     }
