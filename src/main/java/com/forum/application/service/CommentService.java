@@ -2,6 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.mapper.CommentMapper;
 import com.forum.application.model.*;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final ReplyService replyService;
     private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     public int save(int commenterId, int postId, String body) {
         User commenter = userService.getById(commenterId);
@@ -64,13 +65,13 @@ public class CommentService {
                 .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .sorted(Comparator.comparingInt(Comment::getUpvote).reversed())
-                .map(this::convertToDTO)
+                .map(commentMapper::toDTO)
                 .toList();
     }
 
     public CommentDTO getById(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        return this.convertToDTO(comment);
+        return commentMapper.toDTO(comment);
     }
 
     public List<CommentDTO> getAllUnreadCommentsOfSpecificPostById(int authorId, int postId) {
@@ -82,7 +83,7 @@ public class CommentService {
                 .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
                 .filter(comment -> !userService.isBlockedBy(authorId, comment.getCommenter().getId()))
                 .filter(comment -> !userService.isYouBeenBlockedBy(authorId, comment.getCommenter().getId()))
-                .map(this::convertToDTO)
+                .map(commentMapper::toDTO)
                 .toList();
     }
 
@@ -108,7 +109,7 @@ public class CommentService {
                         .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
-                .map(this::convertToDTO)
+                .map(commentMapper::toDTO)
                 .toList();
     }
 
@@ -167,28 +168,6 @@ public class CommentService {
         return respondent.getUpvotedComments()
                 .stream()
                 .anyMatch(upvotedComment -> upvotedComment.getId() == commentId);
-    }
-
-    CommentDTO convertToDTO(Comment comment) {
-        if (comment.getReplies() == null) comment.setReplies(new ArrayList<>());
-        return CommentDTO.builder()
-                .id(comment.getId())
-                .body(comment.getBody())
-                .dateCreated(comment.getDateCreated())
-                .formattedDate(Formatter.formatDateWithoutYear(comment.getDateCreated()))
-                .formattedTime(Formatter.formatTime(comment.getDateCreated()))
-                .commenterName(comment.getCommenter().getName())
-                .postId(comment.getPost().getId())
-                .commenterId(comment.getCommenter().getId())
-                .commenterPicture(comment.getCommenter().getPicture())
-                .authorName(comment.getPost().getAuthor().getName())
-                .upvote(comment.getUpvote())
-                .status(comment.getStatus().name())
-                .totalReplies((int) comment.getReplies().stream()
-                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                        .count())
-                .notificationStatus(comment.getNotificationStatus().name())
-                .build();
     }
 
     void setStatus(int commentId) {
