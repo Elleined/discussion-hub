@@ -176,4 +176,8 @@ public class ForumService {
 
         return replyService.getById(replyId);
     }
+
+    public String getCommentSectionStatus(int postId) {
+        return postService.getCommentSectionStatus(postId);
+    }
 }

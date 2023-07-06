@@ -37,7 +37,6 @@ public class MentionService {
                 .typeId(typeId)
                 .createdAt(LocalDateTime.now())
                 .notificationStatus(notificationStatus)
-                .status(Status.ACTIVE)
                 .build();
 
         mentionRepository.save(mention);
@@ -58,21 +57,13 @@ public class MentionService {
         return mentionRepository.findById(mentionId).orElseThrow(() -> new ResourceNotFoundException("Mention with id of " + mentionId + " does not exists!"));
     }
 
-    void deleteAllReceiveMentions(int userId) throws ResourceNotFoundException {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
-        user.getReceiveMentions().forEach(mention -> {
-            mention.setStatus(Status.INACTIVE);
-            mentionRepository.save(mention);
-        });
-    }
-
     List<MentionDTO> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         return user.getReceiveMentions()
                 .stream()
-                .filter(mention -> mention.getStatus() == Status.ACTIVE)
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
                 .map(mentionMapper::toDTO)
                 .toList();
     }
+
 }

@@ -122,8 +122,4 @@ public class UserService {
     public List<MentionDTO> getAllUnreadReceiveMentions(int userId) {
         return mentionService.getAllUnreadReceiveMentions(userId);
     }
-
-    public void deleteAllReceiveMentions(int userId) {
-        mentionService.deleteAllReceiveMentions(userId);
-    }
 }

@@ -137,12 +137,6 @@ public class UserController {
         return userService.getAllUnreadReceiveMentions(userId);
     }
 
-    @DeleteMapping("/deleteAllReceiveMentions")
-    public ResponseEntity<MentionDTO> deleteAllReceiveMentions(@PathVariable("userId") int userId) {
-        userService.deleteAllReceiveMentions(userId);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/getAllByProperty")
     public List<UserDTO> getAllByProperty(@PathVariable("userId") int userId,
                                           @RequestParam("name") String name) {

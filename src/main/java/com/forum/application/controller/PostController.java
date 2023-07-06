@@ -33,6 +33,11 @@ public class PostController {
         return forumService.getAllByAuthorId(authorId);
     }
 
+    @GetMapping("/commentSectionStatus/{postId}")
+    public String getCommentSectionStatus(@PathVariable("postId") int postId) {
+        return forumService.getCommentSectionStatus(postId);
+    }
+
     @PostMapping
     public ResponseEntity<PostDTO> savePost(@RequestParam("body") String body,
                                             @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds) {
