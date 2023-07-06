@@ -12,7 +12,8 @@ const saveTracker = (userId, associatedTypeId, type) => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error)
+            alert(xhr.responseText);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -33,6 +34,7 @@ const savePost = (body, mentionedUserIds) => {
              window.location.href = "/forum";
         },
         error: function(xhr, status, error) {
+            alert(xhr.responseText);
             deferred.reject(xhr.responseText);
         }
     });
@@ -56,7 +58,8 @@ const saveComment = (body, commentURI, mentionedUserIds) => {
             console.table(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
+            alert(xhr.responseText);
+              deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -79,6 +82,7 @@ const saveReply = (body, replyURI, mentionedUserIds) => {
             console.table(response);
         },
         error: function(xhr, status, error) {
+            alert(xhr.responseText);
             deferred.reject(xhr.responseText);
         }
     });

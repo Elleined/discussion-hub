@@ -10,7 +10,7 @@ const updateCommentSectionStatus = (postId, newStatus) => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -46,7 +46,7 @@ const updatePostBody = (href, newPostBody) => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -64,7 +64,7 @@ const updateCommentBody = (commentId, newCommentBody, commentURI) => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -82,7 +82,7 @@ const updateReplyBody = (replyId, newReplyBody, replyURI) => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -98,7 +98,7 @@ const updateTotalNotificationCount = (userId, id, type) => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();

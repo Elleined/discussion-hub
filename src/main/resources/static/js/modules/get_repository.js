@@ -7,7 +7,7 @@ const getAllCommentsOf = commentURI => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -22,7 +22,7 @@ const getAllRepliesOf = replyURI => {
             deferred.resolve(response);
         },
         error: function(xhr, response, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -37,7 +37,7 @@ const getCommentSectionStatus = postId => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
@@ -55,7 +55,7 @@ const getAllUsernames = (userId, name) => {
             deferred.resolve(response);
         },
         error: function(xhr, status, error) {
-            deferred.reject(error);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
