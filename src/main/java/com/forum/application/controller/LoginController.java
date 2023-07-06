@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @Controller
@@ -57,7 +59,10 @@ public class LoginController {
     public ModelAndView dynamicView() {
 
         ModelAndView modelAndView = new ModelAndView("dynamic-page");
+        List<String> strings = List.of("STRING1", "STRING2");
+        modelAndView.addObject("strings", strings);
         modelAndView.addObject("myVariable", "Hello World!");
+
         return modelAndView;
     }
 }
