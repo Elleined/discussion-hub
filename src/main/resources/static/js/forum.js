@@ -2,6 +2,8 @@
 import * as SaveRepository from './modules/save_repository.js';
 import * as GetRepository from './modules/get_repository.js';
 import * as UpdateRepository from './modules/update_repository.js';
+import * as DeleteRepository from './modules/delete_repository.js';
+
 import {
     mention,
     mentionedUsersId
@@ -47,7 +49,7 @@ $(document).ready(function() {
         event.preventDefault();
 
         const href = $(this).attr("href");
-        deletePost(href);
+        DeleteRepository.deletePost(href);
     });
 
     $(".card-title #editPostBtn").on("click", function(event) {
@@ -72,11 +74,11 @@ $(document).ready(function() {
         const postId = $(this).attr("value");
         if ($(this).is(':checked')) {
             $(".card-title #commentSectionStatusText").text("Close comment section");
-            updateCommentSectionStatus(postId, "OPEN");
+            UpdateRepository.updateCommentSectionStatus(postId, "OPEN");
             return;
         }
         $(".card-title #commentSectionStatusText").text("Open comment section");
-        updateCommentSectionStatus(postId, "CLOSED");
+        UpdateRepository.updateCommentSectionStatus(postId, "CLOSED");
     });
 
     $(".card-body #commentBtn").on("click", function(event) {
@@ -105,7 +107,7 @@ $(document).ready(function() {
         const href = $(this).attr("href");
 
         $("#blockModalBtn").on("click", function() {
-            blockUser(href);
+            SaveRepository.blockUser(href);
         });
     });
 
@@ -157,14 +159,14 @@ $(document).ready(function() {
         commentSubscription.unsubscribe();
 
         const userId = $("#userId").val();
-        deleteTracker(userId, "COMMENT");
+        DeleteRepository.deleteTracker(userId, "COMMENT");
     });
 
     $("#replyModal").on("hidden.bs.modal", function() {
         replySubscription.unsubscribe();
 
         const userId = $("#userId").val();
-        deleteTracker(userId, "REPLY");
+        DeleteRepository.deleteTracker(userId, "REPLY");
     });
 
     $("#logoutBtn").on("click", function() {
@@ -245,25 +247,11 @@ function subscribeToCommentReplies() {
 
 async function setReplyModalTitle(commentId) {
     try {
-        const comment = await GetRepository.getCommentById(commentId);
+        const comment = await GetRepository.getCommentById(commentId, commentURI);
         $("#replyModalTitle").text("Replies in " + comment.commenterName + " comment in " + comment.authorName + " post");
     } catch(error) {
         alert("Error Occurred! Setting the reply modal title failed!" + error);
     }
-}
-
-function blockUser(href) {
-    $.ajax({
-        type: "PATCH",
-        url: href,
-        success: function(response) {
-            console.log("Successfully blocked this user with href of " + href);
-            location.reload();
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Blocking this user failed!" + xhr.responseText);
-        }
-    });
 }
 
 async function getAllCommentsOf(commentURI) {
@@ -309,20 +297,10 @@ async function getCommentSectionStatus(postId) {
     }
 }
 
-async function updateCommentSectionStatus(postId, newStatus) {
-    try {
-        await UpdateRepository.updateCommentSectionStatus(postId, newStatus);
-        console.log("Comment section status updated successfully to " + newStatus);
-    } catch (error) {
-        alert("Updating comment section status failed! " + error);
-    }
-}
-
 async function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
     try {
         await UpdateRepository.updateCommentUpvote(commentId, newUpvoteCount, commentURI);
         $("#upvoteValue" + commentId).text(newUpvoteCount);
-        console.log("Comment with id of " + commentId + " updated successfully with new upvote count of " + newUpvoteCount);
     } catch (error) {
         $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
         alert("Updating the comment upvote count failed! " + error);
@@ -332,7 +310,6 @@ async function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValu
 async function updatePostBody(href, newPostBody) {
     try {
         await UpdateRepository.updatePostBody(href, newPostBody);
-        console.log("Post updated successfully with new body of " + newPostBody);
 
         const postId = href.split("/")[3];
         $("#postBody" + postId).attr("contenteditable", "false");
@@ -345,7 +322,6 @@ async function updatePostBody(href, newPostBody) {
 async function updateCommentBody(commentId, newCommentBody) {
     try {
         await UpdateRepository.updateCommentBody(commentId, newCommentBody, commentURI);
-        console.log("Comment with id of " + commentId + " updated successfully with new comment body of " + newCommentBody);
 
         $("#commentBody" + commentId).attr("contenteditable", "false");
         $("#editCommentSaveBtn" + commentId).hide();
@@ -357,7 +333,6 @@ async function updateCommentBody(commentId, newCommentBody) {
 async function updateReplyBody(replyId, newReplyBody) {
     try {
         await UpdateRepository.updateReplyBody(replyId, newReplyBody, replyURI);
-        console.log("Reply with id of " + replyId + " updated successfully with new reply body of " + newReplyBody);
 
         $("#replyBody" + replyId).attr("contenteditable", "false");
         $("#editReplySaveBtn" + replyId).hide();
@@ -379,62 +354,6 @@ async function updateTotalNotifCount(userId, id, type) {
     } catch (error) {
         // alert("Updating total notification count failed! " + error); // ignore this becuase the current user might not be the author of the post or the commenter of the comment
     }
-}
-
-function deletePost(postURI) {
-    $.ajax({
-        type: "DELETE",
-        url: "/forum/api" + postURI,
-        success: function(postDto, response) {
-            window.location.href = "/forum";
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of post failed!");
-        }
-    });
-}
-
-function deleteComment(commentURI) {
-    $.ajax({
-        type: "DELETE",
-        url: commentURI,
-        success: function(commentDto, response) {
-            console.log("Comment deleted successfully");
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of comment failed!");
-        }
-    });
-}
-
-function deleteReply(deleteReplyURI) {
-    $.ajax({
-        type: "DELETE",
-        url: deleteReplyURI,
-        success: function(commentDto, response) {
-            console.log("Reply deleted successfully");
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of reply failed!");
-        }
-    });
-}
-
-function deleteTracker(userId, type) {
-    return $.ajax({
-        type: "DELETE",
-        url: "/forum/api/users/" + userId + "/deleteTracker",
-        async: false,
-        data: {
-            type: type
-        },
-        success: function(response) {
-            console.log("User with id of " + userId + " modal tracker deleted successfully!")
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Deleting the modal tracker of user with id of " + userId + " failed");
-        }
-    });
 }
 
 function disconnect() {
@@ -784,7 +703,7 @@ function generateCommentHeader(container, dto) {
             event.preventDefault();
 
             const deleteCommentURI = $(this).attr("href");
-            deleteComment(deleteCommentURI);
+            DeleteRepository.deleteComment(deleteCommentURI);
         });
 
         editCommentBtn.on("click", function(event) {
@@ -872,7 +791,7 @@ function generateReplyHeader(container, dto) {
             event.preventDefault();
 
             const deleteReplyURI = $(this).attr("href");
-            deleteReply(deleteReplyURI);
+            DeleteRepository.deleteReply(deleteReplyURI);
         });
 
         editReplyBtn.on("click", function(event) {

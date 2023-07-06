@@ -88,7 +88,7 @@ const getPostById = postId => {
     return deferred.promise();
 };
 
-const getCommentById = commentId => {
+const getCommentById = (commentId, commentURI) => {
     const deferred = $.Deferred();
     $.ajax({
         type: "GET",

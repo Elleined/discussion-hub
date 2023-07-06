@@ -8,6 +8,7 @@ const updateCommentSectionStatus = (postId, newStatus) => {
         },
         success: function(response) {
             deferred.resolve(response);
+            console.log("Comment section status updated successfully to " + newStatus);
         },
         error: function(xhr, status, error) {
             deferred.reject(xhr.responseText);
@@ -26,6 +27,7 @@ const updateCommentUpvote = (commentId, newUpvoteCount, commentURI) => {
         },
         success: function(response) {
             deferred.resolve(response);
+            console.log("Comment with id of " + commentId + " updated successfully with new upvote count of " + newUpvoteCount);
         },
         error: function(xhr, status, error) {
             deferred.reject(xhr.responseText);
@@ -44,6 +46,7 @@ const updatePostBody = (href, newPostBody) => {
         },
         success: function(response) {
             deferred.resolve(response);
+            console.log("Post updated successfully with new body of " + newPostBody);
         },
         error: function(xhr, status, error) {
             deferred.reject(xhr.responseText);
@@ -62,6 +65,7 @@ const updateCommentBody = (commentId, newCommentBody, commentURI) => {
         },
         success: function(response) {
             deferred.resolve(response);
+            console.log("Comment with id of " + commentId + " updated successfully with new comment body of " + newCommentBody);
         },
         error: function(xhr, status, error) {
             deferred.reject(xhr.responseText);
@@ -80,6 +84,7 @@ const updateReplyBody = (replyId, newReplyBody, replyURI) => {
         },
         success: function(response) {
             deferred.resolve(response);
+            console.log("Reply with id of " + replyId + " updated successfully with new reply body of " + newReplyBody);
         },
         error: function(xhr, status, error) {
             deferred.reject(xhr.responseText);
