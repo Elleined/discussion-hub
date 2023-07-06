@@ -1,7 +1,6 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.exception.EmptyBodyException;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.CommentMapper;
@@ -29,7 +28,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    public int save(int commenterId, int postId, String body) throws ResourceNotFoundException, EmptyBodyException {
+    public int save(int commenterId, int postId, String body) throws ResourceNotFoundException {
         User commenter = userService.getById(commenterId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
@@ -166,11 +165,17 @@ public class CommentService {
         return oldUpvoteCount != next && oldUpvoteCount != previous;
     }
 
-    public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) {
+    public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) throws ResourceNotFoundException {
         User respondent = userService.getById(respondentId);
         return respondent.getUpvotedComments()
                 .stream()
                 .anyMatch(upvotedComment -> upvotedComment.getId() == commentId);
+    }
+
+    public boolean isCommentSectionClosed(int commentId) throws ResourceNotFoundException {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        Post post = comment.getPost();
+        return post.getCommentSectionStatus() == Post.CommentSectionStatus.CLOSED;
     }
 
     void setStatus(int commentId) throws ResourceNotFoundException {

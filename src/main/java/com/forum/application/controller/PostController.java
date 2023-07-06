@@ -2,10 +2,7 @@ package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
 import com.forum.application.model.Post;
-import com.forum.application.model.Type;
 import com.forum.application.service.ForumService;
-import com.forum.application.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +17,6 @@ import java.util.Set;
 @RequestMapping("/forum/api/posts")
 public class PostController {
     private final ForumService forumService;
-    private final UserService userService;
-
 
     @GetMapping
     public List<PostDTO> getAllPost() {
@@ -38,17 +33,12 @@ public class PostController {
         return forumService.getAllByAuthorId(authorId);
     }
 
-    @GetMapping("/commentSectionStatus/{postId}")
-    public String getCommentSectionStatus(@PathVariable("postId") int postId) {
-        return forumService.getCommentSectionStatus(postId);
-    }
-
     @PostMapping
     public ResponseEntity<PostDTO> savePost(@RequestParam("body") String body,
                                             @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds) {
 
-        int postId = forumService.savePost(body, mentionedUserIds);
-        return ResponseEntity.ok( forumService.getPostById(postId) );
+        PostDTO postDTO = forumService.savePost(body, mentionedUserIds);
+        return ResponseEntity.ok( postDTO );
     }
 
     @DeleteMapping("/{postId}")
@@ -61,18 +51,15 @@ public class PostController {
     public ResponseEntity<PostDTO> updateCommentSectionStatus(@PathVariable("postId") int postId,
                                                               @RequestParam("newStatus") Post.CommentSectionStatus status) {
 
-        forumService.updateCommentSectionStatus(postId, status);
-
-        PostDTO postDTO = forumService.getPostById(postId);
-        return ResponseEntity.ok(postDTO);
+        PostDTO postDTO = forumService.updateCommentSectionStatus(postId, status);
+        return ResponseEntity.ok( postDTO );
     }
 
     @PatchMapping("/body/{postId}")
     public ResponseEntity<PostDTO> updatePostBody(@PathVariable("postId") int postId,
                                                   @RequestParam("newPostBody") String newPostBody) {
-        forumService.updatePostBody(postId, newPostBody);
 
-        PostDTO postDTO = forumService.getPostById(postId);
-        return ResponseEntity.ok(postDTO);
+        PostDTO postDTO = forumService.updatePostBody(postId, newPostBody);
+        return ResponseEntity.ok( postDTO );
     }
 }

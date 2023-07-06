@@ -1,10 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.ReplyDTO;
-import com.forum.application.model.Type;
 import com.forum.application.service.ForumService;
-import com.forum.application.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +17,6 @@ import java.util.Set;
 public class ReplyController {
 
     private final ForumService forumService;
-    private final UserService userService;
 
     @GetMapping
     public List<ReplyDTO> getAllRepliesOf(@PathVariable("commentId") int commentId) {
@@ -33,24 +29,12 @@ public class ReplyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveReply(@PathVariable("commentId") int commentId,
+    public ResponseEntity<ReplyDTO> saveReply(@PathVariable("commentId") int commentId,
                                        @RequestParam("body") String body,
-                                       @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds,
-                                       HttpSession session) {
+                                       @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds) {
 
-        if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Reply body cannot be empty!");
-        if (forumService.isPostCommentSectionClosedByCommentId(commentId)) return ResponseEntity.badRequest().body("Cannot reply to this comment because author already closed the comment section for this post!");
-        if (forumService.isCommentDeleted(commentId)) return ResponseEntity.badRequest().body("The comment you trying to reply is either be deleted or does not exists anymore!");
-
-        int currentUserId = userService.getCurrentUser().getId();
-
-        int commenterId = forumService.getCommentById(commentId).getCommenterId();
-        if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) return ResponseEntity.badRequest().body("Cannot reply because this user block you already!");
-
-        int replyId = forumService.saveReply(currentUserId, commentId, body);
-        if (mentionedUserIds != null) forumService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId); // might be bug because if post doesnt get stored this will be null
-        ReplyDTO replyDTO = forumService.getReplyById(replyId);
-        return ResponseEntity.ok(replyDTO);
+        ReplyDTO replyDTO = forumService.saveReply(commentId, body, mentionedUserIds);
+        return ResponseEntity.ok (replyDTO );
     }
 
     @DeleteMapping("/{replyId}")
@@ -61,11 +45,9 @@ public class ReplyController {
 
     @PatchMapping("/body/{replyId}")
     public ResponseEntity<ReplyDTO> updateReplyBody(@PathVariable("replyId") int replyId,
-                                             @RequestParam("newReplyBody") String newReplyBody) {
+                                                    @RequestParam("newReplyBody") String newReplyBody) {
 
-        forumService.updateReplyBody(replyId, newReplyBody);
-
-        ReplyDTO replyDTO = forumService.getReplyById(replyId);
-        return ResponseEntity.ok(replyDTO);
+        ReplyDTO replyDTO = forumService.updateReplyBody(replyId, newReplyBody);
+        return ResponseEntity.ok( replyDTO );
     }
 }

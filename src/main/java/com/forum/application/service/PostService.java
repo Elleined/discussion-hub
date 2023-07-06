@@ -1,7 +1,6 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.PostDTO;
-import com.forum.application.exception.EmptyBodyException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.PostMapper;
 import com.forum.application.model.Comment;
@@ -10,7 +9,6 @@ import com.forum.application.model.Post.CommentSectionStatus;
 import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
-import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -67,11 +65,6 @@ public class PostService {
         log.debug("Comment section of Post with id of {} are now {}", postId, post.getCommentSectionStatus().name());
     }
 
-    public boolean isDeleted(int postId) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        return post.getStatus() == Status.INACTIVE;
-    }
-
     public PostDTO getById(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return postMapper.toDTO(post);
@@ -100,9 +93,9 @@ public class PostService {
                 .toList();
     }
 
-    public String getCommentSectionStatus(int postId) throws ResourceNotFoundException {
+    public boolean isCommentSectionClosed(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        return post.getCommentSectionStatus().name();
+        return post.getCommentSectionStatus() == CommentSectionStatus.CLOSED;
     }
 
     private void setStatus(int postId) throws ResourceNotFoundException {
@@ -115,6 +108,12 @@ public class PostService {
                 .map(Comment::getId)
                 .forEach(commentService::setStatus);
     }
+
+    public boolean isDeleted(int postId) throws ResourceNotFoundException {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        return post.getStatus() == Status.INACTIVE;
+    }
+
 
     public int getTotalCommentsAndReplies(Post post) {
         int currentUserId = userService.getCurrentUser().getId();
