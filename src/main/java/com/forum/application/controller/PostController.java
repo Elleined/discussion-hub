@@ -44,19 +44,11 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> savePost(@RequestParam("body") String body,
-                                      @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds,
-                                      HttpSession session) {
+    public ResponseEntity<PostDTO> savePost(@RequestParam("body") String body,
+                                            @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds) {
 
-        if (forumService.isEmpty(body)) return ResponseEntity.badRequest().body("Post body cannot be empty!");
-
-        int currentUserId = userService.getCurrentUser().getId();
-
-        int postId = forumService.savePost(currentUserId, body);
-        if (mentionedUserIds != null) forumService.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId); // might be bug because if post doesnt get stored this will be null
-
-        PostDTO postDTO = forumService.getPostById(postId);
-        return ResponseEntity.ok(postDTO);
+        int postId = forumService.savePost(body, mentionedUserIds);
+        return ResponseEntity.ok( forumService.getPostById(postId) );
     }
 
     @DeleteMapping("/{postId}")

@@ -54,7 +54,7 @@ public class MentionService {
                 .toList();
     }
 
-    Mention getById(int mentionId) throws ResourceNotFoundException {
+    public Mention getById(int mentionId) throws ResourceNotFoundException {
         return mentionRepository.findById(mentionId).orElseThrow(() -> new ResourceNotFoundException("Mention with id of " + mentionId + " does not exists!"));
     }
 

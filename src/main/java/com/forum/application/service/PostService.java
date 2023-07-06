@@ -1,6 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.PostDTO;
+import com.forum.application.exception.EmptyBodyException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.PostMapper;
 import com.forum.application.model.Comment;
@@ -9,6 +10,7 @@ import com.forum.application.model.Post.CommentSectionStatus;
 import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
+import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,7 @@ public class PostService {
     private final CommentService commentService;
     private final PostMapper postMapper;
 
-    public int save(int authorId, String body) {
+    public int save(int authorId, String body) throws ResourceNotFoundException {
         User author = userService.getById(authorId);
 
         Post post = Post.builder()

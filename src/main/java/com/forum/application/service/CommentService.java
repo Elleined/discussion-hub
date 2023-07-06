@@ -1,6 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.exception.EmptyBodyException;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.CommentMapper;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    public int save(int commenterId, int postId, String body) throws ResourceNotFoundException {
+    public int save(int commenterId, int postId, String body) throws ResourceNotFoundException, EmptyBodyException {
         User commenter = userService.getById(commenterId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
@@ -193,6 +195,7 @@ public class CommentService {
     }
 
     public int getTotalReplies(Comment comment) {
+        if (comment.getReplies() == null) comment.setReplies(new ArrayList<>());
         return (int) comment.getReplies().stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .count();

@@ -41,4 +41,9 @@ public class ModalTrackerService {
                 modalTracker.getAssociatedTypeIdOpened() == associatedTypeId &&
                 modalTracker.getReceiverId() == userId;
     }
+
+    public void deleteAll() {
+        modalTrackerRepository.deleteAll();
+        log.debug("Deleting all the record in modal tracked success!");
+    }
 }

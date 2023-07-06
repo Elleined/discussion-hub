@@ -4,9 +4,12 @@ import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.notification.NotificationResponse;
+import com.forum.application.exception.EmptyBodyException;
+import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;
 import com.forum.application.model.Type;
+import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,7 @@ import java.util.Set;
 @Service
 @Transactional
 public class ForumService {
-
+    private final UserService userService;
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
@@ -28,8 +31,14 @@ public class ForumService {
     private final NotificationService notificationService;
     private final MentionService mentionService;
 
-    public int savePost(int authorId, String body) {
-        return postService.save(authorId, body);
+    public int savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException, ResourceNotFoundException {
+        if (Validator.isValidBody(body)) throw new EmptyBodyException("Body cannot be empty! Please provide text for your post to be posted!");
+
+        int currentUserId = userService.getCurrentUser().getId();
+
+        int postId = postService.save(currentUserId, body);
+        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId);
+        return postId;
     }
 
     public int saveComment(int commenterId, int postId, String body) {

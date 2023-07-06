@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-
+import java.util.ArrayList;
 @Mapper(componentModel = "spring", imports = Formatter.class)
 public abstract class CommentMapper {
 
