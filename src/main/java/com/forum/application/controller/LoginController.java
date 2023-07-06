@@ -6,10 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,5 +50,14 @@ public class LoginController {
         session.invalidate();
 
         return "redirect:/";
+    }
+
+    @ResponseBody
+    @GetMapping("/dynamicPage")
+    public ModelAndView dynamicView() {
+
+        ModelAndView modelAndView = new ModelAndView("dynamic-page");
+        modelAndView.addObject("myVariable", "Hello World!");
+        return modelAndView;
     }
 }

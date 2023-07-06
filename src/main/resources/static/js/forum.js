@@ -11,7 +11,9 @@ import {
 
 const socket = new SockJS("/websocket");
 const stompClient = Stomp.over(socket);
-stompClient.connect({}, onConnected, onError);
+stompClient.connect({},
+    onConnected,
+    () => console.log("Could not connect to WebSocket server. Please refresh this page to try again!"));
 
 let replySubscription;
 let commentSubscription;
@@ -173,15 +175,11 @@ $(document).ready(function() {
         disconnect();
     });
 
-    $(window).on('beforeunload', function() {
+    $(window).on('beforeunload, unload', function() {
         disconnect();
     });
 
     $(document).on('close', function() {
-        disconnect();
-    });
-
-    $(window).on('unload', function() {
         disconnect();
     });
     // insert here
@@ -401,10 +399,6 @@ function onConnected() {
         updateTotalNotificationCount();
         alert(`Message: ${json.message}`);
     });
-}
-
-function onError() {
-    console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
 
 function updateNotification(respondentId, id, type) {
