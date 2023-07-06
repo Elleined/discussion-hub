@@ -10,6 +10,7 @@ const saveTracker = (userId, associatedTypeId, type) => {
         },
         success: function(response) {
             deferred.resolve(response);
+            console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
@@ -87,11 +88,26 @@ const saveReply = (body, replyURI, mentionedUserIds) => {
         }
     });
     return deferred.promise();
-}
+};
+
+const blockUser = href => {
+    $.ajax({
+        type: "PATCH",
+        url: href,
+        success: function(response) {
+            console.log("Successfully blocked this user with href of " + href);
+            location.reload();
+        },
+        error: function(xhr, status, error) {
+            alert("Error Occurred! Blocking this user failed!" + xhr.responseText);
+        }
+    });
+};
 
 export {
     saveTracker,
     savePost,
     saveComment,
-    saveReply
+    saveReply,
+    blockUser
 };

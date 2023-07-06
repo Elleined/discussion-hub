@@ -2,7 +2,10 @@
 import * as SaveRepository from './modules/save_repository.js';
 import * as GetRepository from './modules/get_repository.js';
 import * as UpdateRepository from './modules/update_repository.js';
-import { mention, mentionedUsersId } from './modules/mention_user.js';
+import {
+    mention,
+    mentionedUsersId
+} from './modules/mention_user.js';
 
 const socket = new SockJS("/websocket");
 const stompClient = Stomp.over(socket);
@@ -27,7 +30,7 @@ $(document).ready(function() {
         if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
             SaveRepository.savePost(body, mentionedUsersId);
         } else {
-           SaveRepository.savePost(body);
+            SaveRepository.savePost(body);
         }
 
         $("#postBody").val("");
@@ -81,12 +84,14 @@ $(document).ready(function() {
         console.log(commentURI);
 
         const postId = commentURI.split("/")[2];
-        setCommentModalTitle(postId);
+        GetRepository.getPostById(postId)
+            .then(res => $("#commentModalTitle").text("Comments in " + res.authorName + " post"))
+            .catch(error => alert(error));
 
         subscribeToPostComments();
 
         const userId = $("#userId").val();
-        saveTracker(userId, postId, "COMMENT");
+        SaveRepository.saveTracker(userId, postId, "COMMENT");
 
         getAllCommentsOf(commentURI);
         getCommentSectionStatus(postId);
@@ -181,132 +186,70 @@ $(document).ready(function() {
 });
 
 function subscribeToPostComments() {
-// SendTo URI of Comment
-        const userId = $("#userId").val();
-        commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
-            const json = JSON.parse(commentDto.body);
-            const commentContainer = $("div").filter("#comment_" + json.id);
+    // SendTo URI of Comment
+    const userId = $("#userId").val();
+    commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
+        const json = JSON.parse(commentDto.body);
+        const commentContainer = $("div").filter("#comment_" + json.id);
 
-            // Use for delete
-            if (json.status === "INACTIVE") {
-                commentContainer.remove();
-                updateCommentCount(json.postId, "-");
-                return;
-            }
+        // Use for delete
+        if (json.status === "INACTIVE") {
+            commentContainer.remove();
+            updateCommentCount(json.postId, "-");
+            return;
+        }
 
-            // Use for block
-            if (isUserBlocked(json.commenterId)) return;
+        // Use for block
+        if (GetRepository.isUserBlocked(userId, json.commenterId)) return;
 
-            // Used for update
-            if (previousCommentBody !== json.body && commentContainer.length) {
-                $("#commentBody" + json.id).text(json.body);
-                return;
-            }
+        // Used for update
+        if (previousCommentBody !== json.body && commentContainer.length) {
+            $("#commentBody" + json.id).text(json.body);
+            return;
+        }
 
-            generateCommentBlock(json);
-            updateCommentCount(json.postId, "+");
-        });
+        generateCommentBlock(json);
+        updateCommentCount(json.postId, "+");
+    });
 }
 
 function subscribeToCommentReplies() {
- // SendTo URI of Reply
-        replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
-            const json = JSON.parse(replyDto.body);
-            const replyContainer = $("div").filter("#reply_" + json.id);
-
-            // Use for delete
-            if (json.status === "INACTIVE") {
-                replyContainer.remove();
-                updateReplyCount(json.commentId, "-");
-                updateCommentCount(json.postId, "-");
-                return;
-            }
-
-            // Use for block
-            if (isUserBlocked(json.replierId)) return;
-
-            // Use for update
-            if (previousReplyBody !== json.body && replyContainer.length) {
-                $("#replyBody" + json.id).text(json.body);
-                return;
-            }
-
-            generateReplyBlock(json);
-            updateReplyCount(json.commentId, "+");
-            updateCommentCount(json.postId, "+");
-        });
-}
-
-function isUserBlocked(id) {
-          let blockedBy, youBeenBlockedBy;
-            isBlockedBy(id).done(function(data) {
-                blockedBy = data == true ? true : false;
-            });
-            isYouBeenBlockedBy(id).done(function(data) {
-                youBeenBlockedBy = data == true ? true : false;
-            });
-
-            return blockedBy || youBeenBlockedBy;
-}
-
-// Use isUserBlocked method instead
-function isBlockedBy(userToCheckId) {
+    // SendTo URI of Reply
     const userId = $("#userId").val();
+    replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
+        const json = JSON.parse(replyDto.body);
+        const replyContainer = $("div").filter("#reply_" + json.id);
 
-    return $.ajax({
-        type: "GET",
-        url: "/forum/api/users/" + userId + "/isBlockedBy/" + userToCheckId,
-        async: false,
-        success: function(isBlockedBy, response) {
-            console.log("Is " + userToCheckId + " blocked by " + userId + ": " + isBlockedBy);
-        },
-        error: function(xhr, status, response) {
-            alert("Error Occurred! is user blocked failed to fetch!")
+        // Use for delete
+        if (json.status === "INACTIVE") {
+            replyContainer.remove();
+            updateReplyCount(json.commentId, "-");
+            updateCommentCount(json.postId, "-");
+            return;
         }
+
+        // Use for block
+        if (GetRepository.isUserBlocked(userId, json.replierId)) return;
+
+        // Use for update
+        if (previousReplyBody !== json.body && replyContainer.length) {
+            $("#replyBody" + json.id).text(json.body);
+            return;
+        }
+
+        generateReplyBlock(json);
+        updateReplyCount(json.commentId, "+");
+        updateCommentCount(json.postId, "+");
     });
 }
 
-// Use isUserBlocked method instead
-function isYouBeenBlockedBy(suspectedBlockerId) {
-    const userId = $("#userId").val();
-    return $.ajax({
-        type: "GET",
-        url: "/forum/api/users/" + userId + "/isYouBeenBlockedBy/" + suspectedBlockerId,
-        async: false,
-        success: function(isYouBeenBlockedBy, response) {
-            console.log("Is you been blocked by " + userId + ": " + isYouBeenBlockedBy);
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Is you been blocked by failed to fetch!");
-        }
-    });
-}
-
-function setCommentModalTitle(postId) {
-    $.ajax({
-        type: "GET",
-        url: "/forum/api/posts/" + postId,
-        success: function(commentDto, response) {
-            $("#commentModalTitle").text("Comments in " + commentDto.authorName + " post");
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-        }
-    });
-}
-
-function setReplyModalTitle(commentId) {
-    $.ajax({
-        type: "GET",
-        url: "/forum/api" + commentURI + "/" + commentId,
-        success: function(commentDto, response) {
-            $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post");
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Setting the reply modal title failed!");
-        }
-    });
-    $("#replyModalTitle").text();
+async function setReplyModalTitle(commentId) {
+    try {
+        const comment = await GetRepository.getCommentById(commentId);
+        $("#replyModalTitle").text("Replies in " + comment.commenterName + " comment in " + comment.authorName + " post");
+    } catch(error) {
+        alert("Error Occurred! Setting the reply modal title failed!" + error);
+    }
 }
 
 function blockUser(href) {
@@ -321,15 +264,6 @@ function blockUser(href) {
             alert("Error Occurred! Blocking this user failed!" + xhr.responseText);
         }
     });
-}
-
-async function saveTracker(userId, associatedTypeId, type) {
-    try {
-        await SaveRepository.saveTracker(userId, associatedTypeId, type);
-        console.log("Saving the modal tracker for user with id of " + userId + " and associated id of " + associatedTypeId + " successful!");
-    } catch (error) {
-        alert("Error Occurred! Saving the modal tracker for this user failed!");
-    }
 }
 
 async function getAllCommentsOf(commentURI) {
@@ -522,7 +456,7 @@ function onConnected() {
         if (json.modalOpen) return; // If the post author modal is open this will not generate a notification block
 
         updateTotalNotificationCount();
-        if($("#notificationCommentItem_" + json.respondentId + "_" + json.id).length) {
+        if ($("#notificationCommentItem_" + json.respondentId + "_" + json.id).length) {
             updateNotification(json.respondentId, json.id, json.type);
             return;
         }
@@ -535,7 +469,7 @@ function onConnected() {
         if (json.modalOpen) return; // If the comment author modal is open this will not generate a notification block
 
         updateTotalNotificationCount();
-        if($("#notificationReplyItem_" + json.respondentId + "_" + json.id) .length) {
+        if ($("#notificationReplyItem_" + json.respondentId + "_" + json.id).length) {
             updateNotification(json.respondentId, json.id, json.type);
             return;
         }
@@ -549,6 +483,7 @@ function onConnected() {
         alert(`Message: ${json.message}`);
     });
 }
+
 function onError() {
     console.log("Could not connect to WebSocket server. Please refresh this page to try again!");
 }
@@ -566,9 +501,9 @@ function updateNotification(respondentId, id, type) {
 }
 
 function updateTotalNotificationCount() {
-            const totalNotifCount = $("#totalNotifCount");
-            const newTotalNotifCount = parseInt(totalNotifCount.text()) + 1;
-            totalNotifCount.text(newTotalNotifCount + "+");
+    const totalNotifCount = $("#totalNotifCount");
+    const newTotalNotifCount = parseInt(totalNotifCount.text()) + 1;
+    totalNotifCount.text(newTotalNotifCount + "+");
 }
 
 // Don't bother reading this code
@@ -665,7 +600,7 @@ function generateCommentBlock(commentDto) {
         subscribeToCommentReplies();
 
         const userId = $("#userId").val();
-        saveTracker(userId, commentId, "REPLY");
+        SaveRepository.saveTracker(userId, commentId, "REPLY");
 
         getAllReplies(replyURI);
 
@@ -990,8 +925,8 @@ function updateReplyCount(commentId, operation) {
 function generateNotificationBlock(notificationResponse) {
     const notificationContainer = $("#notificationContainer");
 
-    const notificationItemId = notificationResponse.type === "REPLY" ? "notificationReplyItem_" + notificationResponse.respondentId + "_" + notificationResponse.id
-        : "notificationCommentItem_" + notificationResponse.respondentId + "_" + notificationResponse.id;
+    const notificationItemId = notificationResponse.type === "REPLY" ? "notificationReplyItem_" + notificationResponse.respondentId + "_" + notificationResponse.id :
+        "notificationCommentItem_" + notificationResponse.respondentId + "_" + notificationResponse.id;
     const notificationItem = $("<li>")
         .attr({
             "class": "d-inline-flex position-relative ms-2 dropdown-item",
@@ -999,8 +934,8 @@ function generateNotificationBlock(notificationResponse) {
         })
         .appendTo(notificationContainer);
 
-    const messageCountId = notificationResponse.type === "REPLY" ? "messageReplyCount_" + notificationResponse.respondentId + "_" + notificationResponse.id
-        : "messageCommentCount_" + notificationResponse.respondentId + "_" + notificationResponse.id;
+    const messageCountId = notificationResponse.type === "REPLY" ? "messageReplyCount_" + notificationResponse.respondentId + "_" + notificationResponse.id :
+        "messageCommentCount_" + notificationResponse.respondentId + "_" + notificationResponse.id;
     const messageCount = $("<span>")
         .attr({
             "class": "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle",
@@ -1011,13 +946,13 @@ function generateNotificationBlock(notificationResponse) {
         "class": "rounded-4 shadow-4",
         "src": "/img/" + notificationResponse.respondentPicture,
         "style": "width: 50px; height: 50px;"
-        }).appendTo(notificationItem);
+    }).appendTo(notificationItem);
 
-        const notificationLink = $("<a>")
-            .attr({
-                "href": "#",
-                "role": "button"
-            }).appendTo(notificationItem);
+    const notificationLink = $("<a>")
+        .attr({
+            "href": "#",
+            "role": "button"
+        }).appendTo(notificationItem);
 
     const notificationMessage = $("<p>")
         .attr("class", "lead mt-2 ms-2 me-2")
@@ -1059,10 +994,10 @@ function generateNotificationBlock(notificationResponse) {
             const commentId = notificationResponse.uri.split("/")[3];
             setReplyModalTitle(commentId);
 
-           subscribeToCommentReplies();
+            subscribeToCommentReplies();
 
             const userId = $("#userId").val();
-            saveTracker(userId, commentId, "REPLY");
+            SaveRepository.saveTracker(userId, commentId, "REPLY");
 
             getAllReplies(replyURI);
 
