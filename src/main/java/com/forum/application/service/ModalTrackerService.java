@@ -16,7 +16,7 @@ public class ModalTrackerService {
 
     private final ModalTrackerRepository modalTrackerRepository;
 
-    public ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
+    ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
         ModalTracker modalTracker = ModalTracker.builder()
                 .receiverId(receiverId)
                 .associatedTypeIdOpened(associateTypeIdOpened)
@@ -25,16 +25,16 @@ public class ModalTrackerService {
         return modalTrackerRepository.save(modalTracker);
     }
 
-    public ModalTracker getTrackerOfUserById(int userId) {
+    ModalTracker getTrackerOfUserById(int userId) {
         return modalTrackerRepository.findById(userId).orElse(null);
     }
 
-    public void deleteTrackerOfUserById(int userId, Type type) {
+    void deleteTrackerOfUserById(int userId, Type type) {
         ModalTracker modalTracker = getTrackerOfUserById(userId);
         if (modalTracker.getType() == type) modalTrackerRepository.deleteById(userId);
     }
 
-    public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
+    boolean isModalOpen(int userId, int associatedTypeId, Type type) {
         ModalTracker modalTracker = this.getTrackerOfUserById(userId);
         if (modalTracker == null) return false;
         return modalTracker.getType() == type &&

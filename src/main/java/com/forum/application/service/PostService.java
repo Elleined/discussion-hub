@@ -29,7 +29,7 @@ public class PostService {
     private final CommentService commentService;
     private final PostMapper postMapper;
 
-    public int save(int authorId, String body) throws ResourceNotFoundException {
+    int save(int authorId, String body) throws ResourceNotFoundException {
         User author = userService.getById(authorId);
 
         Post post = Post.builder()
@@ -45,12 +45,12 @@ public class PostService {
         return post.getId();
     }
 
-    public void delete(int postId) {
+    void delete(int postId) {
         this.setStatus(postId);
         log.debug("Post with id of {} are now inactive", postId);
     }
 
-    public void updatePostBody(int postId, String newBody) throws ResourceNotFoundException {
+    void updatePostBody(int postId, String newBody) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         if (post.getBody().equals(newBody)) return; // Returning if user doesn't change the post body
         post.setBody(newBody);
@@ -58,7 +58,7 @@ public class PostService {
         log.debug("Post with id of {} updated with the new body of {}", postId, newBody);
     }
 
-    public void updateCommentSectionStatus(int postId, CommentSectionStatus status) throws ResourceNotFoundException {
+    void updateCommentSectionStatus(int postId, CommentSectionStatus status) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         post.setCommentSectionStatus(status);
         postRepository.save(post);
@@ -70,7 +70,7 @@ public class PostService {
         return postMapper.toDTO(post);
     }
 
-    public List<PostDTO> getAll() {
+    List<PostDTO> getAll() {
         int currentUserId = userService.getCurrentUser().getId();
 
         return postRepository.findAll()
@@ -83,7 +83,7 @@ public class PostService {
                 .toList();
     }
 
-    public List<PostDTO> getAllByAuthorId(int authorId) throws ResourceNotFoundException {
+    List<PostDTO> getAllByAuthorId(int authorId) throws ResourceNotFoundException {
         if (!userService.existsById(authorId)) throw new ResourceNotFoundException("User with id of " + authorId + " does not exists");
         return postRepository.fetchAllByAuthorId(authorId)
                 .stream()
@@ -93,7 +93,7 @@ public class PostService {
                 .toList();
     }
 
-    public boolean isCommentSectionClosed(int postId) throws ResourceNotFoundException {
+    boolean isCommentSectionClosed(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getCommentSectionStatus() == CommentSectionStatus.CLOSED;
     }
@@ -109,13 +109,14 @@ public class PostService {
                 .forEach(commentService::setStatus);
     }
 
-    public boolean isDeleted(int postId) throws ResourceNotFoundException {
+    boolean isDeleted(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getStatus() == Status.INACTIVE;
     }
 
 
     public int getTotalCommentsAndReplies(Post post) {
+
         int currentUserId = userService.getCurrentUser().getId();
 
         int commentCount = (int) post.getComments()

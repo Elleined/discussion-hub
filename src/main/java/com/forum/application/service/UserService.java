@@ -4,6 +4,7 @@ import com.forum.application.dto.MentionDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.mapper.MentionMapper;
 import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.Mention;
 import com.forum.application.model.ModalTracker;
@@ -31,6 +32,7 @@ public class UserService {
     private final ModalTrackerService modalTrackerService;
     private final MentionService mentionService;
     private final UserMapper userMapper;
+    private final MentionMapper mentionMapper;
     private final HttpSession session;
     public int save(User user) {
         int userId = userRepository.save(user).getId();
@@ -114,7 +116,7 @@ public class UserService {
 
     public MentionDTO getMentionById(int mentionId) {
         Mention mention = mentionService.getById(mentionId);
-        return mentionService.toDTO(mention);
+        return mentionMapper.toDTO(mention);
     }
 
     public List<MentionDTO> getAllUnreadReceiveMentions(int userId) {

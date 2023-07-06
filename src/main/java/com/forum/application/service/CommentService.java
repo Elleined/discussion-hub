@@ -28,7 +28,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    public int save(int commenterId, int postId, String body) throws ResourceNotFoundException {
+    int save(int commenterId, int postId, String body) throws ResourceNotFoundException {
         User commenter = userService.getById(commenterId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
@@ -47,17 +47,17 @@ public class CommentService {
         return comment.getId();
     }
 
-    public void delete(int commentId) {
+    void delete(int commentId) {
         this.setStatus(commentId);
         log.debug("Comment with id of {} are now inactive!", commentId);
     }
 
-    public boolean isDeleted(int commentId) throws ResourceNotFoundException {
+    boolean isDeleted(int commentId) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         return comment.getStatus() == Status.INACTIVE;
     }
 
-    public List<CommentDTO> getAllCommentsOf(int postId) throws ResourceNotFoundException, NoLoggedInUserException {
+    List<CommentDTO> getAllCommentsOf(int postId) throws ResourceNotFoundException, NoLoggedInUserException {
         int currentUserId = userService.getCurrentUser().getId();
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
@@ -100,7 +100,7 @@ public class CommentService {
         return getAllUnreadCommentsOfSpecificPostById(authorId, postId).size();
     }
 
-    public List<CommentDTO> getAllUnreadCommentOfAllPostByAuthorId(int userId) throws ResourceNotFoundException {
+    List<CommentDTO> getAllUnreadCommentOfAllPostByAuthorId(int userId) throws ResourceNotFoundException {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
 
@@ -115,18 +115,18 @@ public class CommentService {
                 .toList();
     }
 
-    public long getAllUnreadCommentsCount(int userId) throws ResourceNotFoundException {
+    long getAllUnreadCommentsCount(int userId) throws ResourceNotFoundException {
         return getAllUnreadCommentOfAllPostByAuthorId(userId).size();
     }
 
-    public CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) throws ResourceNotFoundException {
+    CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) throws ResourceNotFoundException {
         this.setUpvote(respondentId, commentId, newUpvoteCount);
 
         log.debug("User with id of {} upvoted the Comment with id of {} successfully with new upvote count of {} ", respondentId, commentId, newUpvoteCount);
         return this.getById(commentId);
     }
 
-    public void updateCommentBody(int commentId, String newBody) throws ResourceNotFoundException {
+    void updateCommentBody(int commentId, String newBody) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         if (comment.getBody().equals(newBody)) return; // Returning if user doesn't change the comment body
         comment.setBody(newBody);
@@ -165,14 +165,14 @@ public class CommentService {
         return oldUpvoteCount != next && oldUpvoteCount != previous;
     }
 
-    public boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) throws ResourceNotFoundException {
+    boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) throws ResourceNotFoundException {
         User respondent = userService.getById(respondentId);
         return respondent.getUpvotedComments()
                 .stream()
                 .anyMatch(upvotedComment -> upvotedComment.getId() == commentId);
     }
 
-    public boolean isCommentSectionClosed(int commentId) throws ResourceNotFoundException {
+    boolean isCommentSectionClosed(int commentId) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         Post post = comment.getPost();
         return post.getCommentSectionStatus() == Post.CommentSectionStatus.CLOSED;

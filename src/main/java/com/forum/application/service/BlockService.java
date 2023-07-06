@@ -11,12 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional
-public class BlockService {
+@Transactional class BlockService {
 
     private final UserRepository userRepository;
 
-    public void blockUser(int userId, int userToBeBlockedId) throws ResourceNotFoundException {
+    void blockUser(int userId, int userToBeBlockedId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
         User userToBeBlocked = userRepository.findById(userToBeBlockedId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userToBeBlockedId + " does not exists!"));
         user.getBlockedUsers().add(userToBeBlocked);
@@ -24,7 +23,7 @@ public class BlockService {
         log.debug("User {} blocked User {} successfully", userId, userToBeBlockedId);
     }
 
-    public void unBlockUser(int userId, int userToBeUnblockedId) throws ResourceNotFoundException {
+    void unBlockUser(int userId, int userToBeUnblockedId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
         User userToBeUnBlocked = userRepository.findById(userToBeUnblockedId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userToBeUnblockedId + " does not exists!"));
         user.getBlockedUsers().remove(userToBeUnBlocked);
@@ -32,12 +31,12 @@ public class BlockService {
         log.debug("User {} unblocked user {} successfully", userId, userToBeUnblockedId);
     }
 
-    public boolean isBlockedBy(int userId, int userToCheckId) throws ResourceNotFoundException {
+    boolean isBlockedBy(int userId, int userToCheckId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
         return user.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userToCheckId);
     }
 
-    public boolean isYouBeenBlockedBy(int userId, int suspectedUserId) throws ResourceNotFoundException {
+    boolean isYouBeenBlockedBy(int userId, int suspectedUserId) throws ResourceNotFoundException {
         User suspected = userRepository.findById(suspectedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + suspectedUserId + " does not exists!"));
         return suspected.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userId);
     }

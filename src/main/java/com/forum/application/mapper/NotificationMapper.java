@@ -22,6 +22,7 @@ public class NotificationMapper {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final MentionService mentionService;
+    private final MentionMapper mentionMapper;
 
    public NotificationResponse toCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
         final PostDTO postDTO = postService.getById(postId);
@@ -61,7 +62,7 @@ public class NotificationMapper {
     }
 
     public MentionDTO toMentionNotification(int mentionId) {
-        MentionDTO mentionDTO = mentionService.toDTO(mentionService.getById(mentionId));
+        MentionDTO mentionDTO = mentionMapper.toDTO(mentionService.getById(mentionId));
         User mentioningUser = userService.getById(mentionDTO.getMentioningUserId());
         String message = switch (Type.valueOf(mentionDTO.getType())) {
             case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mentionDTO.getTypeId()).getBody() + "\"";

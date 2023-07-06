@@ -16,7 +16,7 @@ public class WSService {
     private final CommentService commentService;
     private final ReplyService replyService;
 
-    public void broadcastComment(int commentId) {
+    void broadcastComment(int commentId) {
         final CommentDTO commentDTO = commentService.getById(commentId);
         commentDTO.setBody(HtmlUtils.htmlEscape(commentDTO.getBody()));
 
@@ -24,7 +24,7 @@ public class WSService {
         simpMessagingTemplate.convertAndSend(destination, commentDTO);
         log.debug("Comment with body of {} broadcast successfully to {}", commentDTO.getBody(), destination);
     }
-    public void broadcastReply(int replyId) {
+    void broadcastReply(int replyId) {
         final ReplyDTO replyDTO = replyService.getById(replyId);
         replyDTO.setBody(HtmlUtils.htmlEscape(replyDTO.getBody()));
 

@@ -75,8 +75,4 @@ public class MentionService {
                 .map(mentionMapper::toDTO)
                 .toList();
     }
-
-    public MentionDTO toDTO(Mention mention) {
-        return mentionMapper.toDTO(mention);
-    }
 }

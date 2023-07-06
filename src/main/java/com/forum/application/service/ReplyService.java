@@ -26,7 +26,7 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final ReplyMapper replyMapper;
 
-    public int save(int replierId, int commentId, String body) throws ResourceNotFoundException {
+    int save(int replierId, int commentId, String body) throws ResourceNotFoundException {
         User replier = userService.getById(replierId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
 
@@ -45,12 +45,12 @@ public class ReplyService {
         return reply.getId();
     }
 
-    public void delete(int replyId) {
+    void delete(int replyId) {
         this.setStatus(replyId);
         log.debug("Reply with id of {} are now inactive!", replyId);
     }
 
-    public void updateReplyBody(int replyId, String newReplyBody) throws ResourceNotFoundException {
+    void updateReplyBody(int replyId, String newReplyBody) throws ResourceNotFoundException {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         if (reply.getBody().equals(newReplyBody)) return;
         reply.setBody(newReplyBody);
@@ -83,7 +83,7 @@ public class ReplyService {
                 .forEach(replyId -> this.updateNotificationStatus(replyId, newStatus));
     }
 
-    public List<ReplyDTO> getAllRepliesOf(int commentId) throws NoLoggedInUserException, ResourceNotFoundException {
+    List<ReplyDTO> getAllRepliesOf(int commentId) throws NoLoggedInUserException, ResourceNotFoundException {
         int currentUserId = userService.getCurrentUser().getId();
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
@@ -127,7 +127,7 @@ public class ReplyService {
     }
 
 
-    public List<ReplyDTO> getAllUnreadRepliesOfAllCommentsByAuthorId(int userId) throws ResourceNotFoundException {
+    List<ReplyDTO> getAllUnreadRepliesOfAllCommentsByAuthorId(int userId) throws ResourceNotFoundException {
         User user = userService.getById(userId);
         List<Comment> comments = user.getComments();
 
@@ -142,7 +142,7 @@ public class ReplyService {
                 .toList();
     }
 
-    public long getAllUnreadRepliesCount(int userId) throws ResourceNotFoundException {
+    long getAllUnreadRepliesCount(int userId) throws ResourceNotFoundException {
         return getAllUnreadRepliesOfAllCommentsByAuthorId(userId).size();
     }
 
