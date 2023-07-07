@@ -146,9 +146,10 @@ public class ForumService {
             UpvoteException {
 
         int currentUserId = userService.getCurrentUser().getId();
+        int oldUpvoteCount = commentService.getById(commentId).getUpvote();
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("The comment you trying to upvote might be deleted by the author or does not exists anymore!");
         if (commentService.isUserAlreadyUpvoteComment(currentUserId, commentId)) throw new UpvoteException("You can only up vote and down vote a comment once!");
-        if (commentService.isNotValidUpvoteValue(commentId, newUpvoteCount)) throw new UpvoteException("Cannot update upvote count! Because new upvote count must only be + 1 or - 1 to the previous value!");
+        if (commentService.isNotValidUpvoteValue(oldUpvoteCount, newUpvoteCount)) throw new UpvoteException("Cannot update upvote count! Because new upvote count must only be + 1 or - 1 to the previous value!");
 
         return commentService.updateUpvote(currentUserId, commentId, newUpvoteCount);
     }
