@@ -53,16 +53,4 @@ public class LoginController {
 
         return "redirect:/";
     }
-
-    @ResponseBody
-    @GetMapping("/dynamicPage")
-    public ModelAndView dynamicView() {
-
-        ModelAndView modelAndView = new ModelAndView("dynamic-page");
-        List<String> strings = List.of("STRING1", "STRING2");
-        modelAndView.addObject("strings", strings);
-        modelAndView.addObject("myVariable", "Hello World!");
-
-        return modelAndView;
-    }
 }
