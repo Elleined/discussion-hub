@@ -13,11 +13,11 @@ const getAllCommentsOf = postId => {
     return deferred.promise();
 };
 
-const getAllRepliesOf = replyURI => {
+const getAllRepliesOf = commentId => {
     const deferred = $.Deferred();
     $.ajax({
         type: "GET",
-        url: "/forum/api" + replyURI,
+        url: `/forum/api/posts/comments/${commentId}/replies`,
         success: function(response) {
             deferred.resolve(response);
         },
@@ -88,11 +88,11 @@ const getPostById = postId => {
     return deferred.promise();
 };
 
-const getCommentById = (commentId, commentURI) => {
+const getCommentById = commentId => {
     const deferred = $.Deferred();
     $.ajax({
         type: "GET",
-        url: "/forum/api" + commentURI + "/" + commentId,
+        url: `/forum/api/posts/0/comments/${commentId}`,
         success: function(response) {
             deferred.resolve(response);
         },

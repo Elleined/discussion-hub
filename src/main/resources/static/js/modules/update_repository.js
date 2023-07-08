@@ -17,11 +17,11 @@ const updateCommentSectionStatus = (postId, newStatus) => {
     return deferred.promise();
 };
 
-const updateCommentUpvote = (commentId, newUpvoteCount, commentURI) => {
+const updateCommentUpvote = (commentId, newUpvoteCount) => {
     const deferred = $.Deferred();
     $.ajax({
         type: "PATCH",
-        url: `/forum/api${commentURI}/upvote/${commentId}`,
+        url: `/forum/api/posts/0/comments/upvote/${commentId}`,
         data: {
             newUpvoteCount: newUpvoteCount
         },
@@ -55,11 +55,11 @@ const updatePostBody = (href, newPostBody) => {
     return deferred.promise();
 };
 
-const updateCommentBody = (commentId, newCommentBody, commentURI) => {
+const updateCommentBody = (commentId, newCommentBody) => {
     const deferred = $.Deferred();
     $.ajax({
         type: "PATCH",
-        url: `/forum/api${commentURI}/body/${commentId}`,
+        url: `/forum/api/posts/0/comments/body/${commentId}`,
         data: {
             newCommentBody: newCommentBody
         },

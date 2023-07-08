@@ -18,7 +18,7 @@ stompClient.connect({},
 let replySubscription;
 let commentSubscription;
 
-let commentURI; // "/posts/{postId}/comments"
+let postId;
 let replyURI; // "/posts/comments/{commentId}/replies"
 
 let previousCommentBody; // Sets when user click the save button after clicking the comment edit
@@ -84,10 +84,8 @@ $(document).ready(function() {
     });
 
     $(".card-body #commentBtn").on("click", function(event) {
-        commentURI = $(this).attr("href");
-        console.log(commentURI);
+        postId = $(this).attr("href").split("/")[2];
 
-        const postId = commentURI.split("/")[2];
         GetRepository.getPostById(postId)
             .then(res => $("#commentModalTitle").text("Comments in " + res.authorName + " post"))
             .catch(error => alert(error));
@@ -119,9 +117,9 @@ $(document).ready(function() {
         const body = $("#commentBody").val();
         if ($.trim(body) === '') return;
         if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
-            SaveRepository.saveComment(body, commentURI, mentionedUsersId);
+            SaveRepository.saveComment(body, postId, mentionedUsersId);
         } else {
-            SaveRepository.saveComment(body, commentURI);
+            SaveRepository.saveComment(body, postId);
         }
 
         $("#commentBody").val("");
@@ -188,7 +186,7 @@ $(document).ready(function() {
 function subscribeToPostComments(postId) {
     // SendTo URI of Comment
     const userId = $("#userId").val();
-    commentSubscription = stompClient.subscribe(`discussion/posts/${postId}/comments`, function(commentDto) {
+    commentSubscription = stompClient.subscribe(`/discussion/posts/${postId}/comments`, function(commentDto) {
         const json = JSON.parse(commentDto.body);
         const commentContainer = $("div").filter("#comment_" + json.id);
 
@@ -213,10 +211,10 @@ function subscribeToPostComments(postId) {
     });
 }
 
-function subscribeToCommentReplies() {
+function subscribeToCommentReplies(commentId) {
     // SendTo URI of Reply
     const userId = $("#userId").val();
-    replySubscription = stompClient.subscribe("/discussion" + replyURI, function(replyDto) {
+    replySubscription = stompClient.subscribe(`/discussion/posts/comments/${commentId}/replies`, function(replyDto) {
         const json = JSON.parse(replyDto.body);
         const replyContainer = $("div").filter("#reply_" + json.id);
 
@@ -245,7 +243,7 @@ function subscribeToCommentReplies() {
 
 async function setReplyModalTitle(commentId) {
     try {
-        const comment = await GetRepository.getCommentById(commentId, commentURI);
+        const comment = await GetRepository.getCommentById(commentId);
         $("#replyModalTitle").text("Replies in " + comment.commenterName + " comment in " + comment.authorName + " post");
     } catch(error) {
         alert("Error Occurred! Setting the reply modal title failed!" + error);
@@ -265,11 +263,11 @@ async function getAllCommentsOf(postId) {
     }
 }
 
-async function getAllReplies(replyURI) {
+async function getAllReplies(commentId) {
     try {
         $(".modal-body #replySection").empty(); // Removes the recent comments in the modal
 
-        const replyDTOs = await GetRepository.getAllRepliesOf(replyURI);
+        const replyDTOs = await GetRepository.getAllRepliesOf(commentId);
         $.each(replyDTOs, function(index, replyDto) {
             generateReplyBlock(replyDto);
         });
@@ -297,7 +295,7 @@ async function getCommentSectionStatus(postId) {
 
 async function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
     try {
-        await UpdateRepository.updateCommentUpvote(commentId, newUpvoteCount, commentURI);
+        await UpdateRepository.updateCommentUpvote(commentId, newUpvoteCount);
         $("#upvoteValue" + commentId).text(newUpvoteCount);
     } catch (error) {
         $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
@@ -319,7 +317,7 @@ async function updatePostBody(href, newPostBody) {
 
 async function updateCommentBody(commentId, newCommentBody) {
     try {
-        await UpdateRepository.updateCommentBody(commentId, newCommentBody, commentURI);
+        await UpdateRepository.updateCommentBody(commentId, newCommentBody);
 
         $("#commentBody" + commentId).attr("contenteditable", "false");
         $("#editCommentSaveBtn" + commentId).hide();
@@ -510,12 +508,12 @@ function generateCommentBlock(commentDto) {
         const commentId = replyURI.split("/")[3];
         setReplyModalTitle(commentId);
 
-        subscribeToCommentReplies();
+        subscribeToCommentReplies(commentId);
 
         const userId = $("#userId").val();
         SaveRepository.saveTracker(userId, commentId, "REPLY");
 
-        getAllReplies(replyURI);
+        getAllReplies(commentId);
 
         updateTotalNotifCount(userId, commentId, "REPLY");
     });
@@ -667,7 +665,7 @@ function generateCommentHeader(container, dto) {
 
         const deleteCommentBtn = $("<a>")
             .attr({
-                "href": "/forum/api" + commentURI + "/" + dto.id,
+                "href": `/forum/api/posts/${dto.postId}/comments/${dto.id}`,
                 "role": "button",
                 "class": "btn btn-danger",
                 "id": "commentDeleteBtn" + dto.id
@@ -899,23 +897,19 @@ function generateNotificationBlock(notificationResponse) {
         }
 
         if (notificationResponse.type === "REPLY") {
-            replyURI = notificationResponse.uri;
-            commentURI = notificationResponse.commentURI;
-
-            console.log(replyURI);
-
+//            replyURI = notificationResponse.uri;
             const commentId = notificationResponse.uri.split("/")[3];
             setReplyModalTitle(commentId);
 
-            subscribeToCommentReplies();
+            subscribeToCommentReplies(commentId);
 
             const userId = $("#userId").val();
             SaveRepository.saveTracker(userId, commentId, "REPLY");
 
-            getAllReplies(replyURI);
+            getAllReplies(commentId);
 
             $("#replyModal").modal('show');
-            const postId = commentURI.split("/")[2];
+            postId = notificationResponse.commentURI.split("/")[2];
             getCommentSectionStatus(postId);
 
             updateTotalNotifCount(userId, commentId, "REPLY");
