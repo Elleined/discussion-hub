@@ -98,7 +98,7 @@ $(document).ready(function() {
         getAllCommentsOf(postId);
         getCommentSectionStatus(postId);
 
-        updateTotalNotifCount(userId, postId, "COMMENT");
+
         event.preventDefault();
     });
 
@@ -206,7 +206,6 @@ function subscribeToPostComments(postId) {
             return;
         }
 
-
         const commentSection = $(".modal-body #commentSection");
         generateComment(json.id, commentSection);
         updateCommentCount(json.postId, "+");
@@ -278,7 +277,7 @@ function bindReplyBtn(commentId) {
 
         getAllReplies(commentId);
 
-        updateTotalNotifCount(userId, commentId, "REPLY");
+
     });
 }
 
@@ -335,20 +334,6 @@ async function updateReplyBody(replyId, newReplyBody) {
     }
 }
 
-async function updateTotalNotifCount(userId, id, type) {
-    const totalNotifCountElement = $("#totalNotifCount");
-    const notifCount = totalNotifCountElement.attr("aria-valuetext");
-    try {
-        const count = await UpdateRepository.updateTotalNotificationCount(userId, id, type);
-
-        const newTotalNotifCount = parseInt(notifCount) - count;
-        totalNotifCountElement.text(newTotalNotifCount + "+");
-        totalNotifCountElement.attr("aria-valuetext", newTotalNotifCount);
-        console.log("Updating the total notification count success!");
-    } catch (error) {
-        // alert("Updating total notification count failed! " + error); // ignore this becuase the current user might not be the author of the post or the commenter of the comment
-    }
-}
 
 function disconnect() {
     if (stompClient) {
@@ -662,7 +647,7 @@ function generateNotificationBlock(notificationResponse) {
             postId = notificationResponse.commentURI.split("/")[2];
             getCommentSectionStatus(postId);
 
-            updateTotalNotifCount(userId, commentId, "REPLY");
+
         }
     });
 }

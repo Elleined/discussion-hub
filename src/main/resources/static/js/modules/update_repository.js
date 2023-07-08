@@ -93,27 +93,10 @@ const updateReplyBody = (replyId, newReplyBody) => {
     return deferred.promise();
 };
 
-const updateTotalNotificationCount = (userId, id, type) => {
-    const deferred = $.Deferred();
-    const url = type === "REPLY" ? "unreadReplyCountOfSpecificComment" : "unreadCommentCountOfSpecificPost";
-    $.ajax({
-        type: "GET",
-        url: `forum/api/users/${userId}/${url}/${id}`,
-        success: function(response) {
-            deferred.resolve(response);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
-        }
-    });
-    return deferred.promise();
-};
-
 export {
     updateCommentSectionStatus,
     updateCommentUpvote,
     updatePostBody,
     updateCommentBody,
     updateReplyBody,
-    updateTotalNotificationCount
 };

@@ -60,7 +60,7 @@ const saveComment = (body, postId, mentionedUserIds) => {
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
-              deferred.reject(xhr.responseText);
+            deferred.reject(xhr.responseText);
         }
     });
     return deferred.promise();
