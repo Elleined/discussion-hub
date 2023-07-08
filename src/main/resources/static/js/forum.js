@@ -92,12 +92,12 @@ $(document).ready(function() {
             .then(res => $("#commentModalTitle").text("Comments in " + res.authorName + " post"))
             .catch(error => alert(error));
 
-        subscribeToPostComments();
+        subscribeToPostComments(postId);
 
         const userId = $("#userId").val();
         SaveRepository.saveTracker(userId, postId, "COMMENT");
 
-        getAllCommentsOf(commentURI);
+        getAllCommentsOf(postId);
         getCommentSectionStatus(postId);
 
         updateTotalNotifCount(userId, postId, "COMMENT");
@@ -185,10 +185,10 @@ $(document).ready(function() {
     // insert here
 });
 
-function subscribeToPostComments() {
+function subscribeToPostComments(postId) {
     // SendTo URI of Comment
     const userId = $("#userId").val();
-    commentSubscription = stompClient.subscribe("/discussion" + commentURI, function(commentDto) {
+    commentSubscription = stompClient.subscribe(`discussion/posts/${postId}/comments`, function(commentDto) {
         const json = JSON.parse(commentDto.body);
         const commentContainer = $("div").filter("#comment_" + json.id);
 
@@ -252,11 +252,11 @@ async function setReplyModalTitle(commentId) {
     }
 }
 
-async function getAllCommentsOf(commentURI) {
+async function getAllCommentsOf(postId) {
     try {
         $(".modal-body #commentSection").empty(); // Removes the recent comments in the modal
 
-        const commentDTOs = await GetRepository.getAllCommentsOf(commentURI);
+        const commentDTOs = await GetRepository.getAllCommentsOf(postId);
         $.each(commentDTOs, function(index, commentDto) {
             generateCommentBlock(commentDto);
         });

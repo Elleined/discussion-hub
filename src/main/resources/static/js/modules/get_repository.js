@@ -1,8 +1,8 @@
-const getAllCommentsOf = commentURI => {
+const getAllCommentsOf = postId => {
     const deferred = $.Deferred();
     $.ajax({
         type: "GET",
-        url: "/forum/api" + commentURI,
+        url: `/forum/api/posts/${postId}/comments`,
         success: function(response) {
             deferred.resolve(response);
         },
