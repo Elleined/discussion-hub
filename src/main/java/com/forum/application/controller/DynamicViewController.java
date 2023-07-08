@@ -15,7 +15,7 @@ public class DynamicViewController {
     private final UserService userService;
     private final ForumService forumService;
 
-    @GetMapping("/getCommentBlock")
+    @GetMapping("/getCommentBlock/{commentId}")
     public ModelAndView getCommentBlock(@PathVariable("commentId") int commentId) {
         ModelAndView modelAndView = new ModelAndView("/fragments/comment-body");
 

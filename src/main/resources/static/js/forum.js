@@ -204,7 +204,7 @@ function subscribeToPostComments(postId) {
         if (previousCommentBody !== json.body && commentContainer.length) {
             $("#commentBody" + json.id).text(json.body);
             return;
-        }
+        }q
 
         const commentSection = $(".modal-body #commentSection");
         generateComment(json.id, commentSection);

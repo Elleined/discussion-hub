@@ -57,10 +57,10 @@ public class ForumService {
         if (userService.isYouBeenBlockedBy(currentUserId, authorId)) throw new BlockedException("Cannot comment because this user block you already!");
 
         int commentId = commentService.save(currentUserId, postId, body);
-        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId);
-
         wsService.broadcastComment(commentId);
         notificationService.broadcastCommentNotification(postId, currentUserId);
+
+        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId);
         return commentService.getById(commentId);
     }
 
@@ -78,10 +78,11 @@ public class ForumService {
         if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
 
         int replyId = replyService.save(currentUserId, commentId, body);
-        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId);
 
         wsService.broadcastReply(replyId);
         notificationService.broadcastReplyNotification(commentId, currentUserId);
+
+        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId);
         return replyService.getById(replyId);
     }
 
