@@ -19,7 +19,7 @@ let replySubscription;
 let commentSubscription;
 
 let postId;
-let replyURI; // "/posts/comments/{commentId}/replies"
+let commentId;
 
 let previousCommentBody; // Sets when user click the save button after clicking the comment edit
 let previousReplyBody; // Sets when user click the save button after clicking the reply edit
@@ -139,9 +139,9 @@ $(document).ready(function() {
         if ($.trim(body) === '') return;
 
         if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
-            SaveRepository.saveReply(body, replyURI, mentionedUsersId);
+            SaveRepository.saveReply(body, commentId, mentionedUsersId);
         } else {
-            SaveRepository.saveReply(body, replyURI);
+            SaveRepository.saveReply(body, commentId);
         }
 
         $("#replyBody").val("");
@@ -328,7 +328,7 @@ async function updateCommentBody(commentId, newCommentBody) {
 
 async function updateReplyBody(replyId, newReplyBody) {
     try {
-        await UpdateRepository.updateReplyBody(replyId, newReplyBody, replyURI);
+        await UpdateRepository.updateReplyBody(replyId, newReplyBody);
 
         $("#replyBody" + replyId).attr("contenteditable", "false");
         $("#editReplySaveBtn" + replyId).hide();
@@ -490,7 +490,7 @@ function generateCommentBlock(commentDto) {
         "data-bs-target": "#replyModal",
         "type": "button",
         "id": "replyBtn" + commentDto.id,
-        "href": "/posts/comments/" + commentDto.id + "/replies",
+        "href": `/posts/comments/${commentDto.id}/replies`,
         "class": "btn btn-primary me-1",
         "value": commentDto.totalReplies
     }).text("Reply  ·  " + commentDto.totalReplies).appendTo(row3Col1);
@@ -502,10 +502,7 @@ function generateCommentBlock(commentDto) {
     const hr = $("<hr>").appendTo(childContainer);
 
     replyBtn.on("click", function(event) {
-        replyURI = $(this).attr("href");
-        console.log(replyURI);
-
-        const commentId = replyURI.split("/")[3];
+        commentId = $(this).attr("href").split("/")[3];
         setReplyModalTitle(commentId);
 
         subscribeToCommentReplies(commentId);
@@ -753,7 +750,7 @@ function generateReplyHeader(container, dto) {
 
         const deleteReplyBtn = $("<a>")
             .attr({
-                "href": "/forum/api" + replyURI + "/" + dto.id,
+                "href": `/forum/api/posts/comments/${dto.commentId}/replies/${dto.id}`,
                 "role": "button",
                 "class": "btn btn-danger",
                 "id": "replyDeleteBtn" + dto.id
@@ -897,8 +894,7 @@ function generateNotificationBlock(notificationResponse) {
         }
 
         if (notificationResponse.type === "REPLY") {
-//            replyURI = notificationResponse.uri;
-            const commentId = notificationResponse.uri.split("/")[3];
+            commentId = notificationResponse.uri.split("/")[3];
             setReplyModalTitle(commentId);
 
             subscribeToCommentReplies(commentId);

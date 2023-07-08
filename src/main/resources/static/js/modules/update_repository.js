@@ -74,11 +74,11 @@ const updateCommentBody = (commentId, newCommentBody) => {
     return deferred.promise();
 };
 
-const updateReplyBody = (replyId, newReplyBody, replyURI) => {
+const updateReplyBody = (replyId, newReplyBody) => {
     const deferred = $.Deferred();
     $.ajax({
         type: "PATCH",
-        url: `/forum/api${replyURI}/body/${replyId}`,
+        url: `/forum/api/posts/comments/0/replies/body/${replyId}`,
         data: {
             newReplyBody: newReplyBody
         },
