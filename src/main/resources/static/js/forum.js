@@ -204,10 +204,10 @@ function subscribeToPostComments(postId) {
         if (previousCommentBody !== json.body && commentContainer.length) {
             $("#commentBody" + json.id).text(json.body);
             return;
-        }q
+        }
 
         const commentSection = $(".modal-body #commentSection");
-        generateComment(json.id, commentSection);
+        generateComment(json, commentSection);
         updateCommentCount(json.postId, "+");
     });
 }
@@ -258,7 +258,7 @@ async function getAllCommentsOf(postId) {
 
         const commentDTOs = await GetRepository.getAllCommentsOf(postId);
         $.each(commentDTOs, function(index, commentDto) {
-            generateComment(commentDto.id, commentSection);
+            generateComment(commentDto, commentSection);
             bindReplyBtn(commentId);
         });
     } catch (error) {

@@ -13,11 +13,13 @@ const getAllCommentsOf = postId => {
     return deferred.promise();
 };
 
-const getCommentBlock = commentId => {
+const getCommentBlock = commentDto => {
     const deferred = $.Deferred();
     $.ajax({
-        type: "GET",
-        url: `/forum/api/views/getCommentBlock/${commentId}`,
+        type: "POST",
+        url: `/forum/api/views/getCommentBlock`,
+        contentType: "application/json",
+        data: JSON.stringify(commentDto),
         success: function(response) {
             deferred.resolve(response);
         },

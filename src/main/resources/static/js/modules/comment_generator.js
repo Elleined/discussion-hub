@@ -2,12 +2,12 @@ import { updateCommentUpvote, updateCommentBody } from './update_repository.js';
 import { deleteComment } from './delete_repository.js';
 import { getCommentBlock } from './get_repository.js';
 
-const generateComment = (commentId, container) => {
-    getCommentBlock(commentId)
+const generateComment = (commentDto, container) => {
+    getCommentBlock(commentDto)
         .then(res => {
             container.append(res);
-            bindUpvoteAndDownVoteBtn(commentId);
-            bindCommentHeaderBtn(commentId);
+            bindUpvoteAndDownVoteBtn(commentDto.id);
+            bindCommentHeaderBtn(commentDto.id);
         })
         .catch(error => alert("Generating the comment failed! " + error));
 };
