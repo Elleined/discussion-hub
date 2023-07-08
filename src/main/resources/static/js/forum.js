@@ -206,7 +206,7 @@ function subscribeToPostComments(postId) {
             return;
         }
 
-        generateCommentBlock(json.id);
+        generateComment(json.id);
         updateCommentCount(json.postId, "+");
     });
 }
@@ -429,9 +429,55 @@ async function generateComment(commentId) {
 }
 
 function bindCommentButtons(commentId) {
+    bindUpvoteAndDownVoteBtn(commentId);
+    bindCommentHeaderBtn(commentId);
+}
+
+function bindCommentHeaderBtn(commentId) {
+    $("#commentDeleteBtn" + commentId).on("click", function(event) {
+        event.preventDefault();
+        DeleteRepository.deleteComment(commentId);
+    });
+
     const editCommentSaveBtn = $("#editCommentSaveBtn" + commentId);
     editCommentSaveBtn.hide();
+    $("#editCommentBtn" + commentId).on("click", function(event) {
+        event.preventDefault();
+        const commentBodyText = $("#commentBody" + commentId);
+        previousCommentBody = commentBodyText.text();
+
+        commentBodyText.attr("contenteditable", "true");
+        commentBodyText.focus();
+        editCommentSaveBtn.show();
+
+        // Adding the editCommentSaveBtn click listener only when user clicks the editCommentBtn
+        editCommentSaveBtn.on("click", function() {
+            updateCommentBody(commentId, commentBodyText.text());
+        });
+    });
 }
+
+function bindUpvoteAndDownVoteBtn(commentId) {
+    let isClicked = false;
+    $("#upvoteBtn" + commentId).on("click", function(event) {
+        event.preventDefault();
+        if (isClicked) return;
+        let originalUpdateValue = parseInt($("#upvoteValue" + commentId).text());
+        const newUpvoteValue = originalUpdateValue + 1;
+        updateCommentUpvote(commentId, newUpvoteValue, originalUpdateValue);
+        isClicked = true;
+    });
+
+    $("#downvoteBtn" + commentId).on("click", function(event) {
+        event.preventDefault();
+        if (isClicked) return;
+        let originalUpdateValue = parseInt($("#upvoteValue" + commentId).text());
+        const newUpvoteValue = originalUpdateValue - 1;
+        updateCommentUpvote(commentId, newUpvoteValue, originalUpdateValue);
+        isClicked = true;
+    });
+}
+
 // Don't bother reading this code
 // The actual html structure of this the comment-body is in /templates/fragments/comment-body
 function generateCommentBlock(commentId) {
@@ -582,151 +628,6 @@ function generateReplyBlock(replyDto) {
     }
 
     const hr = $("<hr>").appendTo(replyContainer);
-}
-
-function generateCommentUpvoteBlock(container, dto) {
-    const upvoteColumn = $("<div>")
-        .attr("class", "col-md-1")
-        .appendTo(container);
-
-    const upvoteContainer = $("<div>")
-        .attr("class", "row gx-5")
-        .appendTo(upvoteColumn);
-
-    const upvoteBtn = $("<a>")
-        .attr("href", "#")
-        .appendTo(upvoteContainer);
-
-    const upvoteIcon = $("<i>")
-        .attr("class", "fas fa-angle-up fa-3x")
-        .appendTo(upvoteBtn);
-
-    const upvoteValue = $("<span>")
-        .attr({
-            "class": "d-flex justify-content-center mt-2 mb-2",
-            "id": "upvoteValue" + dto.id
-        })
-        .text(dto.upvote)
-        .appendTo(upvoteColumn);
-
-    const downVoteContainer = $("<div>")
-        .attr("class", "row gx-5")
-        .appendTo(upvoteColumn);
-
-    const downVoteBtn = $("<a>")
-        .attr("href", "#")
-        .appendTo(downVoteContainer);
-
-    const downVoteIcon = $("<i>")
-        .attr("class", "fas fa-angle-down fa-3x")
-        .appendTo(downVoteBtn);
-
-    let isClicked = false;
-    upvoteBtn.on("click", function(event) {
-        event.preventDefault();
-        if (isClicked) return;
-        let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
-        const newUpvoteValue = originalUpdateValue + 1;
-        updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
-        isClicked = true;
-    });
-
-    downVoteBtn.on("click", function(event) {
-        event.preventDefault();
-        if (isClicked) return;
-        let originalUpdateValue = parseInt($("#upvoteValue" + dto.id).text());
-        const newUpvoteValue = originalUpdateValue - 1;
-        updateCommentUpvote(dto.id, newUpvoteValue, originalUpdateValue);
-        isClicked = true;
-    });
-}
-
-function generateCommentHeader(container, dto) {
-    const parentContainer = $("<div>")
-        .attr("class", "container")
-        .appendTo(container);
-
-    const row1 = $("<div>")
-        .attr("class", "row")
-        .appendTo(parentContainer);
-
-    const row1Col1 = $("<div>")
-        .attr("class", "col-md-6")
-        .appendTo(row1);
-
-    const commenterImage = $("<img>").attr({
-        "class": "rounded-circle shadow-4-strong",
-        "height": "50px",
-        "width": "50px",
-        "src": "/img/" + dto.commenterPicture
-    }).appendTo(row1Col1);
-
-    const commenterName = $("<span>")
-        .attr("class", "md5 mb-5")
-        .text(dto.commenterName)
-        .appendTo(row1Col1);
-
-    const userId = $("#userId").val();
-    if (dto.commenterId == userId) {
-        const row1Col2 = $("<div>")
-            .attr("class", "col-md-6")
-            .appendTo(row1);
-
-        const row1Col1Container = $("<div>")
-            .attr("class", "d-grid gap-2 d-md-flex justify-content-md-end")
-            .appendTo(row1Col2);
-
-        const deleteCommentBtn = $("<a>")
-            .attr({
-                "href": `/forum/api/posts/${dto.postId}/comments/${dto.id}`,
-                "role": "button",
-                "class": "btn btn-danger",
-                "id": "commentDeleteBtn" + dto.id
-            })
-            .text("Delete")
-            .appendTo(row1Col1Container);
-
-        const deleteIcon = $("<i>")
-            .attr("class", "fas fa-trash")
-            .appendTo(deleteCommentBtn);
-
-        const editCommentBtn = $("<a>")
-            .attr({
-                "href": "#",
-                "role": "button",
-                "class": "btn btn-primary",
-                "id": "editCommentBtn" + dto.id
-            })
-            .text("Edit")
-            .appendTo(row1Col1Container);
-
-        const editIcon = $("<i>")
-            .attr("class", "fas fa-pencil")
-            .appendTo(editCommentBtn);
-
-        deleteCommentBtn.on("click", function(event) {
-            event.preventDefault();
-
-            const deleteCommentURI = $(this).attr("href");
-            DeleteRepository.deleteComment(deleteCommentURI);
-        });
-
-        editCommentBtn.on("click", function(event) {
-            event.preventDefault();
-            const editCommentSaveBtn = $("#editCommentSaveBtn" + dto.id);
-            const commentBodyText = $("#commentBody" + dto.id);
-            previousCommentBody = commentBodyText.text();
-
-            commentBodyText.attr("contenteditable", "true");
-            commentBodyText.focus();
-            editCommentSaveBtn.show();
-
-            // Adding the editCommentSaveBtn click listener only when user clicks the editCommentBtn
-            editCommentSaveBtn.on("click", function() {
-                updateCommentBody(dto.id, commentBodyText.text());
-            });
-        });
-    }
 }
 
 function generateReplyHeader(container, dto) {

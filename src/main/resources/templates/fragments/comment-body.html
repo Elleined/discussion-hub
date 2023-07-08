@@ -22,7 +22,7 @@
           </div>
           <div class="col-md-6" th:if="${currentUserId == commentDto.commenterId}">
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a class="btn btn-danger" role="button" href="#" th:id="${'commentDeleteBtn' + commentDto.id}">
+              <a class="btn btn-danger" role="button" href="#" th:id="${'commentDeleteBtn' + commentDto.id}" >
                 <i class="fas fa-trash"></i> Delete </a>
               <a class="btn btn-primary" role="button" href="#" th:id="${'editCommentBtn' + commentDto.id}">
                 <i class="fas fa-pencil"></i> Edit </a>

@@ -12,10 +12,10 @@ const deletePost = href => {
     });
 };
 
-const deleteComment = commentURI => {
+const deleteComment = commentId => {
     $.ajax({
         type: "DELETE",
-        url: commentURI,
+        url: `/forum/api/posts/0/comments/${commentId}`,
         success: function(response) {
             console.log("Comment deleted successfully");
         },
