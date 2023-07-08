@@ -18,8 +18,8 @@ stompClient.connect({},
 let replySubscription;
 let commentSubscription;
 
-let postId;
-let commentId;
+let postId; // Sets when user clicked the comments
+let commentId; // Sets when user clicked replies
 
 let previousCommentBody; // Sets when user click the save button after clicking the comment edit
 let previousReplyBody; // Sets when user click the save button after clicking the reply edit
@@ -206,7 +206,7 @@ function subscribeToPostComments(postId) {
             return;
         }
 
-        generateCommentBlock(json);
+        generateCommentBlock(json.id);
         updateCommentCount(json.postId, "+");
     });
 }
@@ -256,7 +256,7 @@ async function getAllCommentsOf(postId) {
 
         const commentDTOs = await GetRepository.getAllCommentsOf(postId);
         $.each(commentDTOs, function(index, commentDto) {
-            generateCommentBlock(commentDto);
+            generateComment(commentDto.id);
         });
     } catch (error) {
         alert("Getting all comments failed! " + error);
@@ -417,9 +417,25 @@ function updateTotalNotificationCount() {
     totalNotifCount.text(newTotalNotifCount + "+");
 }
 
+async function generateComment(commentId) {
+    const commentSection = $(".modal-body #commentSection");
+    try {
+        const commentView = await GetRepository.getCommentBlock(commentId);
+        commentSection.append(commentView);
+        bindCommentButtons(commentId);
+    } catch(error) {
+        alert("Generating comment failed! " + error);
+    }
+}
+
+function bindCommentButtons(commentId) {
+    const editCommentSaveBtn = $("#editCommentSaveBtn" + commentId);
+    editCommentSaveBtn.hide();
+}
 // Don't bother reading this code
 // The actual html structure of this the comment-body is in /templates/fragments/comment-body
-function generateCommentBlock(commentDto) {
+function generateCommentBlock(commentId) {
+
     const commentSection = $(".modal-body #commentSection");
     const container = $("<div>")
         .attr({
