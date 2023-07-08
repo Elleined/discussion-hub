@@ -3,6 +3,7 @@ import * as SaveRepository from './modules/save_repository.js';
 import * as GetRepository from './modules/get_repository.js';
 import * as UpdateRepository from './modules/update_repository.js';
 import * as DeleteRepository from './modules/delete_repository.js';
+import generateComment, { previousCommentBody } from './modules/comment_generator.js';
 
 import {
     mention,
@@ -21,7 +22,6 @@ let commentSubscription;
 let postId; // Sets when user clicked the comments
 let commentId; // Sets when user clicked replies
 
-let previousCommentBody; // Sets when user click the save button after clicking the comment edit
 let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 
 $(document).ready(function() {
@@ -206,7 +206,9 @@ function subscribeToPostComments(postId) {
             return;
         }
 
-        generateComment(json.id);
+
+        const commentSection = $(".modal-body #commentSection");
+        generateComment(json.id, commentSection);
         updateCommentCount(json.postId, "+");
     });
 }
@@ -252,15 +254,32 @@ async function setReplyModalTitle(commentId) {
 
 async function getAllCommentsOf(postId) {
     try {
-        $(".modal-body #commentSection").empty(); // Removes the recent comments in the modal
+        const commentSection = $(".modal-body #commentSection"); // Removes the recent comments in the modal
+        commentSection.empty();
 
         const commentDTOs = await GetRepository.getAllCommentsOf(postId);
         $.each(commentDTOs, function(index, commentDto) {
-            generateComment(commentDto.id);
+            generateComment(commentDto.id, commentSection);
+            bindReplyBtn(commentId);
         });
     } catch (error) {
         alert("Getting all comments failed! " + error);
     }
+}
+
+function bindReplyBtn(commentId) {
+    $("#replyBtn" + commentId).on("click", function(event) {
+        setReplyModalTitle(commentId);
+
+        subscribeToCommentReplies(commentId);
+
+        const userId = $("#userId").val();
+        SaveRepository.saveTracker(userId, commentId, "REPLY");
+
+        getAllReplies(commentId);
+
+        updateTotalNotifCount(userId, commentId, "REPLY");
+    });
 }
 
 async function getAllReplies(commentId) {
@@ -293,16 +312,6 @@ async function getCommentSectionStatus(postId) {
     }
 }
 
-async function updateCommentUpvote(commentId, newUpvoteCount, originalUpdateValue) {
-    try {
-        await UpdateRepository.updateCommentUpvote(commentId, newUpvoteCount);
-        $("#upvoteValue" + commentId).text(newUpvoteCount);
-    } catch (error) {
-        $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
-        alert("Updating the comment upvote count failed! " + error);
-    }
-}
-
 async function updatePostBody(href, newPostBody) {
     try {
         await UpdateRepository.updatePostBody(href, newPostBody);
@@ -312,17 +321,6 @@ async function updatePostBody(href, newPostBody) {
         $("#editPostBtnSave" + postId).addClass("d-none");
     } catch (error) {
         alert("Updating the post body failed! " + error);
-    }
-}
-
-async function updateCommentBody(commentId, newCommentBody) {
-    try {
-        await UpdateRepository.updateCommentBody(commentId, newCommentBody);
-
-        $("#commentBody" + commentId).attr("contenteditable", "false");
-        $("#editCommentSaveBtn" + commentId).hide();
-    } catch (error) {
-        alert("Updating comment body failed! " + error);
     }
 }
 
@@ -415,167 +413,6 @@ function updateTotalNotificationCount() {
     const totalNotifCount = $("#totalNotifCount");
     const newTotalNotifCount = parseInt(totalNotifCount.text()) + 1;
     totalNotifCount.text(newTotalNotifCount + "+");
-}
-
-async function generateComment(commentId) {
-    const commentSection = $(".modal-body #commentSection");
-    try {
-        const commentView = await GetRepository.getCommentBlock(commentId);
-        commentSection.append(commentView);
-        bindCommentButtons(commentId);
-    } catch(error) {
-        alert("Generating comment failed! " + error);
-    }
-}
-
-function bindCommentButtons(commentId) {
-    bindUpvoteAndDownVoteBtn(commentId);
-    bindCommentHeaderBtn(commentId);
-}
-
-function bindCommentHeaderBtn(commentId) {
-    $("#commentDeleteBtn" + commentId).on("click", function(event) {
-        event.preventDefault();
-        DeleteRepository.deleteComment(commentId);
-    });
-
-    const editCommentSaveBtn = $("#editCommentSaveBtn" + commentId);
-    editCommentSaveBtn.hide();
-    $("#editCommentBtn" + commentId).on("click", function(event) {
-        event.preventDefault();
-        const commentBodyText = $("#commentBody" + commentId);
-        previousCommentBody = commentBodyText.text();
-
-        commentBodyText.attr("contenteditable", "true");
-        commentBodyText.focus();
-        editCommentSaveBtn.show();
-
-        // Adding the editCommentSaveBtn click listener only when user clicks the editCommentBtn
-        editCommentSaveBtn.on("click", function() {
-            updateCommentBody(commentId, commentBodyText.text());
-        });
-    });
-}
-
-function bindUpvoteAndDownVoteBtn(commentId) {
-    let isClicked = false;
-    $("#upvoteBtn" + commentId).on("click", function(event) {
-        event.preventDefault();
-        if (isClicked) return;
-        let originalUpdateValue = parseInt($("#upvoteValue" + commentId).text());
-        const newUpvoteValue = originalUpdateValue + 1;
-        updateCommentUpvote(commentId, newUpvoteValue, originalUpdateValue);
-        isClicked = true;
-    });
-
-    $("#downvoteBtn" + commentId).on("click", function(event) {
-        event.preventDefault();
-        if (isClicked) return;
-        let originalUpdateValue = parseInt($("#upvoteValue" + commentId).text());
-        const newUpvoteValue = originalUpdateValue - 1;
-        updateCommentUpvote(commentId, newUpvoteValue, originalUpdateValue);
-        isClicked = true;
-    });
-}
-
-// Don't bother reading this code
-// The actual html structure of this the comment-body is in /templates/fragments/comment-body
-function generateCommentBlock(commentId) {
-
-    const commentSection = $(".modal-body #commentSection");
-    const container = $("<div>")
-        .attr({
-            "class": "commentContainer container ms-5",
-            "id": "comment_" + commentDto.id
-        })
-        .appendTo(commentSection);
-
-    const childContainer = $("<div>")
-        .attr("class", "row gx-5 ")
-        .appendTo(container);
-
-    generateCommentUpvoteBlock(childContainer, commentDto);
-
-    const commentColumn = $("<div>")
-        .attr("class", "col-md-6")
-        .appendTo(childContainer);
-
-    generateCommentHeader(commentColumn, commentDto);
-
-    const row2 = $("<div>")
-        .attr({
-            "class": "row",
-            "id": "commentMessageContainer" + commentDto.id
-        })
-        .appendTo(commentColumn);
-
-    const row2Col1 = $("<div>")
-        .attr("class", "col-md-10")
-        .appendTo(row2);
-
-    const commenterMessageBody = $("<p>")
-        .attr({
-            "class": "mt-2",
-            "id": "commentBody" + commentDto.id
-        })
-        .text(commentDto.body)
-        .appendTo(row2Col1);
-
-    const row2Col2 = $("<div>")
-        .attr("class", "col-md-2")
-        .appendTo(row2);
-
-    const userId = $("#userId").val();
-    if (commentDto.commenterId == userId) {
-        const editCommentSaveBtn = $("<button>")
-            .attr({
-                "type": "button",
-                "class": "btn btn-primary",
-                "href": "#",
-                "id": "editCommentSaveBtn" + commentDto.id
-            })
-            .text("Save")
-            .appendTo(row2Col2);
-        editCommentSaveBtn.hide();
-    }
-
-    const row3 = $("<div>")
-        .attr("class", "row")
-        .appendTo(commentColumn);
-
-    const row3Col1 = $("<div>")
-        .attr("class", "md-col")
-        .appendTo(row3);
-
-    const replyBtn = $("<button>").attr({
-        "data-bs-toggle": "modal",
-        "data-bs-target": "#replyModal",
-        "type": "button",
-        "id": "replyBtn" + commentDto.id,
-        "href": `/posts/comments/${commentDto.id}/replies`,
-        "class": "btn btn-primary me-1",
-        "value": commentDto.totalReplies
-    }).text("Reply  ·  " + commentDto.totalReplies).appendTo(row3Col1);
-
-    const timeCommented = $("<span>")
-        .text(" at " + commentDto.formattedTime + " on " + commentDto.formattedDate)
-        .appendTo(row3Col1);
-
-    const hr = $("<hr>").appendTo(childContainer);
-
-    replyBtn.on("click", function(event) {
-        commentId = $(this).attr("href").split("/")[3];
-        setReplyModalTitle(commentId);
-
-        subscribeToCommentReplies(commentId);
-
-        const userId = $("#userId").val();
-        SaveRepository.saveTracker(userId, commentId, "REPLY");
-
-        getAllReplies(commentId);
-
-        updateTotalNotifCount(userId, commentId, "REPLY");
-    });
 }
 
 // Don't bother reading this code
