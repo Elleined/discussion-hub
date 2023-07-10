@@ -1,15 +1,11 @@
 package com.forum.application;
 
-import com.forum.application.service.ModalTrackerService;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.time.Month;
-
-@SpringBootApplication
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @EnableTransactionManagement
 public class ForumApplication {
 	public static void main(String[] args) {

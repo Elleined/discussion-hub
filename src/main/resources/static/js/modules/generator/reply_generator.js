@@ -7,7 +7,7 @@ const generateReply = (replyDto, container) => {
             .then(res => {
                 container.append(res);
                 bindReplyHeaderBtn(replyDto.id);
-        }).catch(error => alert("Generating reply failed! " + error));
+        }).catch(error => alert("Generating reply failed! " + error.responseText));
 };
 
 export let previousReplyBody;

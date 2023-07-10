@@ -1,19 +1,37 @@
 package com.forum.application.service;
 
 import com.forum.application.model.Type;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Slf4j
 class UserServiceTest {
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceTest(UserService userService) {
+    public UserServiceTest(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Test
+    void encodePassword() {
+        String password = "Denielle";
+        String encodedPassword = passwordEncoder.encode(password);
+        log.debug("Encoded password {}", encodedPassword);
+    }
+
+    @Test
+    void isPasswordCorrect() {
+        String inputtedPassword = "Denielle";
+        assertTrue(passwordEncoder.matches(inputtedPassword, "$2a$10$E8GLhQsBAP9cDQ4ou0uGQOLWv3DArHgKX6hsky4qF7VEW1ULN53Am"), "Password correct");
     }
 
 

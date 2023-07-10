@@ -14,20 +14,12 @@ const getAllCommentsOf = postId => {
 };
 
 const getCommentBlock = commentDto => {
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "POST",
-        url: `/forum/api/views/getCommentBlock`,
+        url: "/forum/api/views/getCommentBlock",
         contentType: "application/json",
-        data: JSON.stringify(commentDto),
-        success: function(response) {
-            deferred.resolve(response);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
-        }
-    });
-    return deferred.promise();
+        data: JSON.stringify(commentDto)
+    }).promise();
 };
 
 const getAllRepliesOf = commentId => {
