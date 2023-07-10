@@ -116,20 +116,12 @@ public class UserController {
     }
 
     @PostMapping("/mentionUser/{mentionedUserId}")
-    public ResponseEntity<?> mentionUser(@PathVariable("userId") int mentioningUserId,
+    public ResponseEntity<MentionResponse> mentionUser(@PathVariable("userId") int mentioningUserId,
                                          @PathVariable("mentionedUserId") int mentionedUserId,
                                          @RequestBody MentionResponse mentionResponse) {
-        if (userService.isBlockedBy(mentioningUserId, mentionedUserId)) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionedUserId + " because you already blocked this user");
-        if (userService.isYouBeenBlockedBy(mentioningUserId, mentionedUserId)) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionedUserId + " because this user blocked you already!");
 
-        int mentionId = userService.mentionUser(
-                mentioningUserId,
-                mentionedUserId,
-                Type.valueOf(mentionResponse.getType()),
-                mentionResponse.getTypeId());
-
-        MentionResponse savedMention = userService.getMentionById(mentionId);
-        return ResponseEntity.ok(savedMention);
+        MentionResponse response = userService.mentionUser(mentioningUserId, mentionedUserId, Type.valueOf(mentionResponse.getType()), mentionResponse.getTypeId());
+        return ResponseEntity.ok( response );
     }
 
     @GetMapping("/receiveMentions")

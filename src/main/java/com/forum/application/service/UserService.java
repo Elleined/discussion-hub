@@ -2,6 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.UserDTO;
+import com.forum.application.exception.BlockedException;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
@@ -109,8 +110,18 @@ public class UserService {
         return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
     }
 
-    public int mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) {
-        return mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
+    public MentionResponse mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws BlockedException {
+        boolean isBlockedBy = isBlockedBy(mentioningUserId, mentionedUserId);
+        boolean isYouBeenBlockedBy = isYouBeenBlockedBy(mentioningUserId, mentionedUserId);
+        if (isBlockedBy || isYouBeenBlockedBy) throw new BlockedException("Cannot mention user! One of the mentioned user blocked you!");
+        int mentionId = mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
+        return this.getMentionById(mentionId);
+    }
+
+    public Set<MentionResponse> mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
+        return usersToBeMentionIds.stream()
+                .map(mentionedUserId -> this.mentionUser(mentioningUserId, mentionedUserId, type, typeId))
+                .collect(Collectors.toSet());
     }
 
     public MentionResponse getMentionById(int mentionId) {

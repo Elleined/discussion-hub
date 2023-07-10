@@ -48,12 +48,6 @@ public class MentionService {
         return mention.getId();
     }
 
-    public List<Integer> saveAll(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) {
-        return usersToBeMentionIds.stream()
-                .map(usersToBeMentionId -> this.save(mentioningUserId, usersToBeMentionId, type, typeId))
-                .toList();
-    }
-
     List<User> getSuggestedMentions(int userId, String name) {
         return userRepository.fetchAllByProperty(name)
                 .stream()

@@ -236,6 +236,44 @@ function subscribeToCommentReplies(commentId) {
     });
 }
 
+function onConnected() {
+    console.log("Web Socket Connected!!!");
+    const currentUserId = $("#userId").val();
+    const notificationContainer = $("#notificationContainer");
+
+    stompClient.subscribe("/user/notification/comments", function(notificationResponse) {
+        const json = JSON.parse(notificationResponse.body);
+        if (json.respondentId == currentUserId) return; // If the post author commented in his own post it will not generate a notification block
+        if (json.modalOpen) return; // If the post author modal is open this will not generate a notification block
+
+        updateTotalNotificationCount();
+        if ($("#notificationCommentItem_" + json.respondentId + "_" + json.id).length) {
+            updateNotification(json.respondentId, json.id, json.type);
+            return;
+        }
+        generateNotification(json, notificationContainer);
+    });
+
+    stompClient.subscribe("/user/notification/replies", function(notificationResponse) {
+        const json = JSON.parse(notificationResponse.body);
+        if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
+        if (json.modalOpen) return; // If the comment author modal is open this will not generate a notification block
+
+        updateTotalNotificationCount();
+        if ($("#notificationReplyItem_" + json.respondentId + "_" + json.id).length) {
+            updateNotification(json.respondentId, json.id, json.type);
+            return;
+        }
+        generateNotification(json, notificationContainer);
+    });
+
+    stompClient.subscribe("/user/notification/mentions", function(mentionResponse) {
+        const json = JSON.parse(mentionResponse.body);
+        updateTotalNotificationCount();
+        alert(`Message: ${json.message}`);
+    });
+}
+
 async function setReplyModalTitle(commentId) {
     try {
         const comment = await GetRepository.getCommentById(commentId);
@@ -325,42 +363,4 @@ function disconnect() {
     if (socket) {
         socket.close();
     }
-}
-
-function onConnected() {
-    console.log("Web Socket Connected!!!");
-    const currentUserId = $("#userId").val();
-    const notificationContainer = $("#notificationContainer");
-
-    stompClient.subscribe("/user/notification/comments", function(notificationResponse) {
-        const json = JSON.parse(notificationResponse.body);
-        if (json.respondentId == currentUserId) return; // If the post author commented in his own post it will not generate a notification block
-        if (json.modalOpen) return; // If the post author modal is open this will not generate a notification block
-
-        updateTotalNotificationCount();
-        if ($("#notificationCommentItem_" + json.respondentId + "_" + json.id).length) {
-            updateNotification(json.respondentId, json.id, json.type);
-            return;
-        }
-        generateNotification(json, notificationContainer);
-    });
-
-    stompClient.subscribe("/user/notification/replies", function(notificationResponse) {
-        const json = JSON.parse(notificationResponse.body);
-        if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
-        if (json.modalOpen) return; // If the comment author modal is open this will not generate a notification block
-
-        updateTotalNotificationCount();
-        if ($("#notificationReplyItem_" + json.respondentId + "_" + json.id).length) {
-            updateNotification(json.respondentId, json.id, json.type);
-            return;
-        }
-        generateNotification(json, notificationContainer);
-    });
-
-    stompClient.subscribe("/user/notification/mentions", function(mentionResponse) {
-        const json = JSON.parse(mentionResponse.body);
-        updateTotalNotificationCount();
-        alert(`Message: ${json.message}`);
-    });
 }

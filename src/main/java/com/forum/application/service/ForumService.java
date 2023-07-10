@@ -28,7 +28,6 @@ public class ForumService {
     private final ReplyService replyService;
     private final WSService wsService;
     private final NotificationService notificationService;
-    private final MentionService mentionService;
 
     public PostDTO savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             BlockedException,
@@ -39,7 +38,7 @@ public class ForumService {
 
         int currentUserId = userService.getCurrentUser().getId();
         int postId = postService.save(currentUserId, body);
-        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId);
+        if (mentionedUserIds != null) userService.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId);
         return postService.getById(postId);
     }
 
@@ -61,7 +60,7 @@ public class ForumService {
         wsService.broadcastComment(commentId);
         notificationService.broadcastCommentNotification(postId, currentUserId);
 
-        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId);
+        if (mentionedUserIds != null) userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId);
         return commentService.getById(commentId);
     }
 
@@ -83,15 +82,8 @@ public class ForumService {
         wsService.broadcastReply(replyId);
         notificationService.broadcastReplyNotification(commentId, currentUserId);
 
-        if (mentionedUserIds != null) this.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId);
+        if (mentionedUserIds != null) userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId);
         return replyService.getById(replyId);
-    }
-
-    public void mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
-        boolean isBlockedBy = usersToBeMentionIds.stream().anyMatch(mentionedUserId -> userService.isBlockedBy(mentioningUserId, mentionedUserId));
-        boolean isYouBeenBlockedBy = usersToBeMentionIds.stream().anyMatch(mentionedUserId -> userService.isYouBeenBlockedBy(mentioningUserId, mentionedUserId));
-        if (isBlockedBy || isYouBeenBlockedBy) throw new BlockedException("Cannot mention user! One of the mentioned user blocked you!");
-        mentionService.saveAll(mentioningUserId, usersToBeMentionIds, type, typeId);
     }
 
     public PostDTO getPostById(int postId) {
