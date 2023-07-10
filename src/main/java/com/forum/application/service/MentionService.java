@@ -2,8 +2,11 @@ package com.forum.application.service;
 
 import com.forum.application.dto.MentionResponse;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.mapper.MentionMapper;
-import com.forum.application.model.*;
+import com.forum.application.mapper.NotificationMapper;
+import com.forum.application.model.Mention;
+import com.forum.application.model.NotificationStatus;
+import com.forum.application.model.Type;
+import com.forum.application.model.User;
 import com.forum.application.repository.MentionRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -23,7 +27,7 @@ public class MentionService {
     private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
     private final BlockService blockService;
-    private final MentionMapper mentionMapper;
+    private final NotificationMapper notificationMapper;
 
     int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws ResourceNotFoundException {
         User mentioningUser = userRepository.findById(mentioningUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentioningUserId +  " does not exists"));
@@ -44,6 +48,12 @@ public class MentionService {
         return mention.getId();
     }
 
+    public List<Integer> saveAll(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) {
+        return usersToBeMentionIds.stream()
+                .map(usersToBeMentionId -> this.save(mentioningUserId, usersToBeMentionId, type, typeId))
+                .toList();
+    }
+
     List<User> getSuggestedMentions(int userId, String name) {
         return userRepository.fetchAllByProperty(name)
                 .stream()
@@ -62,7 +72,8 @@ public class MentionService {
         return user.getReceiveMentions()
                 .stream()
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
-                .map(mentionMapper::toDTO)
+                .map(Mention::getId)
+                .map(notificationMapper::toMentionNotification)
                 .toList();
     }
 

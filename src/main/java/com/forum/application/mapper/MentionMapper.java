@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
-public abstract class MentionMapper {
+abstract class MentionMapper {
     @Mappings({
             @Mapping(target = "mentioningUserId", source = "mention.mentioningUser.id"),
             @Mapping(target = "mentionedUserId", source = "mention.mentionedUser.id"),

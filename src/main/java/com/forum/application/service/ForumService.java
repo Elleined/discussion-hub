@@ -11,7 +11,6 @@ import com.forum.application.model.Type;
 import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +31,7 @@ public class ForumService {
     private final MentionService mentionService;
 
     public PostDTO savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
+            BlockedException,
             ResourceNotFoundException,
             NoLoggedInUserException {
 
@@ -68,7 +68,8 @@ public class ForumService {
     public ReplyDTO saveReply(int commentId, String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             NoLoggedInUserException,
             ClosedCommentSectionException,
-            ResourceNotFoundException {
+            ResourceNotFoundException,
+            BlockedException {
 
         int currentUserId = userService.getCurrentUser().getId();
         int commenterId = commentService.getById(commentId).getCommenterId();
@@ -86,14 +87,11 @@ public class ForumService {
         return replyService.getById(replyId);
     }
 
-    public void mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) {
+    public void mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
         boolean isBlockedBy = usersToBeMentionIds.stream().anyMatch(mentionedUserId -> userService.isBlockedBy(mentioningUserId, mentionedUserId));
         boolean isYouBeenBlockedBy = usersToBeMentionIds.stream().anyMatch(mentionedUserId -> userService.isYouBeenBlockedBy(mentioningUserId, mentionedUserId));
         if (isBlockedBy || isYouBeenBlockedBy) throw new BlockedException("Cannot mention user! One of the mentioned user blocked you!");
-
-        usersToBeMentionIds.stream()
-                .map(usersToBeMentionId -> mentionService.save(mentioningUserId, usersToBeMentionId, type, typeId))
-                .forEach(notificationService::broadcastMentionNotification);
+        mentionService.saveAll(mentioningUserId, usersToBeMentionIds, type, typeId);
     }
 
     public PostDTO getPostById(int postId) {

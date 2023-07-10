@@ -11,20 +11,31 @@ import com.forum.application.model.Type;
 import com.forum.application.model.User;
 import com.forum.application.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class NotificationMapper {
 
-    private final PostService postService;
-    private final UserService userService;
-    private final CommentService commentService;
-    private final ReplyService replyService;
-    private final MentionService mentionService;
-    private final MentionMapper mentionMapper;
+    private PostService postService;
+    private UserService userService;
+    private CommentService commentService;
+    private ReplyService replyService;
+    private MentionService mentionService;
+    private MentionMapper mentionMapper;
 
-   public NotificationResponse toCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
+    @Lazy
+    public NotificationMapper(PostService postService, UserService userService, CommentService commentService, ReplyService replyService, MentionService mentionService, MentionMapper mentionMapper) {
+        this.postService = postService;
+        this.userService = userService;
+        this.commentService = commentService;
+        this.replyService = replyService;
+        this.mentionService = mentionService;
+        this.mentionMapper = mentionMapper;
+    }
+
+    public NotificationResponse toCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
         final PostDTO postDTO = postService.getById(postId);
         final User commenter = userService.getById(commenterId);
 
