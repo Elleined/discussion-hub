@@ -1,6 +1,6 @@
-import { updateCommentUpvote, updateCommentBody } from './repository/update_repository.js';
-import { deleteComment } from './repository/delete_repository.js';
-import { getCommentBlock } from './repository/get_repository.js';
+import { updateCommentUpvote, updateCommentBody } from '../repository/update_repository.js';
+import { deleteComment } from '../repository/delete_repository.js';
+import { getCommentBlock } from '../repository/get_repository.js';
 
 const generateComment = (commentDto, container) => {
     return new Promise((resolve, reject) => {

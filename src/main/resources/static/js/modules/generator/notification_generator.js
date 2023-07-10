@@ -1,4 +1,4 @@
-import { getNotificationBlock } from './repository/get_repository.js';
+import { getNotificationBlock } from '../repository/get_repository.js';
 
 const generateNotification = (notificationResponse, container) => {
     getNotificationBlock(notificationResponse)
