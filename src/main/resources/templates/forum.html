@@ -57,26 +57,7 @@
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="notificationContainer">
           <!-- The content of this are auto generated in js -->
           <th:block th:each="notification : ${notifications}">
-            <li th:if="${#strings.containsIgnoreCase(notification.type.toString(), 'REPLY')}" th:id="${'notificationReplyItem_' + notification.respondentId + '_' + notification.id}" class="d-inline-flex position-relative ms-2 dropdown-item">
-              <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle"
-                    th:id="${'messageReplyCount_' + notification.respondentId + '_' + notification.id}" th:text="${notification.count + '+'}"></span>
-              <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;"
-                   th:src="${'/img/' + notification.respondentPicture}">
-              <a th:href="${notification.uri}" role="button" >
-                <p class="lead mt-2 ms-2 me-2" th:text="${notification.message}"></p>
-              </a>
-            </li>
-
-            <li th:if="${#strings.containsIgnoreCase(notification.type.toString(), 'COMMENT')}" th:id="${'notificationCommentItem_' + notification.respondentId + '_' + notification.id}" class="d-inline-flex position-relative ms-2 dropdown-item">
-              <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle"
-                    th:id="${'messageCommentCount_' + notification.respondentId + '_' + notification.id}" th:text="${notification.count + '+'}"></span>
-              <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;"
-                   th:src="${'/img/' + notification.respondentPicture}">
-              <a th:href="${notification.uri}" role="button">
-                <p class="lead mt-2 ms-2 me-2" th:text="${notification.message}"></p>
-              </a>
-            </li>
-            <br>
+            <div th:insert="~{fragments/notification-body :: notification-body-fragment}"></div>
           </th:block>
         </ul>
       </div>

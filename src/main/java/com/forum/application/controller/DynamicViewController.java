@@ -2,6 +2,7 @@ package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,19 +20,23 @@ public class DynamicViewController {
 
     @PostMapping("/getCommentBlock")
     public ModelAndView getCommentBlock(@RequestBody CommentDTO commentDto) {
-        ModelAndView modelAndView = new ModelAndView("/fragments/comment-body");
         int currentUserId = userService.getCurrentUser().getId();
-        modelAndView.addObject("currentUserId", currentUserId);
-        modelAndView.addObject("commentDto", commentDto);
-        return modelAndView;
+        return new ModelAndView("/fragments/comment-body")
+                .addObject("currentUserId", currentUserId)
+                .addObject("commentDto", commentDto);
     }
 
     @PostMapping("/getReplyBlock")
     public ModelAndView getReplyBlock(@RequestBody ReplyDTO replyDto) {
-        ModelAndView modelAndView = new ModelAndView("/fragments/reply-body");
         int currentUserId = userService.getCurrentUser().getId();
-        modelAndView.addObject("currentUserId", currentUserId);
-        modelAndView.addObject("replyDto", replyDto);
-        return modelAndView;
+        return new ModelAndView("/fragments/reply-body")
+                .addObject("currentUserId", currentUserId)
+                .addObject("replyDto", replyDto);
+    }
+
+    @PostMapping("/getNotificationBlock")
+    public ModelAndView getNotificationBlock(@RequestBody NotificationResponse notification) {
+        return new ModelAndView("/fragments/notification-body")
+                .addObject("notification", notification);
     }
 }

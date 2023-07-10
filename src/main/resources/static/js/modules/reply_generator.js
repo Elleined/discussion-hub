@@ -3,13 +3,11 @@ import { deleteReply } from './delete_repository.js';
 import { updateReplyBody } from './update_repository.js';
 
 const generateReply = (replyDto, container) => {
-    return new Promise((resolve, reject) => {
         getReplyBlock(replyDto)
             .then(res => {
                 container.append(res);
                 bindReplyHeaderBtn(replyDto.id);
         }).catch(error => alert("Generating reply failed! " + error));
-    });
 };
 
 export let previousReplyBody;

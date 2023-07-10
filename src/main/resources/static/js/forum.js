@@ -4,7 +4,8 @@ import * as GetRepository from './modules/get_repository.js';
 import * as UpdateRepository from './modules/update_repository.js';
 import * as DeleteRepository from './modules/delete_repository.js';
 import generateComment, { previousCommentBody } from './modules/comment_generator.js';
-import generateReply from './modules/reply_generator.js';
+import generateReply, { previousReplyBody } from './modules/reply_generator.js';
+import generateNotification, { updateNotification, updateTotalNotificationCount } from './modules/notification_generator.js';
 
 import {
     mention,
@@ -22,8 +23,6 @@ let commentSubscription;
 
 let globalPostId; // Sets when user clicked the comments
 let globalCommentId; // Sets when user clicked replies
-
-let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 
 $(document).ready(function() {
     $("#postForm").on("submit", function(event) {
@@ -195,7 +194,6 @@ function subscribeToPostComments(postId) {
         // Use for delete
         if (json.status === "INACTIVE") {
             commentContainer.remove();
-            updateCommentCount(json.postId, "-");
             return;
         }
 
@@ -212,7 +210,6 @@ function subscribeToPostComments(postId) {
         generateComment(json, commentSection)
             .then(commentId => bindReplyBtn(commentId))
             .catch(error => alert("Binding replyBtn when generating comment failed! " + error));
-        updateCommentCount(json.postId, "+");
     });
 }
 
@@ -226,8 +223,6 @@ function subscribeToCommentReplies(commentId) {
         // Use for delete
         if (json.status === "INACTIVE") {
             replyContainer.remove();
-            updateReplyCount(json.commentId, "-");
-            updateCommentCount(json.postId, "-");
             return;
         }
 
@@ -242,9 +237,6 @@ function subscribeToCommentReplies(commentId) {
 
         const replySection = $(".modal-body #replySection");
         generateReply(json, replySection);
-
-        updateReplyCount(json.commentId, "+");
-        updateCommentCount(json.postId, "+");
     });
 }
 
@@ -342,6 +334,7 @@ function disconnect() {
 function onConnected() {
     console.log("Web Socket Connected!!!");
     const currentUserId = $("#userId").val();
+    const notificationContainer = $("#notificationContainer");
 
     stompClient.subscribe("/user/notification/comments", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
@@ -353,7 +346,7 @@ function onConnected() {
             updateNotification(json.respondentId, json.id, json.type);
             return;
         }
-        generateNotificationBlock(json);
+        generateNotification(json, notificationContainer);
     });
 
     stompClient.subscribe("/user/notification/replies", function(notificationResponse) {
@@ -366,8 +359,7 @@ function onConnected() {
             updateNotification(json.respondentId, json.id, json.type);
             return;
         }
-
-        generateNotificationBlock(json);
+        generateNotification(json, notificationContainer);
     });
 
     stompClient.subscribe("/user/notification/mentions", function(mentionResponse) {
@@ -375,134 +367,4 @@ function onConnected() {
         updateTotalNotificationCount();
         alert(`Message: ${json.message}`);
     });
-}
-
-function generateNotificationBlock(notificationResponse) {
-    const notificationContainer = $("#notificationContainer");
-
-    const notificationItemId = notificationResponse.type === "REPLY" ? "notificationReplyItem_" + notificationResponse.respondentId + "_" + notificationResponse.id :
-        "notificationCommentItem_" + notificationResponse.respondentId + "_" + notificationResponse.id;
-    const notificationItem = $("<li>")
-        .attr({
-            "class": "d-inline-flex position-relative ms-2 dropdown-item",
-            "id": notificationItemId
-        })
-        .appendTo(notificationContainer);
-
-    const messageCountId = notificationResponse.type === "REPLY" ? "messageReplyCount_" + notificationResponse.respondentId + "_" + notificationResponse.id :
-        "messageCommentCount_" + notificationResponse.respondentId + "_" + notificationResponse.id;
-    const messageCount = $("<span>")
-        .attr({
-            "class": "position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle",
-            "id": messageCountId
-        }).text(1 + "+").appendTo(notificationItem);
-
-    const senderImage = $("<img>").attr({
-        "class": "rounded-4 shadow-4",
-        "src": "/img/" + notificationResponse.respondentPicture,
-        "style": "width: 50px; height: 50px;"
-    }).appendTo(notificationItem);
-
-    const notificationLink = $("<a>")
-        .attr({
-            "href": "#",
-            "role": "button"
-        }).appendTo(notificationItem);
-
-    const notificationMessage = $("<p>")
-        .attr("class", "lead mt-2 ms-2 me-2")
-        .text(notificationResponse.message)
-        .appendTo(notificationLink);
-
-    const br = $("<br>").appendTo(notificationContainer);
-
-    notificationLink.on("click", function(event) {
-        event.preventDefault();
-
-        const totalNotifCount = $("#totalNotifCount");
-        const newTotalNotifCount = parseInt(totalNotifCount.text()) - parseInt(messageCount.text());
-        totalNotifCount.text(newTotalNotifCount + "+");
-
-        messageCount.text(0 + "+");
-
-        notificationItem.remove();
-
-        if (notificationResponse.type === "COMMENT") {
-            const uri = notificationResponse.uri;
-            const associatedBtn = $("a").filter(function() {
-                return $(this).attr("href") === uri;
-            }).last();
-
-            associatedBtn.click();
-
-            $("#commentModal").modal('show');
-            const postId = uri.split("/")[2];
-            getCommentSectionStatus(postId);
-        }
-
-        if (notificationResponse.type === "REPLY") {
-            commentId = notificationResponse.uri.split("/")[3];
-            setReplyModalTitle(commentId);
-
-            subscribeToCommentReplies(commentId);
-
-            const userId = $("#userId").val();
-            SaveRepository.saveTracker(userId, commentId, "REPLY");
-
-            getAllReplies(commentId);
-
-            $("#replyModal").modal('show');
-            postId = notificationResponse.commentURI.split("/")[2];
-            getCommentSectionStatus(postId);
-
-
-        }
-    });
-}
-
-function updateCommentCount(postId, operation) {
-    const totalCommentsSpan = $("span").filter("#totalCommentsOfPost" + postId);
-    let totalComments;
-    if (operation == "+") {
-        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) + 1;
-    } else if (operation == "-") {
-        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) - 1;
-    } else {
-        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext"));
-    }
-    totalCommentsSpan.text("Comments  ·  " + totalComments);
-    totalCommentsSpan.attr("aria-valuetext", totalComments);
-}
-
-function updateReplyCount(commentId, operation) {
-    const replyCountButton = $("button").filter("#replyBtn" + commentId);
-    let replyCount;
-    if (operation == "+") {
-        replyCount = parseInt(replyCountButton.attr("value")) + 1;
-    } else if (operation == "-") {
-        replyCount = parseInt(replyCountButton.attr("value")) - 1;
-    } else {
-        replyCount = replyCountButton.attr("value");
-    }
-    replyCountButton.text("Reply  · " + replyCount);
-    replyCountButton.attr("value", replyCount);
-    console.log("Reply count updated successfully " + replyCount);
-}
-
-function updateNotification(respondentId, id, type) {
-    if (type === "REPLY") {
-        const messageCount = $("#messageReplyCount_" + respondentId + "_" + id);
-        const newMessageCount = parseInt(messageCount.text()) + 1;
-        messageCount.text(newMessageCount + "+");
-        return
-    }
-    const messageCount = $("#messageCommentCount_" + respondentId + "_" + id);
-    const newMessageCount = parseInt(messageCount.text()) + 1;
-    messageCount.text(newMessageCount + "+");
-}
-
-function updateTotalNotificationCount() {
-    const totalNotifCount = $("#totalNotifCount");
-    const newTotalNotifCount = parseInt(totalNotifCount.text()) + 1;
-    totalNotifCount.text(newTotalNotifCount + "+");
 }

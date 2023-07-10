@@ -54,6 +54,15 @@ const getReplyBlock = replyDto => {
     }).promise();
 };
 
+const getNotificationBlock = notificationResponse => {
+    return $.ajax({
+        type: "POST",
+        url: "/forum/api/views/getNotificationBlock",
+        contentType: "application/json",
+        data: JSON.stringify(notificationResponse)
+    }).promise();
+};
+
 const getCommentSectionStatus = postId => {
     const deferred = $.Deferred();
     $.ajax({
@@ -157,7 +166,7 @@ const isYouBeenBlockedBy = (userId, suspectedBlockerId) => {
             alert("Error Occurred! Is you been blocked by failed to fetch!");
         }
     });
-}
+};
 
 export {
     getPostById,
@@ -166,7 +175,8 @@ export {
     getCommentBlock,
     getAllRepliesOf,
     getReplyBlock,
+    getNotificationBlock,
     getCommentSectionStatus,
     getAllUsernames,
-    isUserBlocked,
+    isUserBlocked
 };

@@ -20,7 +20,7 @@ const updateNotification = (respondentId, id, type) => {
 
 const updateTotalNotificationCount = () => {
     const totalNotificationElement = $("#totalNotifCount");
-    const newTotalNotificationValue = totalNotificationElement.attr("aria-valuetext") + 1;
+    const newTotalNotificationValue = parseInt(totalNotificationElement.attr("aria-valuetext")) + 1;
 
     totalNotificationElement.text(newTotalNotificationValue + "+");
     totalNotificationElement.attr("aria-valuetext", newTotalNotificationValue);
