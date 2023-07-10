@@ -1,7 +1,6 @@
 import * as GetRepository from './repository/get_repository.js';
 
-export const mentionedUsersId = new Set();
-export function mention(userId, inputField, mentionList) {
+const mention = (userId, inputField, mentionList) => {
     const userInputValue = inputField.val();
     const lastWord = userInputValue.split(" ").pop();
 
@@ -17,7 +16,10 @@ export function mention(userId, inputField, mentionList) {
         }).catch(error => console.error(error));
     }
     mentionList.empty();
-}
+};
+
+export const mentionedUsersId = new Set();
+export default mention;
 
 function generateMentionList(user, mentionList) {
     const image = `/img/${user.picture}`;

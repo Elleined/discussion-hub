@@ -3,14 +3,10 @@ import * as SaveRepository from './modules/repository/save_repository.js';
 import * as GetRepository from './modules/repository/get_repository.js';
 import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
-import generateComment, { previousCommentBody } from './modules/comment_generator.js';
-import generateReply, { previousReplyBody } from './modules/reply_generator.js';
-import generateNotification, { updateNotification, updateTotalNotificationCount } from './modules/notification_generator.js';
-
-import {
-    mention,
-    mentionedUsersId
-} from './modules/mention_user.js';
+import generateComment, { previousCommentBody } from './modules/generator/comment_generator.js';
+import generateReply, { previousReplyBody } from './modules/generator/reply_generator.js';
+import generateNotification, { updateNotification, updateTotalNotificationCount } from './modules/generator/notification_generator.js';
+import mention, { mentionedUsersId } from './modules/mention_user.js';
 
 const socket = new SockJS("/websocket");
 const stompClient = Stomp.over(socket);
