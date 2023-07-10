@@ -1,6 +1,6 @@
 package com.forum.application.mapper;
 
-import com.forum.application.dto.MentionDTO;
+import com.forum.application.dto.MentionResponse;
 import com.forum.application.model.Mention;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,5 +15,5 @@ public abstract class MentionMapper {
             @Mapping(target = "notificationStatus", source = "mention.notificationStatus"),
             @Mapping(target = "message", ignore = true)
     })
-    public abstract MentionDTO toDTO(Mention mention);
+    public abstract MentionResponse toDTO(Mention mention);
 }

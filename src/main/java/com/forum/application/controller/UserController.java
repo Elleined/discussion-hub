@@ -1,7 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.MentionDTO;
+import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
@@ -118,28 +118,28 @@ public class UserController {
     @PostMapping("/mentionUser/{mentionedUserId}")
     public ResponseEntity<?> mentionUser(@PathVariable("userId") int mentioningUserId,
                                          @PathVariable("mentionedUserId") int mentionedUserId,
-                                         @RequestBody MentionDTO mentionDTO) {
+                                         @RequestBody MentionResponse mentionResponse) {
         if (userService.isBlockedBy(mentioningUserId, mentionedUserId)) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionedUserId + " because you already blocked this user");
         if (userService.isYouBeenBlockedBy(mentioningUserId, mentionedUserId)) return ResponseEntity.badRequest().body("Cannot mention user with id of " + mentionedUserId + " because this user blocked you already!");
 
         int mentionId = userService.mentionUser(
                 mentioningUserId,
                 mentionedUserId,
-                Type.valueOf(mentionDTO.getType()),
-                mentionDTO.getTypeId());
+                Type.valueOf(mentionResponse.getType()),
+                mentionResponse.getTypeId());
 
-        MentionDTO savedMention = userService.getMentionById(mentionId);
+        MentionResponse savedMention = userService.getMentionById(mentionId);
         return ResponseEntity.ok(savedMention);
     }
 
     @GetMapping("/receiveMentions")
-    public List<MentionDTO> getAllReceiveMentions(@PathVariable("userId") int userId) {
+    public List<MentionResponse> getAllReceiveMentions(@PathVariable("userId") int userId) {
         return userService.getAllUnreadReceiveMentions(userId);
     }
 
-    @GetMapping("/getAllByProperty")
-    public List<UserDTO> getAllByProperty(@PathVariable("userId") int userId,
-                                          @RequestParam("name") String name) {
-        return userService.getAllByProperty(userId, name);
+    @GetMapping("/getSuggestedMentions")
+    public List<UserDTO> getSuggestedMentions(@PathVariable("userId") int userId,
+                                              @RequestParam("name") String name) {
+        return userService.getSuggestedMentions(userId, name);
     }
 }

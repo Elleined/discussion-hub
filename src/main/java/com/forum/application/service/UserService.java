@@ -1,6 +1,6 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.MentionDTO;
+import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
@@ -14,7 +14,6 @@ import com.forum.application.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,8 +63,8 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
     }
 
-    public List<UserDTO> getAllByProperty(int userId, String name) {
-        return mentionService.getAllByProperty(userId, name)
+    public List<UserDTO> getSuggestedMentions(int userId, String name) {
+        return mentionService.getSuggestedMentions(userId, name)
                 .stream()
                 .map(userMapper::toDTO)
                 .toList();
@@ -115,12 +114,12 @@ public class UserService {
         return mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
     }
 
-    public MentionDTO getMentionById(int mentionId) {
+    public MentionResponse getMentionById(int mentionId) {
         Mention mention = mentionService.getById(mentionId);
         return mentionMapper.toDTO(mention);
     }
 
-    public List<MentionDTO> getAllUnreadReceiveMentions(int userId) {
+    public List<MentionResponse> getAllUnreadReceiveMentions(int userId) {
         return mentionService.getAllUnreadReceiveMentions(userId);
     }
 }

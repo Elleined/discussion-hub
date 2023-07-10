@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Builder
 @Data
-public class MentionDTO {
+public class MentionResponse {
     int mentioningUserId;
     int mentionedUserId;
     String type;

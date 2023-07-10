@@ -11,6 +11,7 @@ import com.forum.application.model.Type;
 import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,6 +87,10 @@ public class ForumService {
     }
 
     public void mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) {
+        boolean isBlockedBy = usersToBeMentionIds.stream().anyMatch(mentionedUserId -> userService.isBlockedBy(mentioningUserId, mentionedUserId));
+        boolean isYouBeenBlockedBy = usersToBeMentionIds.stream().anyMatch(mentionedUserId -> userService.isYouBeenBlockedBy(mentioningUserId, mentionedUserId));
+        if (isBlockedBy || isYouBeenBlockedBy) throw new BlockedException("Cannot mention user! One of the mentioned user blocked you!");
+
         usersToBeMentionIds.stream()
                 .map(usersToBeMentionId -> mentionService.save(mentioningUserId, usersToBeMentionId, type, typeId))
                 .forEach(notificationService::broadcastMentionNotification);

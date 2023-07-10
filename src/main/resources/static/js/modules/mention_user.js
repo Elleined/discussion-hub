@@ -1,4 +1,4 @@
-import * as GetRepository from './repository/get_repository.js';
+import { getSuggestedMentions } from './repository/get_repository.js';
 
 const mention = (userId, inputField, mentionList) => {
     const userInputValue = inputField.val();
@@ -6,7 +6,7 @@ const mention = (userId, inputField, mentionList) => {
 
     if (lastWord.startsWith("@")) {
       const username = lastWord.substring(1); // Extract the username without the "@"
-      GetRepository.getAllUsernames(userId, username)
+      getSuggestedMentions(userId, username)
         .then(users => {
             console.log("User mentioned: " + username);
             users.forEach(user => {

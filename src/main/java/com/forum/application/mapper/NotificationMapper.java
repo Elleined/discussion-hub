@@ -1,7 +1,7 @@
 package com.forum.application.mapper;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.MentionDTO;
+import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.notification.NotificationResponse;
@@ -61,15 +61,15 @@ public class NotificationMapper {
                 .build();
     }
 
-    public MentionDTO toMentionNotification(int mentionId) {
-        MentionDTO mentionDTO = mentionMapper.toDTO(mentionService.getById(mentionId));
-        User mentioningUser = userService.getById(mentionDTO.getMentioningUserId());
-        String message = switch (Type.valueOf(mentionDTO.getType())) {
-            case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mentionDTO.getTypeId()).getBody() + "\"";
-            case COMMENT -> mentioningUser.getName() + " mention you in a comment " + "\"" + commentService.getById(mentionDTO.getTypeId()).getBody() + "\"";
-            case REPLY -> mentioningUser.getName() + " mention you in a reply " + "\"" + replyService.getById(mentionDTO.getTypeId()).getBody() + "\"";
+    public MentionResponse toMentionNotification(int mentionId) {
+        MentionResponse mentionResponse = mentionMapper.toDTO(mentionService.getById(mentionId));
+        User mentioningUser = userService.getById(mentionResponse.getMentioningUserId());
+        String message = switch (Type.valueOf(mentionResponse.getType())) {
+            case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mentionResponse.getTypeId()).getBody() + "\"";
+            case COMMENT -> mentioningUser.getName() + " mention you in a comment " + "\"" + commentService.getById(mentionResponse.getTypeId()).getBody() + "\"";
+            case REPLY -> mentioningUser.getName() + " mention you in a reply " + "\"" + replyService.getById(mentionResponse.getTypeId()).getBody() + "\"";
         };
-        mentionDTO.setMessage(message);
-        return mentionDTO;
+        mentionResponse.setMessage(message);
+        return mentionResponse;
     }
 }

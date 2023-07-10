@@ -1,6 +1,6 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.MentionDTO;
+import com.forum.application.dto.MentionResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.MentionMapper;
 import com.forum.application.model.*;
@@ -44,7 +44,7 @@ public class MentionService {
         return mention.getId();
     }
 
-    List<User> getAllByProperty(int userId, String name) {
+    List<User> getSuggestedMentions(int userId, String name) {
         return userRepository.fetchAllByProperty(name)
                 .stream()
                 .filter(user -> user.getId() != userId)
@@ -57,7 +57,7 @@ public class MentionService {
         return mentionRepository.findById(mentionId).orElseThrow(() -> new ResourceNotFoundException("Mention with id of " + mentionId + " does not exists!"));
     }
 
-    List<MentionDTO> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
+    List<MentionResponse> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         return user.getReceiveMentions()
                 .stream()

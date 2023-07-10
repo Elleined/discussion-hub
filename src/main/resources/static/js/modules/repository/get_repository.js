@@ -70,11 +70,11 @@ const getCommentSectionStatus = postId => {
     return deferred.promise();
 };
 
-const getAllUsernames = (userId, name) => {
+const getSuggestedMentions = (userId, name) => {
     const deferred = $.Deferred();
     $.ajax({
         type: "GET",
-        url: `/forum/api/users/${userId}/getAllByProperty`,
+        url: `/forum/api/users/${userId}/getSuggestedMentions`,
         data: {
             name: name
         },
@@ -169,6 +169,6 @@ export {
     getReplyBlock,
     getNotificationBlock,
     getCommentSectionStatus,
-    getAllUsernames,
+    getSuggestedMentions,
     isUserBlocked
 };
