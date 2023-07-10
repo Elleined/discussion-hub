@@ -1,6 +1,6 @@
-import { getReplyBlock } from './get_repository.js';
-import { deleteReply } from './delete_repository.js';
-import { updateReplyBody } from './update_repository.js';
+import { getReplyBlock } from './repository/get_repository.js';
+import { deleteReply } from './repository/delete_repository.js';
+import { updateReplyBody } from './repository/update_repository.js';
 
 const generateReply = (replyDto, container) => {
         getReplyBlock(replyDto)

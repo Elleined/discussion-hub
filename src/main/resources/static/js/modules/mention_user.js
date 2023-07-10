@@ -1,4 +1,4 @@
-import * as GetRepository from './get_repository.js';
+import * as GetRepository from './repository/get_repository.js';
 
 export const mentionedUsersId = new Set();
 export function mention(userId, inputField, mentionList) {
