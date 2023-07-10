@@ -4,6 +4,7 @@ import * as GetRepository from './modules/get_repository.js';
 import * as UpdateRepository from './modules/update_repository.js';
 import * as DeleteRepository from './modules/delete_repository.js';
 import generateComment, { previousCommentBody } from './modules/comment_generator.js';
+import generateReply from './modules/reply_generator.js';
 
 import {
     mention,
@@ -19,8 +20,8 @@ stompClient.connect({},
 let replySubscription;
 let commentSubscription;
 
-let postId; // Sets when user clicked the comments
-let commentId; // Sets when user clicked replies
+let globalPostId; // Sets when user clicked the comments
+let globalCommentId; // Sets when user clicked replies
 
 let previousReplyBody; // Sets when user click the save button after clicking the reply edit
 
@@ -84,8 +85,9 @@ $(document).ready(function() {
     });
 
     $(".card-body #commentBtn").on("click", function(event) {
-        postId = $(this).attr("href").split("/")[2];
+        globalPostId = $(this).attr("href").split("/")[2];
 
+        const postId = globalPostId;
         GetRepository.getPostById(postId)
             .then(res => $("#commentModalTitle").text("Comments in " + res.authorName + " post"))
             .catch(error => alert(error));
@@ -117,9 +119,9 @@ $(document).ready(function() {
         const body = $("#commentBody").val();
         if ($.trim(body) === '') return;
         if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
-            SaveRepository.saveComment(body, postId, mentionedUsersId);
+            SaveRepository.saveComment(body, globalPostId, mentionedUsersId);
         } else {
-            SaveRepository.saveComment(body, postId);
+            SaveRepository.saveComment(body, globalPostId);
         }
 
         $("#commentBody").val("");
@@ -139,9 +141,9 @@ $(document).ready(function() {
         if ($.trim(body) === '') return;
 
         if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
-            SaveRepository.saveReply(body, commentId, mentionedUsersId);
+            SaveRepository.saveReply(body, globalCommentId, mentionedUsersId);
         } else {
-            SaveRepository.saveReply(body, commentId);
+            SaveRepository.saveReply(body, globalCommentId);
         }
 
         $("#replyBody").val("");
@@ -188,7 +190,7 @@ function subscribeToPostComments(postId) {
     const userId = $("#userId").val();
     commentSubscription = stompClient.subscribe(`/discussion/posts/${postId}/comments`, function(commentDto) {
         const json = JSON.parse(commentDto.body);
-        const commentContainer = $("div").filter("#comment_" + json.id);
+        const commentContainer = $("div").filter("#commentContainer" + json.id);
 
         // Use for delete
         if (json.status === "INACTIVE") {
@@ -207,7 +209,9 @@ function subscribeToPostComments(postId) {
         }
 
         const commentSection = $(".modal-body #commentSection");
-        generateComment(json, commentSection);
+        generateComment(json, commentSection)
+            .then(commentId => bindReplyBtn(commentId))
+            .catch(error => alert("Binding replyBtn when generating comment failed! " + error));
         updateCommentCount(json.postId, "+");
     });
 }
@@ -217,7 +221,7 @@ function subscribeToCommentReplies(commentId) {
     const userId = $("#userId").val();
     replySubscription = stompClient.subscribe(`/discussion/posts/comments/${commentId}/replies`, function(replyDto) {
         const json = JSON.parse(replyDto.body);
-        const replyContainer = $("div").filter("#reply_" + json.id);
+        const replyContainer = $("div").filter("#replyContainer" + json.id);
 
         // Use for delete
         if (json.status === "INACTIVE") {
@@ -236,7 +240,9 @@ function subscribeToCommentReplies(commentId) {
             return;
         }
 
-        generateReplyBlock(json);
+        const replySection = $(".modal-body #replySection");
+        generateReply(json, replySection);
+
         updateReplyCount(json.commentId, "+");
         updateCommentCount(json.postId, "+");
     });
@@ -258,8 +264,9 @@ async function getAllCommentsOf(postId) {
 
         const commentDTOs = await GetRepository.getAllCommentsOf(postId);
         $.each(commentDTOs, function(index, commentDto) {
-            generateComment(commentDto, commentSection);
-            bindReplyBtn(commentId);
+            generateComment(commentDto, commentSection)
+                .then(commentId => bindReplyBtn(commentId))
+                .catch(error => alert("Binding replyBtn when generating comment failed! " + error));
         });
     } catch (error) {
         alert("Getting all comments failed! " + error);
@@ -268,6 +275,7 @@ async function getAllCommentsOf(postId) {
 
 function bindReplyBtn(commentId) {
     $("#replyBtn" + commentId).on("click", function(event) {
+        globalCommentId = commentId;
         setReplyModalTitle(commentId);
 
         subscribeToCommentReplies(commentId);
@@ -276,18 +284,17 @@ function bindReplyBtn(commentId) {
         SaveRepository.saveTracker(userId, commentId, "REPLY");
 
         getAllReplies(commentId);
-
-
     });
 }
 
 async function getAllReplies(commentId) {
     try {
-        $(".modal-body #replySection").empty(); // Removes the recent comments in the modal
+        const replySection = $(".modal-body #replySection");
+        replySection.empty();
 
         const replyDTOs = await GetRepository.getAllRepliesOf(commentId);
         $.each(replyDTOs, function(index, replyDto) {
-            generateReplyBlock(replyDto);
+            generateReply(replyDto, replySection);
         });
     } catch (error) {
         alert("Getting all replies failed! " + error);
@@ -322,18 +329,6 @@ async function updatePostBody(href, newPostBody) {
         alert("Updating the post body failed! " + error);
     }
 }
-
-async function updateReplyBody(replyId, newReplyBody) {
-    try {
-        await UpdateRepository.updateReplyBody(replyId, newReplyBody);
-
-        $("#replyBody" + replyId).attr("contenteditable", "false");
-        $("#editReplySaveBtn" + replyId).hide();
-    } catch (error) {
-        alert("Updating reply body failed! " + error);
-    }
-}
-
 
 function disconnect() {
     if (stompClient) {
@@ -380,193 +375,6 @@ function onConnected() {
         updateTotalNotificationCount();
         alert(`Message: ${json.message}`);
     });
-}
-
-function updateNotification(respondentId, id, type) {
-    if (type === "REPLY") {
-        const messageCount = $("#messageReplyCount_" + respondentId + "_" + id);
-        const newMessageCount = parseInt(messageCount.text()) + 1;
-        messageCount.text(newMessageCount + "+");
-        return
-    }
-    const messageCount = $("#messageCommentCount_" + respondentId + "_" + id);
-    const newMessageCount = parseInt(messageCount.text()) + 1;
-    messageCount.text(newMessageCount + "+");
-}
-
-function updateTotalNotificationCount() {
-    const totalNotifCount = $("#totalNotifCount");
-    const newTotalNotifCount = parseInt(totalNotifCount.text()) + 1;
-    totalNotifCount.text(newTotalNotifCount + "+");
-}
-
-// Don't bother reading this code
-// The actual html structure of this the comment-body is in /templates/fragments/comment-body
-function generateReplyBlock(replyDto) {
-    const replySection = $(".modal-body #replySection");
-    const replyContainer = $("<div>")
-        .attr({
-            "class": "replyContainer",
-            "id": "reply_" + replyDto.id
-        })
-        .appendTo(replySection);
-
-    const row1 = $("<div>")
-        .attr("class", "row mb-2")
-        .appendTo(replyContainer);
-
-    generateReplyHeader(row1, replyDto);
-
-    const row2 = $("<div>")
-        .attr("class", "row")
-        .appendTo(replyContainer);
-
-    const row2Col1 = $("<div>")
-        .attr("class", "col-md-10")
-        .appendTo(row2);
-
-    const replyBody = $("<p>")
-        .attr({
-            "class": "mt-2",
-            "id": "replyBody" + replyDto.id
-        })
-        .text(replyDto.body)
-        .appendTo(row2Col1);
-
-    const row2Col2 = $("<div>")
-        .attr("class", "col-md-2")
-        .appendTo(row2);
-
-    const userId = $("#userId").val();
-    if (replyDto.replierId == userId) {
-        const editReplySaveBtn = $("<button>")
-            .attr({
-                "type": "button",
-                "class": "btn btn-primary",
-                "href": "#",
-                "id": "editReplySaveBtn" + replyDto.id
-            }).text("Save").appendTo(row2Col2);
-        editReplySaveBtn.hide();
-    }
-
-    const hr = $("<hr>").appendTo(replyContainer);
-}
-
-function generateReplyHeader(container, dto) {
-    const parentContainer = $("<div>")
-        .attr("class", "container")
-        .appendTo(container);
-
-    const row1 = $("<div>")
-        .attr("class", "row")
-        .appendTo(parentContainer);
-
-    const row1Col1 = $("<div>")
-        .attr("class", "col-md-6")
-        .appendTo(row1);
-
-    const commenterImage = $("<img>").attr({
-        "class": "rounded-circle shadow-4-strong",
-        "height": "50px",
-        "width": "50px",
-        "src": "/img/" + dto.replierPicture
-    }).appendTo(row1Col1);
-
-    const commenterName = $("<span>")
-        .attr("class", "md5 mb-5")
-        .text(dto.replierName)
-        .appendTo(row1Col1);
-
-    const userId = $("#userId").val();
-    if (dto.replierId == userId) {
-        const row1Col2 = $("<div>")
-            .attr("class", "col-md-6")
-            .appendTo(row1);
-
-        const row1Col1Container = $("<div>")
-            .attr("class", "d-grid gap-2 d-md-flex justify-content-md-end")
-            .appendTo(row1Col2);
-
-        const deleteReplyBtn = $("<a>")
-            .attr({
-                "href": `/forum/api/posts/comments/${dto.commentId}/replies/${dto.id}`,
-                "role": "button",
-                "class": "btn btn-danger",
-                "id": "replyDeleteBtn" + dto.id
-            })
-            .text("Delete")
-            .appendTo(row1Col1Container);
-
-        const deleteIcon = $("<i>")
-            .attr("class", "fas fa-trash")
-            .appendTo(deleteReplyBtn);
-
-        const editReplyBtn = $("<a>")
-            .attr({
-                "href": "#",
-                "role": "button",
-                "class": "btn btn-primary",
-                "id": "editReplyBtn" + dto.id
-            })
-            .text("Edit")
-            .appendTo(row1Col1Container);
-
-        const editReplyIcon = $("<i>")
-            .attr("class", "fas fa-pencil")
-            .appendTo(editReplyBtn);
-
-        deleteReplyBtn.on("click", function(event) {
-            event.preventDefault();
-
-            const deleteReplyURI = $(this).attr("href");
-            DeleteRepository.deleteReply(deleteReplyURI);
-        });
-
-        editReplyBtn.on("click", function(event) {
-            event.preventDefault();
-            const editReplySaveBtn = $("#editReplySaveBtn" + dto.id);
-            const replyBody = $("#replyBody" + dto.id);
-            previousReplyBody = replyBody.text();
-
-            replyBody.attr("contenteditable", "true");
-            replyBody.focus();
-            editReplySaveBtn.show();
-
-            // Adding the editReplySaveBtn click listener only when user clicks the editReplyBtn
-            editReplySaveBtn.on("click", function() {
-                updateReplyBody(dto.id, replyBody.text());
-            });
-        });
-    }
-}
-
-function updateCommentCount(postId, operation) {
-    const totalCommentsSpan = $("span").filter("#totalCommentsOfPost" + postId);
-    let totalComments;
-    if (operation == "+") {
-        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) + 1;
-    } else if (operation == "-") {
-        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) - 1;
-    } else {
-        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext"));
-    }
-    totalCommentsSpan.text("Comments  ·  " + totalComments);
-    totalCommentsSpan.attr("aria-valuetext", totalComments);
-}
-
-function updateReplyCount(commentId, operation) {
-    const replyCountButton = $("button").filter("#replyBtn" + commentId);
-    let replyCount;
-    if (operation == "+") {
-        replyCount = parseInt(replyCountButton.attr("value")) + 1;
-    } else if (operation == "-") {
-        replyCount = parseInt(replyCountButton.attr("value")) - 1;
-    } else {
-        replyCount = replyCountButton.attr("value");
-    }
-    replyCountButton.text("Reply  · " + replyCount);
-    replyCountButton.attr("value", replyCount);
-    console.log("Reply count updated successfully " + replyCount);
 }
 
 function generateNotificationBlock(notificationResponse) {
@@ -650,4 +458,51 @@ function generateNotificationBlock(notificationResponse) {
 
         }
     });
+}
+
+function updateCommentCount(postId, operation) {
+    const totalCommentsSpan = $("span").filter("#totalCommentsOfPost" + postId);
+    let totalComments;
+    if (operation == "+") {
+        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) + 1;
+    } else if (operation == "-") {
+        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext")) - 1;
+    } else {
+        totalComments = parseInt(totalCommentsSpan.attr("aria-valuetext"));
+    }
+    totalCommentsSpan.text("Comments  ·  " + totalComments);
+    totalCommentsSpan.attr("aria-valuetext", totalComments);
+}
+
+function updateReplyCount(commentId, operation) {
+    const replyCountButton = $("button").filter("#replyBtn" + commentId);
+    let replyCount;
+    if (operation == "+") {
+        replyCount = parseInt(replyCountButton.attr("value")) + 1;
+    } else if (operation == "-") {
+        replyCount = parseInt(replyCountButton.attr("value")) - 1;
+    } else {
+        replyCount = replyCountButton.attr("value");
+    }
+    replyCountButton.text("Reply  · " + replyCount);
+    replyCountButton.attr("value", replyCount);
+    console.log("Reply count updated successfully " + replyCount);
+}
+
+function updateNotification(respondentId, id, type) {
+    if (type === "REPLY") {
+        const messageCount = $("#messageReplyCount_" + respondentId + "_" + id);
+        const newMessageCount = parseInt(messageCount.text()) + 1;
+        messageCount.text(newMessageCount + "+");
+        return
+    }
+    const messageCount = $("#messageCommentCount_" + respondentId + "_" + id);
+    const newMessageCount = parseInt(messageCount.text()) + 1;
+    messageCount.text(newMessageCount + "+");
+}
+
+function updateTotalNotificationCount() {
+    const totalNotifCount = $("#totalNotifCount");
+    const newTotalNotifCount = parseInt(totalNotifCount.text()) + 1;
+    totalNotifCount.text(newTotalNotifCount + "+");
 }

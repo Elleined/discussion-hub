@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.dto.ReplyDTO;
 import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,15 @@ public class DynamicViewController {
         int currentUserId = userService.getCurrentUser().getId();
         modelAndView.addObject("currentUserId", currentUserId);
         modelAndView.addObject("commentDto", commentDto);
+        return modelAndView;
+    }
+
+    @PostMapping("/getReplyBlock")
+    public ModelAndView getReplyBlock(@RequestBody ReplyDTO replyDto) {
+        ModelAndView modelAndView = new ModelAndView("/fragments/reply-body");
+        int currentUserId = userService.getCurrentUser().getId();
+        modelAndView.addObject("currentUserId", currentUserId);
+        modelAndView.addObject("replyDto", replyDto);
         return modelAndView;
     }
 }

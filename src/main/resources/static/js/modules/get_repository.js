@@ -45,6 +45,15 @@ const getAllRepliesOf = commentId => {
     return deferred.promise();
 };
 
+const getReplyBlock = replyDto => {
+    return $.ajax({
+        type: "POST",
+        url: "/forum/api/views/getReplyBlock",
+        contentType: "application/json",
+        data: JSON.stringify(replyDto)
+    }).promise();
+};
+
 const getCommentSectionStatus = postId => {
     const deferred = $.Deferred();
     $.ajax({
@@ -153,9 +162,10 @@ const isYouBeenBlockedBy = (userId, suspectedBlockerId) => {
 export {
     getPostById,
     getCommentById,
-    getCommentBlock,
     getAllCommentsOf,
+    getCommentBlock,
     getAllRepliesOf,
+    getReplyBlock,
     getCommentSectionStatus,
     getAllUsernames,
     isUserBlocked,

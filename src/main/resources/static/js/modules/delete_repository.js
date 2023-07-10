@@ -25,10 +25,10 @@ const deleteComment = commentId => {
     });
 };
 
-const deleteReply = deleteReplyURI => {
+const deleteReply = replyId => {
     $.ajax({
         type: "DELETE",
-        url: deleteReplyURI,
+        url: `/forum/api/posts/comments/0/replies/${replyId}`,
         success: function(response) {
             console.log("Reply deleted successfully");
         },

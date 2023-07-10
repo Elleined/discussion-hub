@@ -3,13 +3,18 @@ import { deleteComment } from './delete_repository.js';
 import { getCommentBlock } from './get_repository.js';
 
 const generateComment = (commentDto, container) => {
-    getCommentBlock(commentDto)
-        .then(res => {
-            container.append(res);
-            bindUpvoteAndDownVoteBtn(commentDto.id);
-            bindCommentHeaderBtn(commentDto.id);
-        })
-        .catch(error => alert("Generating the comment failed! " + error));
+    return new Promise((resolve, reject) => {
+        getCommentBlock(commentDto)
+            .then(res => {
+                container.append(res);
+                bindUpvoteAndDownVoteBtn(commentDto.id);
+                bindCommentHeaderBtn(commentDto.id);
+                resolve(commentDto.id);
+            }).catch(error => {
+                alert("Generating the comment failed! " + error);
+                reject(error);
+            });
+    });
 };
 
 export let previousCommentBody;

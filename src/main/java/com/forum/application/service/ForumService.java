@@ -78,7 +78,6 @@ public class ForumService {
         if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
 
         int replyId = replyService.save(currentUserId, commentId, body);
-
         wsService.broadcastReply(replyId);
         notificationService.broadcastReplyNotification(commentId, currentUserId);
 
