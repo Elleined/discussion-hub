@@ -1,15 +1,18 @@
 package com.forum.application.mapper;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.dto.notification.ReplyNotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
+import com.forum.application.model.Mention;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
-import com.forum.application.service.*;
+import com.forum.application.service.CommentService;
+import com.forum.application.service.PostService;
+import com.forum.application.service.ReplyService;
+import com.forum.application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -21,17 +24,13 @@ public class NotificationMapper {
     private final UserService userService;
     private final CommentService commentService;
     private final ReplyService replyService;
-    private final MentionService mentionService;
-    private final MentionMapper mentionMapper;
 
     @Autowired @Lazy
-    public NotificationMapper(PostService postService, UserService userService, CommentService commentService, ReplyService replyService, MentionService mentionService, MentionMapper mentionMapper) {
+    public NotificationMapper(PostService postService, UserService userService, CommentService commentService, ReplyService replyService) {
         this.postService = postService;
         this.userService = userService;
         this.commentService = commentService;
         this.replyService = replyService;
-        this.mentionService = mentionService;
-        this.mentionMapper = mentionMapper;
     }
 
     public NotificationResponse toCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
@@ -71,15 +70,17 @@ public class NotificationMapper {
                 .build();
     }
 
-    public MentionResponse toMentionNotification(int mentionId) {
-        MentionResponse mentionResponse = mentionMapper.toDTO(mentionService.getById(mentionId));
-        User mentioningUser = userService.getById(mentionResponse.getMentioningUserId());
-        String message = switch (Type.valueOf(mentionResponse.getType())) {
-            case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mentionResponse.getTypeId()).getBody() + "\"";
-            case COMMENT -> mentioningUser.getName() + " mention you in a comment " + "\"" + commentService.getById(mentionResponse.getTypeId()).getBody() + "\"";
-            case REPLY -> mentioningUser.getName() + " mention you in a reply " + "\"" + replyService.getById(mentionResponse.getTypeId()).getBody() + "\"";
+    public NotificationResponse toMentionNotification(Mention mention) {
+        User mentioningUser = mention.getMentioningUser();
+        String message = switch (mention.getType()) {
+            case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mention.getTypeId()).getBody() + "\"";
+            case COMMENT -> mentioningUser.getName() + " mention you in a comment " + "\"" + commentService.getById(mention.getTypeId()).getBody() + "\"";
+            case REPLY -> mentioningUser.getName() + " mention you in a reply " + "\"" + replyService.getById(mention.getTypeId()).getBody() + "\"";
         };
-        mentionResponse.setMessage(message);
-        return mentionResponse;
+        return NotificationResponse.builder()
+                .id(mention.getId())
+                .message(message)
+                .respondentPicture(mentioningUser.getPicture())
+                .build();
     }
 }

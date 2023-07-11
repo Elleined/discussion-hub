@@ -267,8 +267,8 @@ function onConnected() {
         generateNotification(json, notificationContainer);
     });
 
-    stompClient.subscribe("/user/notification/mentions", function(mentionResponse) {
-        const json = JSON.parse(mentionResponse.body);
+    stompClient.subscribe("/user/notification/mentions", function(notificationResponse) {
+        const json = JSON.parse(notificationResponse.body);
         updateTotalNotificationCount();
         alert(`Message: ${json.message}`);
     });

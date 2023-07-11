@@ -1,12 +1,13 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.UserDTO;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.exception.BlockedException;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.mapper.UserMapper;
+import com.forum.application.model.Mention;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
@@ -110,25 +111,25 @@ public class UserService {
         return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
     }
 
-    public MentionResponse mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws BlockedException {
+    public Integer mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws BlockedException {
         boolean isBlockedBy = isBlockedBy(mentioningUserId, mentionedUserId);
         boolean isYouBeenBlockedBy = isYouBeenBlockedBy(mentioningUserId, mentionedUserId);
         if (isBlockedBy || isYouBeenBlockedBy) throw new BlockedException("Cannot mention user! One of the mentioned user blocked you!");
-        int mentionId = mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
-        return this.getMentionById(mentionId);
+        return mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
     }
 
-    public List<MentionResponse> mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
+    public List<Integer> mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
         return usersToBeMentionIds.stream()
                 .map(mentionedUserId -> this.mentionUser(mentioningUserId, mentionedUserId, type, typeId))
                 .toList();
     }
 
-    public MentionResponse getMentionById(int mentionId) {
-        return notificationMapper.toMentionNotification(mentionId);
+    public NotificationResponse getMentionById(int mentionId) {
+        Mention mention = mentionService.getById(mentionId);
+        return notificationMapper.toMentionNotification(mention);
     }
 
-    public List<MentionResponse> getAllUnreadReceiveMentions(int userId) {
+    public List<NotificationResponse> getAllUnreadReceiveMentions(int userId) {
         return mentionService.getAllUnreadReceiveMentions(userId);
     }
 }

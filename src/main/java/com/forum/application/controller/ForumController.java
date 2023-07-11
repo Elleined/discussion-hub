@@ -1,6 +1,5 @@
 package com.forum.application.controller;
 
-import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.service.ForumService;
@@ -37,7 +36,7 @@ public class ForumController {
         List<PostDTO> posts = forumService.getAllPost();
         Set<NotificationResponse> notifications = forumService.getAllNotification(currentUserId);
         long totalNotifCount = forumService.getAllUnreadNotificationCount(currentUserId);
-        List<MentionResponse> mentions = userService.getAllUnreadReceiveMentions(currentUserId);
+        List<NotificationResponse> mentions = userService.getAllUnreadReceiveMentions(currentUserId);
 
         model.addAttribute("userId", currentUserId);
         model.addAttribute("posts", posts);

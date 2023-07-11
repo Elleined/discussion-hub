@@ -1,6 +1,6 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.MentionResponse;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.Mention;
@@ -60,12 +60,11 @@ public class MentionService {
         return mentionRepository.findById(mentionId).orElseThrow(() -> new ResourceNotFoundException("Mention with id of " + mentionId + " does not exists!"));
     }
 
-    List<MentionResponse> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
+    List<NotificationResponse> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         return user.getReceiveMentions()
                 .stream()
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
-                .map(Mention::getId)
                 .map(notificationMapper::toMentionNotification)
                 .toList();
     }

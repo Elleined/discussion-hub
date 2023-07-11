@@ -1,9 +1,9 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
+import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.service.CommentService;
@@ -116,16 +116,18 @@ public class UserController {
     }
 
     @PostMapping("/mentionUser/{mentionedUserId}")
-    public ResponseEntity<MentionResponse> mentionUser(@PathVariable("userId") int mentioningUserId,
-                                         @PathVariable("mentionedUserId") int mentionedUserId,
-                                         @RequestBody MentionResponse mentionResponse) {
+    public ResponseEntity<NotificationResponse> mentionUser(@PathVariable("userId") int mentioningUserId,
+                                                            @PathVariable("mentionedUserId") int mentionedUserId,
+                                                            @RequestParam("type") Type type,
+                                                            @RequestParam("typeId") int typeId) {
 
-        MentionResponse response = userService.mentionUser(mentioningUserId, mentionedUserId, Type.valueOf(mentionResponse.getType()), mentionResponse.getTypeId());
+        int mentionId = userService.mentionUser(mentioningUserId, mentionedUserId, type, typeId);
+        var response = userService.getMentionById(mentionId);
         return ResponseEntity.ok( response );
     }
 
     @GetMapping("/receiveMentions")
-    public List<MentionResponse> getAllReceiveMentions(@PathVariable("userId") int userId) {
+    public List<NotificationResponse> getAllReceiveMentions(@PathVariable("userId") int userId) {
         return userService.getAllUnreadReceiveMentions(userId);
     }
 
