@@ -2,7 +2,6 @@ package com.forum.application.mapper;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
-import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.dto.notification.ReplyNotificationResponse;
@@ -10,10 +9,7 @@ import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Mention;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;
-import com.forum.application.service.CommentService;
-import com.forum.application.service.PostService;
-import com.forum.application.service.ReplyService;
-import com.forum.application.service.UserService;
+import com.forum.application.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -78,6 +74,8 @@ public class NotificationMapper {
                 .id(mention.getId())
                 .message(message)
                 .respondentPicture(mentioningUser.getPicture())
+                .formattedDate(Formatter.formatDate(mention.getCreatedAt()))
+                .formattedTime(Formatter.formatTime(mention.getCreatedAt()))
                 .build();
     }
 

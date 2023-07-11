@@ -15,4 +15,6 @@ public class NotificationResponse {
     private Type type;
     private boolean isModalOpen;
     private int count;
+    private String formattedDate;
+    private String formattedTime;
 }

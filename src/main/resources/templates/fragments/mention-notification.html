@@ -1,10 +1,15 @@
 <div th:fragment="mention-notification-fragment">
   <li class="d-inline-flex position-relative ms-2 dropdown-item">
-    <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;"
-         th:src="${'/img/' + mention.respondentPicture}">
-    <a role="button">
-      <p class="lead mt-2 ms-2 me-2" th:text="${mention.message}"></p>
-    </a>
+    <div class="d-flex align-items-center">
+      <div class="flex-shrink-0">
+        <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;"
+             th:src="${'/img/' + mention.respondentPicture}">
+      </div>
+      <div class="flex-grow-1 ms-3">
+        <p class="lead mt-2 ms-2 me-2" th:text="${mention.message}"></p>
+        <span class="ms-2" th:text="${' on ' + mention.formattedTime + ' on ' + mention.formattedDate}"></span>
+      </div>
+    </div>
   </li>
-  <br>
+  <hr>
 </div>
