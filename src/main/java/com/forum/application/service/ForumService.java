@@ -1,11 +1,10 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.dto.NotificationResponse;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
-import com.forum.application.dto.NotificationResponse;
 import com.forum.application.exception.*;
-import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;
 import com.forum.application.model.Type;
 import com.forum.application.validator.Validator;
@@ -128,12 +127,14 @@ public class ForumService {
     }
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
-        commentService.updateAllCommentNotificationStatusByPostId(postId, NotificationStatus.READ);
+        commentService.readAllComments(postId);
+        userService.readAllCommentsMention(postId);
         return commentService.getAllCommentsOf(postId);
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
-        replyService.updateAllRepliesByCommentId(commentId, NotificationStatus.READ);
+        replyService.readAllReplies(commentId);
+        userService.readAllRepliesMention(commentId);
         return replyService.getAllRepliesOf(commentId);
     }
 

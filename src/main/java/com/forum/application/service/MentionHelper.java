@@ -10,6 +10,8 @@ import com.forum.application.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MentionHelper {
@@ -26,7 +28,7 @@ public class MentionHelper {
 
     public int getParentId(Type type, int typeId) {
         return switch (type) {
-            case POST -> 0; // 
+            case POST -> 0; //
             case COMMENT -> commentRepository.findById(typeId).orElseThrow().getPost().getId();
             case REPLY -> replyRepository.findById(typeId).orElseThrow().getComment().getId();
         };

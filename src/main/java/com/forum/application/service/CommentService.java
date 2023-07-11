@@ -130,14 +130,14 @@ public class CommentService {
         log.debug("Comment with id of {} updated with the new body of {}", commentId, newBody);
     }
 
-    private void updateNotificationStatus(int commentId, NotificationStatus newStatus) throws ResourceNotFoundException {
+    private void readComment(int commentId) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        comment.setNotificationStatus(newStatus);
+        comment.setNotificationStatus(NotificationStatus.READ);
         commentRepository.save(comment);
-        log.debug("Comment with id of {} notification status updated to {}", commentId, newStatus);
+        log.debug("Comment with id of {} notification status updated to {}", commentId, NotificationStatus.READ);
     }
 
-    public void updateAllCommentNotificationStatusByPostId(int postId, NotificationStatus newStatus) throws ResourceNotFoundException, NoLoggedInUserException {
+    public void readAllComments(int postId) throws ResourceNotFoundException, NoLoggedInUserException {
         int currentUserId = userService.getCurrentUser().getId();
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
@@ -152,7 +152,7 @@ public class CommentService {
                 .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .map(Comment::getId)
-                .forEach(commentId -> this.updateNotificationStatus(commentId, newStatus));
+                .forEach(this::readComment);
     }
 
     boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {

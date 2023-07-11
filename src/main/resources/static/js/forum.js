@@ -269,10 +269,8 @@ function onConnected() {
 
     stompClient.subscribe("/user/notification/mentions", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
-        if (json.modalOpen) {
-            alert("REUTRN BECUASE REECEIER MODAL OPEN");
-            return;
-        }
+        if (json.modalOpen) return;
+
         updateTotalNotificationCount();
         generateMention(json, notificationContainer);
     });

@@ -138,4 +138,12 @@ public class UserService {
                 .map(notificationMapper::toMentionNotification)
                 .toList();
     }
+
+    public void readAllCommentsMention(int postId) {
+
+    }
+
+    public void readAllRepliesMention(int commentId) {
+
+    }
 }

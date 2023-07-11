@@ -17,10 +17,10 @@ import java.util.List;
 @Transactional
 public class MentionService {
     private final UserRepository userRepository;
-
-    private final MentionHelper mentionHelper;
-    private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
+
+    private final MentionRepository mentionRepository;
+    private final MentionHelper mentionHelper;
 
     int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws ResourceNotFoundException {
         User mentioningUser = userRepository.findById(mentioningUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentioningUserId +  " does not exists"));
@@ -53,5 +53,14 @@ public class MentionService {
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
                 .filter(mention -> !mentionHelper.isDeleted(mention.getType(), mention.getTypeId()))
                 .toList();
+    }
+
+    List<Mention> getAllMentionByType(Type type, int typeId) {
+
+        return switch (type) {
+            case POST -> null;
+            case COMMENT -> null;
+            case REPLY -> null;
+        };
     }
 }
