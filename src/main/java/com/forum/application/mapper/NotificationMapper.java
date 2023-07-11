@@ -2,6 +2,7 @@ package com.forum.application.mapper;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
+import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.notification.CommentNotificationResponse;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.dto.notification.ReplyNotificationResponse;
@@ -70,17 +71,21 @@ public class NotificationMapper {
                 .build();
     }
 
-    public NotificationResponse toMentionNotification(Mention mention) {
+    public NotificationResponse toMentionNotification(Mention mention) throws ResourceNotFoundException {
         User mentioningUser = mention.getMentioningUser();
-        String message = switch (mention.getType()) {
-            case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mention.getTypeId()).getBody() + "\"";
-            case COMMENT -> mentioningUser.getName() + " mention you in a comment " + "\"" + commentService.getById(mention.getTypeId()).getBody() + "\"";
-            case REPLY -> mentioningUser.getName() + " mention you in a reply " + "\"" + replyService.getById(mention.getTypeId()).getBody() + "\"";
-        };
+        String message = getMessage(mentioningUser, mention.getType(), mention.getTypeId());
         return NotificationResponse.builder()
                 .id(mention.getId())
                 .message(message)
                 .respondentPicture(mentioningUser.getPicture())
                 .build();
+    }
+
+    private String getMessage(User mentioningUser, Type type, int typeId) throws ResourceNotFoundException {
+        return switch (type) {
+            case POST -> mentioningUser.getName() + " mentioned you in his/her post: " + "\"" + postService.getById(typeId).getBody() + "\"";
+            case COMMENT -> mentioningUser.getName() + " mentioned you in his/her comment: " + "\"" + commentService.getById(typeId).getBody() + "\"";
+            case REPLY -> mentioningUser.getName() + " mentioned you in his/her reply: " + "\"" + replyService.getById(typeId).getBody() + "\"";
+        };
     }
 }
