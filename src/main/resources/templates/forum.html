@@ -60,7 +60,7 @@
             <div th:insert="~{fragments/notification-body :: notification-body-fragment}"></div>
           </th:block>
           <th:block th:each="mention : ${mentions}">
-            <div th:insert="~{fragments/notification-body :: mention-notification-fragment}"></div>
+            <div th:insert="~{fragments/mention-notification :: mention-notification-fragment}"></div>
           </th:block>
         </ul>
       </div>

@@ -9,5 +9,11 @@ import org.springframework.data.repository.query.Param;
 public interface MentionRepository extends JpaRepository<Mention, Integer> {
 
     @Query("SELECT p.status FROM Post p WHERE p.id = :typeId")
-    Status isPostDeleted(@Param("typeId") int typeId);
+    Status getPostStatus(@Param("typeId") int typeId);
+
+    @Query("SELECT c.status FROM Comment c WHERE c.id = :typeId")
+    Status getCommentStatus(@Param("typeId") int typeId);
+
+    @Query("SELECT r.status FROM Reply r WHERE r.id = :typeId")
+    Status getReplyStatus(@Param("typeId") int typeId);
 }

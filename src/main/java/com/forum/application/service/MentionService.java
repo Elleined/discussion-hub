@@ -1,10 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.Mention;
-import com.forum.application.model.NotificationStatus;
-import com.forum.application.model.Type;
-import com.forum.application.model.User;
+import com.forum.application.model.*;
 import com.forum.application.repository.MentionRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +59,15 @@ public class MentionService {
         return user.getReceiveMentions()
                 .stream()
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
+                .filter(mention -> !isDeleted(mention.getType(), mention.getTypeId()))
                 .toList();
+    }
+
+    public boolean isDeleted(Type type, int typeId) {
+        return switch (type) {
+            case POST -> mentionRepository.getPostStatus(typeId) == Status.INACTIVE;
+            case COMMENT -> mentionRepository.getCommentStatus(typeId) == Status.INACTIVE;
+            case REPLY -> mentionRepository.getReplyStatus(typeId) == Status.INACTIVE;
+        };
     }
 }

@@ -55,6 +55,15 @@ const getNotificationBlock = notificationResponse => {
     }).promise();
 };
 
+const getMentionBlock = notificationResponse => {
+    return $.ajax({
+        type: "POST",
+        url: "/forum/api/views/getMentionBlock",
+        contentType: "application/json",
+        data: JSON.stringify(notificationResponse)
+    }).promise();
+};
+
 const getCommentSectionStatus = postId => {
     const deferred = $.Deferred();
     $.ajax({
@@ -168,6 +177,7 @@ export {
     getAllRepliesOf,
     getReplyBlock,
     getNotificationBlock,
+    getMentionBlock,
     getCommentSectionStatus,
     getSuggestedMentions,
     isUserBlocked

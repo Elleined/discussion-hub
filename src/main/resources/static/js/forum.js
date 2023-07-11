@@ -5,7 +5,7 @@ import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
 import generateComment, { previousCommentBody } from './modules/generator/comment_generator.js';
 import generateReply, { previousReplyBody } from './modules/generator/reply_generator.js';
-import generateNotification, { updateNotification, updateTotalNotificationCount } from './modules/generator/notification_generator.js';
+import generateNotification, { updateNotification, updateTotalNotificationCount, generateMention } from './modules/generator/notification_generator.js';
 import mention, { mentionedUsersId } from './modules/mention_user.js';
 
 const socket = new SockJS("/websocket");
@@ -269,8 +269,9 @@ function onConnected() {
 
     stompClient.subscribe("/user/notification/mentions", function(notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
+
         updateTotalNotificationCount();
-        alert(`Message: ${json.message}`);
+        generateMention(json, notificationContainer);
     });
 }
 

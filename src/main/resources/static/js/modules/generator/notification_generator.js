@@ -1,9 +1,15 @@
-import { getNotificationBlock } from '../repository/get_repository.js';
+import { getNotificationBlock, getMentionBlock } from '../repository/get_repository.js';
 
 const generateNotification = (notificationResponse, container) => {
     getNotificationBlock(notificationResponse)
         .then(res => container.append(res))
         .catch(error => alert("Generating notification block failed! " + error));
+};
+
+const generateMention = (notificationResponse, container) => {
+    getMentionBlock(notificationResponse)
+        .then(res => container.append(res))
+        .catch(error => alert("Generating mention notification block failed" + error.responseText));
 };
 
 const updateNotification = (respondentId, id, type) => {
@@ -28,6 +34,7 @@ const updateTotalNotificationCount = () => {
 
 export default generateNotification;
 export {
+    generateMention,
     updateNotification,
     updateTotalNotificationCount
 };
