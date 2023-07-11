@@ -3,7 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
-import com.forum.application.dto.notification.NotificationResponse;
+import com.forum.application.dto.NotificationResponse;
 import com.forum.application.exception.*;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;

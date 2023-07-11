@@ -1,7 +1,7 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.UserDTO;
-import com.forum.application.dto.notification.NotificationResponse;
+import com.forum.application.dto.NotificationResponse;
 import com.forum.application.exception.BlockedException;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;

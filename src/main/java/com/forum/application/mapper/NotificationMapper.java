@@ -2,9 +2,7 @@ package com.forum.application.mapper;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
-import com.forum.application.dto.notification.CommentNotificationResponse;
-import com.forum.application.dto.notification.NotificationResponse;
-import com.forum.application.dto.notification.ReplyNotificationResponse;
+import com.forum.application.dto.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Mention;
 import com.forum.application.model.Type;
@@ -36,12 +34,11 @@ public class NotificationMapper {
 
         boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
         int count = commentService.getNotificationCountForRespondent(postDTO.getAuthorId(), postId, commenterId);
-        return CommentNotificationResponse.builder()
+        return NotificationResponse.builder()
                 .id(postId)
                 .message(commenter.getName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
                 .respondentPicture(commenter.getPicture())
                 .respondentId(commenterId)
-                .uri("/posts/" + postId + "/comments")
                 .type(Type.COMMENT)
                 .isModalOpen(isModalOpen)
                 .count(count)
@@ -54,13 +51,11 @@ public class NotificationMapper {
 
         boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
         int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replierId);
-        return ReplyNotificationResponse.replyNotificationBuilder()
+        return NotificationResponse.builder()
                 .id(commentId)
                 .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
                 .respondentId(replierId)
-                .uri("/posts/comments/" + commentId + "/replies")
-                .commentURI("/posts/" + commentDTO.getPostId() + "/comments")
                 .type(Type.REPLY)
                 .count(count)
                 .isModalOpen(isModalOpen)

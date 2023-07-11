@@ -2,7 +2,7 @@ package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
-import com.forum.application.dto.notification.NotificationResponse;
+import com.forum.application.dto.NotificationResponse;
 import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

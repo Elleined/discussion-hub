@@ -1,4 +1,4 @@
-package com.forum.application.dto.notification;
+package com.forum.application.dto;
 
 import com.forum.application.model.Type;
 import lombok.Builder;
