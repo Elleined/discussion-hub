@@ -26,9 +26,9 @@ public class MentionHelper {
 
     public int getParentId(Type type, int typeId) {
         return switch (type) {
+            case POST -> 0; // 
             case COMMENT -> commentRepository.findById(typeId).orElseThrow().getPost().getId();
             case REPLY -> replyRepository.findById(typeId).orElseThrow().getComment().getId();
-            default -> throw new IllegalStateException("Unexpected value: " + type);
         };
     }
 
