@@ -38,7 +38,10 @@ public class ForumService {
 
         int currentUserId = userService.getCurrentUser().getId();
         int postId = postService.save(currentUserId, body);
-        if (mentionedUserIds != null) userService.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId);
+        if (mentionedUserIds != null) {
+            userService.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId)
+                    .forEach(notificationService::broadcastMentionNotification);
+        }
         return postService.getById(postId);
     }
 
@@ -60,7 +63,10 @@ public class ForumService {
         wsService.broadcastComment(commentId);
         notificationService.broadcastCommentNotification(postId, currentUserId);
 
-        if (mentionedUserIds != null) userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId);
+        if (mentionedUserIds != null) {
+            userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId)
+                    .forEach(notificationService::broadcastMentionNotification);
+        }
         return commentService.getById(commentId);
     }
 
@@ -82,7 +88,10 @@ public class ForumService {
         wsService.broadcastReply(replyId);
         notificationService.broadcastReplyNotification(commentId, currentUserId);
 
-        if (mentionedUserIds != null) userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId);
+        if (mentionedUserIds != null){
+            userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId)
+                    .forEach(notificationService::broadcastMentionNotification);
+        }
         return replyService.getById(replyId);
     }
 
@@ -176,4 +185,5 @@ public class ForumService {
     public String getCommentSectionStatus(int postId) {
         return postService.getCommentSectionStatus(postId);
     }
+
 }
