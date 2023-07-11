@@ -115,10 +115,6 @@ public class CommentService {
                 .toList();
     }
 
-    long getAllUnreadCommentsCount(int userId) throws ResourceNotFoundException {
-        return getAllUnreadCommentOfAllPostByAuthorId(userId).size();
-    }
-
     CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) throws ResourceNotFoundException {
         this.setUpvote(respondentId, commentId, newUpvoteCount);
 

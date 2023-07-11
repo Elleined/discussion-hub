@@ -142,9 +142,6 @@ public class ReplyService {
                 .toList();
     }
 
-    long getAllUnreadRepliesCount(int userId) throws ResourceNotFoundException {
-        return getAllUnreadRepliesOfAllCommentsByAuthorId(userId).size();
-    }
 
     void setStatus(int replyId) throws ResourceNotFoundException {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));

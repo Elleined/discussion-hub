@@ -26,7 +26,7 @@ public class NotificationService {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final NotificationMapper notificationMapper;
-
+    private final MentionService mentionService;
     void broadcastCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
         var commentNotificationResponse = notificationMapper.toCommentNotification(postId, commenterId);
 
@@ -61,7 +61,9 @@ public class NotificationService {
     }
 
     long getAllUnreadNotificationCount(int userId) throws ResourceNotFoundException {
-        return commentService.getAllUnreadCommentsCount(userId) + replyService.getAllUnreadRepliesCount(userId);
+        return commentService.getAllUnreadCommentOfAllPostByAuthorId(userId).size() +
+                replyService.getAllUnreadRepliesOfAllCommentsByAuthorId(userId).size() +
+                mentionService.getAllUnreadReceiveMentions(userId).size();
     }
 
     Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
