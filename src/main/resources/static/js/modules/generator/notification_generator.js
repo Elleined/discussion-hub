@@ -15,13 +15,18 @@ const generateMention = (notificationResponse, container) => {
 const updateNotification = (respondentId, id, type) => {
     if (type === "REPLY") {
         const messageCount = $("#messageReplyCount_" + respondentId + "_" + id);
-        const newMessageCount = parseInt(messageCount.text()) + 1;
+        const newMessageCount = parseInt(messageCount.attr("aria-valuetext")) + 1;
+
         messageCount.text(newMessageCount + "+");
+        messageCount.attr("aria-valuetext", newMessageCount);
         return
     }
+
     const messageCount = $("#messageCommentCount_" + respondentId + "_" + id);
-    const newMessageCount = parseInt(messageCount.text()) + 1;
+    const newMessageCount = parseInt(messageCount.attr("aria-valuetext")) + 1;
+
     messageCount.text(newMessageCount + "+");
+    messageCount.attr("aria-valuetext", newMessageCount);
 };
 
 const updateTotalNotificationCount = () => {
