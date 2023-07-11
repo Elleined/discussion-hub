@@ -140,10 +140,10 @@ public class UserService {
     }
 
     public void readAllCommentsMention(int postId) {
-
+        mentionService.readAllComments(postId);
     }
 
     public void readAllRepliesMention(int commentId) {
-
+        mentionService.readAllReplies(commentId);
     }
 }

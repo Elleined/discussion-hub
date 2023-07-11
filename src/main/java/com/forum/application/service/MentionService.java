@@ -55,12 +55,11 @@ public class MentionService {
                 .toList();
     }
 
-    List<Mention> getAllMentionByType(Type type, int typeId) {
+    public void readAllComments(int postId) {
+        mentionRepository.readAllComments(postId);
+    }
 
-        return switch (type) {
-            case POST -> null;
-            case COMMENT -> null;
-            case REPLY -> null;
-        };
+    public void readAllReplies(int commentId) {
+        mentionRepository.readAllReplies(commentId);
     }
 }
