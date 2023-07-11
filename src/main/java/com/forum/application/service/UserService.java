@@ -65,8 +65,11 @@ public class UserService {
     }
 
     public List<UserDTO> getSuggestedMentions(int userId, String name) {
-        return mentionService.getSuggestedMentions(userId, name)
+        return userRepository.fetchAllByProperty(name)
                 .stream()
+                .filter(user -> user.getId() != userId)
+                .filter(user -> !blockService.isBlockedBy(userId, user.getId()))
+                .filter(user -> !blockService.isYouBeenBlockedBy(userId, user.getId()))
                 .map(userMapper::toDTO)
                 .toList();
     }

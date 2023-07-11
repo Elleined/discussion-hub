@@ -3,6 +3,7 @@ package com.forum.application.mapper;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.NotificationResponse;
+import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Mention;
 import com.forum.application.model.Type;
@@ -28,8 +29,9 @@ public class NotificationMapper {
         this.replyService = replyService;
     }
 
-    public NotificationResponse toCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
+    public NotificationResponse toCommentNotification(int commentId, int postId, int commenterId) throws ResourceNotFoundException {
         final PostDTO postDTO = postService.getById(postId);
+        final CommentDTO commentDTO = commentService.getById(commentId);
         final User commenter = userService.getById(commenterId);
 
         boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
@@ -42,11 +44,14 @@ public class NotificationMapper {
                 .type(Type.COMMENT)
                 .isModalOpen(isModalOpen)
                 .count(count)
+                .formattedTime(commentDTO.getFormattedTime())
+                .formattedDate(commentDTO.getFormattedDate())
                 .build();
     }
 
-    public NotificationResponse toReplyNotification(int commentId, int replierId) throws ResourceNotFoundException {
+    public NotificationResponse toReplyNotification(int replyId, int commentId, int replierId) throws ResourceNotFoundException {
         final CommentDTO commentDTO = commentService.getById(commentId);
+        final ReplyDTO replyDTO = replyService.getById(replyId);
         final User replier = userService.getById(replierId);
 
         boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
@@ -59,6 +64,8 @@ public class NotificationMapper {
                 .type(Type.REPLY)
                 .count(count)
                 .isModalOpen(isModalOpen)
+                .formattedDate(replyDTO.getFormattedDate())
+                .formattedTime(replyDTO.getFormattedTime())
                 .build();
     }
 

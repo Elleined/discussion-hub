@@ -61,7 +61,7 @@ public class ForumService {
 
         int commentId = commentService.save(currentUserId, postId, body);
         wsService.broadcastComment(commentId);
-        notificationService.broadcastCommentNotification(postId, currentUserId);
+        notificationService.broadcastCommentNotification(commentId, postId, currentUserId);
 
         if (mentionedUserIds != null) {
             userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId)
@@ -86,7 +86,7 @@ public class ForumService {
 
         int replyId = replyService.save(currentUserId, commentId, body);
         wsService.broadcastReply(replyId);
-        notificationService.broadcastReplyNotification(commentId, currentUserId);
+        notificationService.broadcastReplyNotification(replyId, commentId, currentUserId);
 
         if (mentionedUserIds != null){
             userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId)

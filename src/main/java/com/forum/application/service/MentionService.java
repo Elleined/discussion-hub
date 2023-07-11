@@ -2,8 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
-import com.forum.application.repository.MentionRepository;
-import com.forum.application.repository.UserRepository;
+import com.forum.application.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,15 +17,19 @@ import java.util.List;
 @Transactional
 public class MentionService {
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final ReplyRepository replyRepository;
+
     private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
-    private final BlockService blockService;
 
     int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws ResourceNotFoundException {
         User mentioningUser = userRepository.findById(mentioningUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentioningUserId +  " does not exists"));
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentionedUserId +  " does not exists"));
 
-        NotificationStatus notificationStatus  = modalTrackerService.isModalOpen(mentionedUserId, typeId, type) ? NotificationStatus.READ : NotificationStatus.UNREAD;
+        int parentId = getParentId(type, typeId);
+        NotificationStatus notificationStatus  = modalTrackerService.isModalOpen(mentionedUserId, parentId, type) ? NotificationStatus.READ : NotificationStatus.UNREAD;
         Mention mention = Mention.builder()
                 .mentioningUser(mentioningUser)
                 .mentionedUser(mentionedUser)
@@ -39,15 +42,6 @@ public class MentionService {
         mentionRepository.save(mention);
         log.debug("User with id of {} mentioned user with id of {} successfully!", mentioningUserId, mentionedUserId);
         return mention.getId();
-    }
-
-    List<User> getSuggestedMentions(int userId, String name) {
-        return userRepository.fetchAllByProperty(name)
-                .stream()
-                .filter(user -> user.getId() != userId)
-                .filter(user -> !blockService.isBlockedBy(userId, user.getId()))
-                .filter(user -> !blockService.isYouBeenBlockedBy(userId, user.getId()))
-                .toList();
     }
 
     public Mention getById(int mentionId) throws ResourceNotFoundException {
@@ -63,11 +57,19 @@ public class MentionService {
                 .toList();
     }
 
-    public boolean isDeleted(Type type, int typeId) {
+    private boolean isDeleted(Type type, int typeId) {
         return switch (type) {
-            case POST -> mentionRepository.getPostStatus(typeId) == Status.INACTIVE;
-            case COMMENT -> mentionRepository.getCommentStatus(typeId) == Status.INACTIVE;
-            case REPLY -> mentionRepository.getReplyStatus(typeId) == Status.INACTIVE;
+            case POST -> postRepository.findById(typeId).orElseThrow().getStatus() == Status.INACTIVE;
+            case COMMENT -> commentRepository.findById(typeId).orElseThrow().getStatus() == Status.INACTIVE;
+            case REPLY -> replyRepository.findById(typeId).orElseThrow().getStatus() == Status.INACTIVE;
+        };
+    }
+
+    private int getParentId(Type type, int typeId) {
+        return switch (type) {
+            case COMMENT -> commentRepository.findById(typeId).orElseThrow().getPost().getId();
+            case REPLY -> replyRepository.findById(typeId).orElseThrow().getComment().getId();
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         };
     }
 }

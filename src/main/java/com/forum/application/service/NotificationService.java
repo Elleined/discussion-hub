@@ -25,8 +25,8 @@ public class NotificationService {
     private final ReplyService replyService;
     private final NotificationMapper notificationMapper;
     private final MentionService mentionService;
-    void broadcastCommentNotification(int postId, int commenterId) throws ResourceNotFoundException {
-        var commentNotificationResponse = notificationMapper.toCommentNotification(postId, commenterId);
+    void broadcastCommentNotification(int commentId, int postId, int commenterId) throws ResourceNotFoundException {
+        var commentNotificationResponse = notificationMapper.toCommentNotification(commentId, postId, commenterId);
 
         int authorId = postService.getById(postId).getAuthorId();
         final String subscriberId = String.valueOf(authorId);
@@ -35,8 +35,8 @@ public class NotificationService {
         log.debug("Comment notification successfully sent to {}", subscriberId);
     }
 
-    void broadcastReplyNotification(int commentId, int replierId) throws ResourceNotFoundException {
-        var replyNotificationResponse = notificationMapper.toReplyNotification(commentId, replierId);
+    void broadcastReplyNotification(int replyId, int commentId, int replierId) throws ResourceNotFoundException {
+        var replyNotificationResponse = notificationMapper.toReplyNotification(replyId, commentId, replierId);
 
         int commenterId = commentService.getById(commentId).getCommenterId();
         final String subscriberId = String.valueOf(commenterId);
@@ -61,17 +61,17 @@ public class NotificationService {
     Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
         List<NotificationResponse> commentNotifications = commentService.getAllUnreadCommentOfAllPostByAuthorId(userId)
                 .stream()
-                .map(comment -> notificationMapper.toCommentNotification(comment.getPostId(), comment.getCommenterId()))
+                .map(comment -> notificationMapper.toCommentNotification(comment.getId(), comment.getPostId(), comment.getCommenterId()))
                 .toList();
 
         List<NotificationResponse> replyNotifications = replyService.getAllUnreadRepliesOfAllCommentsByAuthorId(userId)
                 .stream()
-                .map(reply -> notificationMapper.toReplyNotification(reply.getCommentId(), reply.getReplierId()))
+                .map(reply -> notificationMapper.toReplyNotification(reply.getId(), reply.getCommentId(), reply.getReplierId()))
                 .toList();
 
         return Stream.of(commentNotifications, replyNotifications)
                 .flatMap(notificationResponses -> notificationResponses.stream()
-                        .sorted(Comparator.comparingInt(NotificationResponse::getRespondentId)))
+                        .sorted(Comparator.comparing(NotificationResponse::getFormattedDate)))
                 .collect(Collectors.toSet());
     }
     
