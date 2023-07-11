@@ -1,5 +1,6 @@
 package com.forum.application.service;
 
+import com.forum.application.dto.MentionResponse;
 import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
@@ -47,8 +48,7 @@ public class NotificationService {
         log.debug("Reply notification successfully sent to {}", subscriberId);
     }
 
-    void broadcastMentionNotification(int mentionId) throws ResourceNotFoundException {
-        var mentionResponse = notificationMapper.toMentionNotification(mentionId);
+    void broadcastMentionNotification(MentionResponse mentionResponse) throws ResourceNotFoundException {
         User mentioningUser = userService.getById(mentionResponse.getMentioningUserId());
         String message = switch (Type.valueOf(mentionResponse.getType())) {
             case POST -> mentioningUser.getName() + " mention you in a post: " + "\"" + postService.getById(mentionResponse.getTypeId()).getBody() + "\"";

@@ -110,17 +110,18 @@ public class UserService {
         return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
     }
 
-    public Integer mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws BlockedException {
+    public MentionResponse mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws BlockedException {
         boolean isBlockedBy = isBlockedBy(mentioningUserId, mentionedUserId);
         boolean isYouBeenBlockedBy = isYouBeenBlockedBy(mentioningUserId, mentionedUserId);
         if (isBlockedBy || isYouBeenBlockedBy) throw new BlockedException("Cannot mention user! One of the mentioned user blocked you!");
-        return mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
+        int mentionId = mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
+        return this.getMentionById(mentionId);
     }
 
-    public Set<Integer> mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
+    public List<MentionResponse> mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
         return usersToBeMentionIds.stream()
                 .map(mentionedUserId -> this.mentionUser(mentioningUserId, mentionedUserId, type, typeId))
-                .collect(Collectors.toSet());
+                .toList();
     }
 
     public MentionResponse getMentionById(int mentionId) {
