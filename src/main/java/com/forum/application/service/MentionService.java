@@ -17,10 +17,8 @@ import java.util.List;
 @Transactional
 public class MentionService {
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final ReplyRepository replyRepository;
 
+    private final MentionHelper mentionHelper;
     private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
 
@@ -28,7 +26,7 @@ public class MentionService {
         User mentioningUser = userRepository.findById(mentioningUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentioningUserId +  " does not exists"));
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentionedUserId +  " does not exists"));
 
-        int parentId = getParentId(type, typeId);
+        int parentId = mentionHelper.getParentId(type, typeId);
         NotificationStatus notificationStatus  = modalTrackerService.isModalOpen(mentionedUserId, parentId, type) ? NotificationStatus.READ : NotificationStatus.UNREAD;
         Mention mention = Mention.builder()
                 .mentioningUser(mentioningUser)
@@ -53,23 +51,7 @@ public class MentionService {
         return user.getReceiveMentions()
                 .stream()
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
-                .filter(mention -> !isDeleted(mention.getType(), mention.getTypeId()))
+                .filter(mention -> !mentionHelper.isDeleted(mention.getType(), mention.getTypeId()))
                 .toList();
-    }
-
-    private boolean isDeleted(Type type, int typeId) {
-        return switch (type) {
-            case POST -> postRepository.findById(typeId).orElseThrow().getStatus() == Status.INACTIVE;
-            case COMMENT -> commentRepository.findById(typeId).orElseThrow().getStatus() == Status.INACTIVE;
-            case REPLY -> replyRepository.findById(typeId).orElseThrow().getStatus() == Status.INACTIVE;
-        };
-    }
-
-    private int getParentId(Type type, int typeId) {
-        return switch (type) {
-            case COMMENT -> commentRepository.findById(typeId).orElseThrow().getPost().getId();
-            case REPLY -> replyRepository.findById(typeId).orElseThrow().getComment().getId();
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        };
     }
 }

@@ -20,13 +20,15 @@ public class NotificationMapper {
     private final UserService userService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final MentionHelper mentionHelper;
 
     @Autowired @Lazy
-    public NotificationMapper(PostService postService, UserService userService, CommentService commentService, ReplyService replyService) {
+    public NotificationMapper(PostService postService, UserService userService, CommentService commentService, ReplyService replyService, MentionHelper mentionHelper) {
         this.postService = postService;
         this.userService = userService;
         this.commentService = commentService;
         this.replyService = replyService;
+        this.mentionHelper = mentionHelper;
     }
 
     public NotificationResponse toCommentNotification(int commentId, int postId, int commenterId) throws ResourceNotFoundException {
@@ -71,21 +73,18 @@ public class NotificationMapper {
 
     public NotificationResponse toMentionNotification(Mention mention) throws ResourceNotFoundException {
         User mentioningUser = mention.getMentioningUser();
-        String message = getMessage(mentioningUser, mention.getType(), mention.getTypeId());
+        User mentionedUser = mention.getMentionedUser();
+        String message = mentionHelper.getMessage(mentioningUser, mention.getType(), mention.getTypeId());
+
+        int parentId = mentionHelper.getParentId(mention.getType(), mention.getTypeId());
+        boolean isModalOpen = userService.isModalOpen(mentionedUser.getId(), parentId, mention.getType());
         return NotificationResponse.builder()
                 .id(mention.getId())
                 .message(message)
                 .respondentPicture(mentioningUser.getPicture())
                 .formattedDate(Formatter.formatDate(mention.getCreatedAt()))
                 .formattedTime(Formatter.formatTime(mention.getCreatedAt()))
+                .isModalOpen(isModalOpen)
                 .build();
-    }
-
-    private String getMessage(User mentioningUser, Type type, int typeId) throws ResourceNotFoundException {
-        return switch (type) {
-            case POST -> mentioningUser.getName() + " mentioned you in his/her post: " + "\"" + postService.getById(typeId).getBody() + "\"";
-            case COMMENT -> mentioningUser.getName() + " mentioned you in his/her comment: " + "\"" + commentService.getById(typeId).getBody() + "\"";
-            case REPLY -> mentioningUser.getName() + " mentioned you in his/her reply: " + "\"" + replyService.getById(typeId).getBody() + "\"";
-        };
     }
 }
