@@ -4,8 +4,10 @@ import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.Mention;
+import com.forum.application.model.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -73,5 +75,12 @@ public class NotificationService {
                 .flatMap(notificationResponses -> notificationResponses.stream()
                         .sorted(Comparator.comparingInt(NotificationResponse::getRespondentId)))
                 .collect(Collectors.toSet());
+    }
+    
+    List<NotificationResponse> getAllUnreadMentions(int userId) {
+        return mentionService.getAllUnreadReceiveMentions(userId)
+                .stream()
+                .map(notificationMapper::toMentionNotification)
+                .toList();
     }
 }

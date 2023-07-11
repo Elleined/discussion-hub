@@ -110,7 +110,7 @@ public class PostService {
                 .forEach(commentService::setStatus);
     }
 
-    boolean isDeleted(int postId) throws ResourceNotFoundException {
+    public boolean isDeleted(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getStatus() == Status.INACTIVE;
     }

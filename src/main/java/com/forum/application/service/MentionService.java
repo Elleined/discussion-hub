@@ -1,8 +1,6 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.notification.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.Mention;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Type;
@@ -26,7 +24,6 @@ public class MentionService {
     private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
     private final BlockService blockService;
-    private final NotificationMapper notificationMapper;
 
     int save(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws ResourceNotFoundException {
         User mentioningUser = userRepository.findById(mentioningUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + mentioningUserId +  " does not exists"));
@@ -60,12 +57,11 @@ public class MentionService {
         return mentionRepository.findById(mentionId).orElseThrow(() -> new ResourceNotFoundException("Mention with id of " + mentionId + " does not exists!"));
     }
 
-    List<NotificationResponse> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
+    List<Mention> getAllUnreadReceiveMentions(int userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
         return user.getReceiveMentions()
                 .stream()
                 .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
-                .map(notificationMapper::toMentionNotification)
                 .toList();
     }
 }

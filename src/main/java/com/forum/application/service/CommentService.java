@@ -52,7 +52,7 @@ public class CommentService {
         log.debug("Comment with id of {} are now inactive!", commentId);
     }
 
-    boolean isDeleted(int commentId) throws ResourceNotFoundException {
+    public boolean isDeleted(int commentId) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         return comment.getStatus() == Status.INACTIVE;
     }

@@ -130,6 +130,9 @@ public class UserService {
     }
 
     public List<NotificationResponse> getAllUnreadReceiveMentions(int userId) {
-        return mentionService.getAllUnreadReceiveMentions(userId);
+        return mentionService.getAllUnreadReceiveMentions(userId)
+                .stream()
+                .map(notificationMapper::toMentionNotification)
+                .toList();
     }
 }
