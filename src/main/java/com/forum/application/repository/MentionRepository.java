@@ -47,7 +47,7 @@ public interface MentionRepository extends JpaRepository<Mention, Integer> {
             		tbl_forum_reply r
             	WHERE
             		c.comment_id = r.comment_id
-            	AND\s
+            	AND
             		c.comment_id = :commentId
             )
             """, nativeQuery = true)

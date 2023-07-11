@@ -1,8 +1,8 @@
 package com.forum.application.mapper;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.NotificationResponse;
+import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Mention;

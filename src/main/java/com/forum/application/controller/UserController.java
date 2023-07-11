@@ -1,9 +1,9 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.CommentDTO;
+import com.forum.application.dto.NotificationResponse;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
-import com.forum.application.dto.NotificationResponse;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.service.CommentService;

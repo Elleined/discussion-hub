@@ -1,8 +1,12 @@
 package com.forum.application.service;
 
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.*;
-import com.forum.application.repository.*;
+import com.forum.application.model.Mention;
+import com.forum.application.model.NotificationStatus;
+import com.forum.application.model.Type;
+import com.forum.application.model.User;
+import com.forum.application.repository.MentionRepository;
+import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,9 +61,11 @@ public class MentionService {
 
     public void readAllComments(int postId) {
         mentionRepository.readAllComments(postId);
+        log.debug("All unread mentions of the current user in post with id of {} are updated to READ", postId);
     }
 
     public void readAllReplies(int commentId) {
         mentionRepository.readAllReplies(commentId);
+        log.debug("All unread mentions of the current user in comment with id of {} are updated to READ", commentId);
     }
 }
