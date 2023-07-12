@@ -288,15 +288,6 @@ function onConnected() {
    });
 }
 
-async function setReplyModalTitle(commentId) {
-   try {
-      const comment = await GetRepository.getCommentById(commentId);
-      $("#replyModalTitle").text("Replies in " + comment.commenterName + " comment in " + comment.authorName + " post");
-   } catch (error) {
-      alert("Error Occurred! Setting the reply modal title failed!" + error);
-   }
-}
-
 async function getAllCommentsOf(postId) {
    try {
       const commentSection = $(".modal-body #commentSection"); // Removes the recent comments in the modal
@@ -318,7 +309,11 @@ async function getAllCommentsOf(postId) {
 
 function bindReplyBtn(commentId) {
    globalCommentId = commentId;
-   setReplyModalTitle(commentId);
+
+   GetRepository.getCommentById(commentId)
+        .then(res => $("#replyModalTitle").text("Replies in " + res.commenterName + " comment in " + res.authorName + " post"))
+        .catch(error => alert("Setting the reply modal title failed! " + error));
+
 
    subscribeToCommentReplies(commentId);
 
