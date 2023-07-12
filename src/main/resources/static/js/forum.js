@@ -81,21 +81,7 @@ $(document).ready(function() {
 
     $(".card-body #commentBtn").on("click", function(event) {
         globalPostId = $(this).attr("href").split("/")[2];
-
-        const postId = globalPostId;
-        GetRepository.getPostById(postId)
-            .then(res => $("#commentModalTitle").text("Comments in " + res.authorName + " post"))
-            .catch(error => alert(error));
-
-        subscribeToPostComments(postId);
-
-        const userId = $("#userId").val();
-        SaveRepository.saveTracker(userId, postId, "COMMENT");
-
-        getAllCommentsOf(postId);
-        getCommentSectionStatus(postId);
-
-
+        bindCommentBtn(globalPostId);
         event.preventDefault();
     });
 
@@ -252,7 +238,15 @@ function onConnected() {
             updateNotification(json, itemContainer);
             return;
         }
-        generateNotification(json, notificationContainer);
+
+        generateNotification(json, notificationContainer)
+            .then(res => {
+                $("#commentNotificationButton_" + res.respondentId + "_" + res.id).on("click", function(event) {
+                    bindCommentBtn(res.id);
+                    $("#commentModal").modal("show");
+                    event.preventDefault();
+                });
+            }).catch(error => alert("Binding generated notification failed! " + error));
     });
 
     stompClient.subscribe("/user/notification/replies", function(notificationResponse) {
@@ -314,6 +308,21 @@ function bindReplyBtn(commentId) {
 
         getAllReplies(commentId);
     });
+}
+
+function bindCommentBtn(postId) {
+   GetRepository.getPostById(postId)
+            .then(res => $("#commentModalTitle").text("Comments in " + res.authorName + " post: " + res.body))
+            .catch(error => alert(error));
+
+        subscribeToPostComments(postId);
+
+        const userId = $("#userId").val();
+        SaveRepository.saveTracker(userId, postId, "COMMENT");
+
+        getAllCommentsOf(postId);
+        getCommentSectionStatus(postId);
+
 }
 
 async function getAllReplies(commentId) {

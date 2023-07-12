@@ -1,9 +1,17 @@
 import { getNotificationBlock, getMentionBlock } from '../repository/get_repository.js';
 
 const generateNotification = (notificationResponse, container) => {
-    getNotificationBlock(notificationResponse)
-        .then(res => container.append(res))
-        .catch(error => alert("Generating notification block failed! " + error));
+    return new Promise((resolve, reject) => {
+        getNotificationBlock(notificationResponse)
+            .then(res => {
+                container.append(res);
+                resolve(notificationResponse);
+            })
+            .catch(error => {
+                alert("Generating notification block failed! " + error);
+                reject(error);
+            });
+    });
 };
 
 const generateMention = (notificationResponse, container) => {
