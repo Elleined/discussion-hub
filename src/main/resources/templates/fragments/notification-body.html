@@ -15,6 +15,7 @@
                 <span class="ms-2" th:text="${' on ' + notification.formattedTime + ' on ' + notification.formattedDate}"></span>
             </div>
         </div>
+        <hr>
     </li>
 
     <li th:if="${#strings.containsIgnoreCase(notification.type.toString(), 'COMMENT')}"
@@ -34,6 +35,6 @@
                 <span class="ms-2" th:text="${' on ' + notification.formattedTime + ' on ' + notification.formattedDate}"></span>
             </div>
         </div>
+        <hr>
     </li>
-    <hr>
 </div>

@@ -45,7 +45,7 @@ public class NotificationMapper {
                 .respondentId(commenterId)
                 .type(Type.COMMENT)
                 .isModalOpen(isModalOpen)
-                .count(count)
+                .count(count == 0 ? 1 : count)
                 .formattedTime(commentDTO.getFormattedTime())
                 .formattedDate(commentDTO.getFormattedDate())
                 .build();
@@ -64,7 +64,7 @@ public class NotificationMapper {
                 .respondentPicture(replier.getPicture())
                 .respondentId(replierId)
                 .type(Type.REPLY)
-                .count(count)
+                .count(count == 0 ? 1 : count)
                 .isModalOpen(isModalOpen)
                 .formattedDate(replyDTO.getFormattedDate())
                 .formattedTime(replyDTO.getFormattedTime())

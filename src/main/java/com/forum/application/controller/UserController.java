@@ -27,7 +27,7 @@ public class UserController {
     @GetMapping("/unreadComments/{postId}")
     public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int authorId,
                                                  @PathVariable("postId") int postId) {
-        return commentService.getAllUnreadCommentsOfSpecificPostById(authorId, postId);
+        return commentService.getAllUnreadComments(authorId, postId);
     }
 
     @GetMapping("/unreadCommentCountOfSpecificPost/{postId}")

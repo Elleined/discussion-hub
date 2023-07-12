@@ -12,21 +12,10 @@ const generateMention = (notificationResponse, container) => {
         .catch(error => alert("Generating mention notification block failed" + error.responseText));
 };
 
-const updateNotification = (respondentId, id, type) => {
-    if (type === "REPLY") {
-        const messageCount = $("#messageReplyCount_" + respondentId + "_" + id);
-        const newMessageCount = parseInt(messageCount.attr("aria-valuetext")) + 1;
-
-        messageCount.text(newMessageCount + "+");
-        messageCount.attr("aria-valuetext", newMessageCount);
-        return
-    }
-
-    const messageCount = $("#messageCommentCount_" + respondentId + "_" + id);
-    const newMessageCount = parseInt(messageCount.attr("aria-valuetext")) + 1;
-
-    messageCount.text(newMessageCount + "+");
-    messageCount.attr("aria-valuetext", newMessageCount);
+const updateNotification = (notificationResponse, container) => {
+    getNotificationBlock(notificationResponse)
+        .then(res => container.replaceWith(res))
+        .catch(error => alert("Updating the notification failed! " + error));
 };
 
 const updateTotalNotificationCount = () => {

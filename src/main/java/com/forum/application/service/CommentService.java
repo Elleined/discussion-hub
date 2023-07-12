@@ -76,7 +76,7 @@ public class CommentService {
         return commentMapper.toDTO(comment);
     }
 
-    public List<CommentDTO> getAllUnreadCommentsOfSpecificPostById(int authorId, int postId) throws ResourceNotFoundException {
+    public List<CommentDTO> getAllUnreadComments(int authorId, int postId) throws ResourceNotFoundException {
         User author = userService.getById(authorId);
         Post post = author.getPosts().stream().filter(userPost -> userPost.getId() == postId).findFirst().orElseThrow(() -> new ResourceNotFoundException("Author with id of " + authorId + " does not have post with id of " + postId));
         return post.getComments()
@@ -90,17 +90,17 @@ public class CommentService {
     }
 
     public int getNotificationCountForRespondent(int authorId, int postId, int respondentId) throws ResourceNotFoundException {
-        return (int) getAllUnreadCommentsOfSpecificPostById(authorId, postId)
+        return (int) getAllUnreadComments(authorId, postId)
                 .stream()
                 .filter(comment -> comment.getCommenterId() == respondentId)
                 .count();
     }
 
     public int getNotificationCountForSpecificPost(int authorId, int postId) throws ResourceNotFoundException {
-        return getAllUnreadCommentsOfSpecificPostById(authorId, postId).size();
+        return getAllUnreadComments(authorId, postId).size();
     }
 
-    List<CommentDTO> getAllUnreadCommentOfAllPostByAuthorId(int userId) throws ResourceNotFoundException {
+    public List<CommentDTO> getUnreadCommentsOfAllPost(int userId) throws ResourceNotFoundException {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
 
