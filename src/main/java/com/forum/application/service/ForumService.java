@@ -59,9 +59,9 @@ public class ForumService {
         if (userService.isYouBeenBlockedBy(currentUserId, authorId)) throw new BlockedException("Cannot comment because this user block you already!");
 
         int commentId = commentService.save(currentUserId, postId, body);
+
         wsService.broadcastComment(commentId);
         notificationService.broadcastCommentNotification(commentId, postId, currentUserId);
-
         if (mentionedUserIds != null) {
             userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId)
                     .forEach(notificationService::broadcastMentionNotification);
