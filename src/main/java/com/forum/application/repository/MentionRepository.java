@@ -13,11 +13,11 @@ public interface MentionRepository extends JpaRepository<Mention, Integer> {
     @Transactional
     @Query(value = """
             UPDATE
-            	tbl_mention_user
+            	tbl_mention_user m
             SET
-            	notification_status = "READ"
+            	m.notification_status = "READ"
             WHERE
-            	type_id
+            	m.type_id
             IN (SELECT
             		c.comment_id
             	FROM
@@ -26,20 +26,25 @@ public interface MentionRepository extends JpaRepository<Mention, Integer> {
             	WHERE
             		p.post_id = c.post_id
             	AND
+            	    m.mentioned_user = :mentionedUserId
+            	AND
+            	   c.status = "ACTIVE"
+            	AND
             		p.post_id = :postId
             )
             """, nativeQuery = true)
-    void readAllComments(@Param("postId") int postId);
+    void readAllComments(@Param("postId") int postId,
+                         @Param("mentionedUserId") int mentionedUserId);
 
     @Modifying
     @Transactional
     @Query(value = """
             UPDATE
-            	tbl_mention_user
+            	tbl_mention_user m
             SET
-            	notification_status = "READ"
+            	m.notification_status = "READ"
             WHERE
-            	type_id
+            	m.type_id
             IN (SELECT
             		r.reply_id
             	FROM
@@ -48,8 +53,13 @@ public interface MentionRepository extends JpaRepository<Mention, Integer> {
             	WHERE
             		c.comment_id = r.comment_id
             	AND
+            	    m.mentioned_user = :mentionedUserId
+            	AND
+            	    r.status = "ACTIVE"
+            	AND
             		c.comment_id = :commentId
             )
             """, nativeQuery = true)
-    void readAllReplies(@Param("commentId") int commentId);
+    void readAllReplies(@Param("commentId") int commentId,
+                        @Param("mentionedUserId") int mentionedUserId);
 }

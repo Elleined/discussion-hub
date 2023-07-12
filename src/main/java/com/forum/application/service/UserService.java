@@ -7,9 +7,10 @@ import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.mapper.UserMapper;
-import com.forum.application.model.*;
-import com.forum.application.repository.CommentRepository;
-import com.forum.application.repository.PostRepository;
+import com.forum.application.model.Mention;
+import com.forum.application.model.ModalTracker;
+import com.forum.application.model.Type;
+import com.forum.application.model.User;
 import com.forum.application.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class UserService {
-
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
 
     private final BlockService blockService;
     private final ModalTrackerService modalTrackerService;
@@ -142,16 +140,12 @@ public class UserService {
     }
 
     public void readAllCommentsMention(int postId) throws ResourceNotFoundException, NoLoggedInUserException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         int currentUserId = this.getCurrentUser().getId();
-        if (post.getAuthor().getId() != currentUserId) return;
-        mentionService.readAllComments(postId);
+        mentionService.readAllComments(currentUserId, postId);
     }
 
     public void readAllRepliesMention(int commentId) throws ResourceNotFoundException, NoLoggedInUserException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         int currentUserId = this.getCurrentUser().getId();
-        if (comment.getCommenter().getId() != currentUserId) return;
-        mentionService.readAllReplies(commentId);
+        mentionService.readAllReplies(currentUserId, commentId);
     }
 }

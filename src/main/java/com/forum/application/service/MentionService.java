@@ -59,13 +59,13 @@ public class MentionService {
                 .toList();
     }
 
-    public void readAllComments(int postId) {
-        mentionRepository.readAllComments(postId);
+    public void readAllComments(int currentUserId, int postId) {
+        mentionRepository.readAllComments(postId, currentUserId);
         log.debug("All unread mentions of the current user in post with id of {} are updated to READ", postId);
     }
 
-    public void readAllReplies(int commentId) {
-        mentionRepository.readAllReplies(commentId);
+    public void readAllReplies(int currentUserId, int commentId) {
+        mentionRepository.readAllReplies(commentId, currentUserId);
         log.debug("All unread mentions of the current user in comment with id of {} are updated to READ", commentId);
     }
 }
