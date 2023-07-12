@@ -200,7 +200,7 @@ function subscribeToPostComments(postId) {
 
       const commentSection = $(".modal-body #commentSection");
       generateComment(json, commentSection)
-         .then(commentId => bindReplyBtn(commentId))
+         .then(commentId => bindReplyBtn(commentId, json))
          .catch(error => alert("Binding replyBtn when generating comment failed! " + error));
    });
 }
@@ -272,7 +272,7 @@ function onConnected() {
       generateNotification(json, notificationContainer)
          .then(res => {
             $("#replyNotificationButton_" + res.respondentId + "_" + res.id).on("click", function (event) {
-               bindReplyBtn(res.id);
+               bindReplyBtn(res.id, json);
                $("#replyModal").modal("show");
                event.preventDefault();
             });
@@ -298,7 +298,7 @@ async function getAllCommentsOf(postId) {
          generateComment(commentDto, commentSection)
             .then(commentId => {
                $("#replyBtn" + commentId).on("click", function (event) {
-                  bindReplyBtn(commentId);
+                  bindReplyBtn(commentId, commentDto);
                });
             }).catch(error => alert("Binding replyBtn when generating comment failed! " + error));
       });
@@ -307,18 +307,15 @@ async function getAllCommentsOf(postId) {
    }
 }
 
-function bindReplyBtn(commentId) {
+function bindReplyBtn(commentId, json) {
    globalCommentId = commentId;
-
-   GetRepository.getCommentById(commentId)
-        .then(res => $("#replyModalTitle").text("Replies in " + res.commenterName + " comment in " + res.authorName + " post"))
-        .catch(error => alert("Setting the reply modal title failed! " + error));
-
 
    subscribeToCommentReplies(commentId);
 
    const userId = $("#userId").val();
    SaveRepository.saveTracker(userId, commentId, "REPLY");
+
+   $("#replyModalTitle").text("Replies in " + json.commenterName + " comment in " + json.authorName + " post")
 
    getAllReplies(commentId);
 }
