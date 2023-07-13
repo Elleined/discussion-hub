@@ -304,9 +304,13 @@ export function bindCommentBtn(postId) {
 
 export function bindReplyBtn(commentId, postId) {
    globalCommentId = commentId;
+
    subscribeToCommentReplies(commentId);
+
    // $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post")
+
    getCommentSectionStatus(postId);
+
    getAllReplies(commentId);
 
    const userId = $("#userId").val();

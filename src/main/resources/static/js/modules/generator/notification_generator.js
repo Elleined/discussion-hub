@@ -9,6 +9,7 @@ const generateNotification = (notificationResponse, container) => {
                 container.append(res);
                 $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
                     bindReplyBtn(notificationResponse.id, notificationResponse.postId);
+                    $(this).parent().parent().parent().remove();
                     event.preventDefault();
                 });
             }).catch(error => alert("Generating reply notification block failed! " + error));
@@ -18,6 +19,7 @@ const generateNotification = (notificationResponse, container) => {
                 container.append(res);
                 $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
                     bindCommentBtn(notificationResponse.id);
+                    $(this).parent().parent().parent().remove();
                     event.preventDefault();
                 });
             }).catch(error => alert("Generating comment notification block failed! " + error));
@@ -26,8 +28,13 @@ const generateNotification = (notificationResponse, container) => {
 
 const generateMention = (notificationResponse, container) => {
     getMentionBlock(notificationResponse)
-        .then(res => container.append(res))
-        .catch(error => alert("Generating mention notification block failed" + error.responseText));
+        .then(res => {
+            container.append(res);
+            $("#mentionNotification" + notificationResponse.id).on("click", function(event) {
+                $(this).parent().parent().parent().remove();
+                event.preventDefault();
+            });
+        }).catch(error => alert("Generating mention notification block failed" + error.responseText));
 };
 
 const updateNotification = (notificationResponse, container) => {

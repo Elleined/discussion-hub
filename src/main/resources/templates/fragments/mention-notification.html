@@ -6,8 +6,10 @@
              th:src="${'/img/' + mention.respondentPicture}">
       </div>
       <div class="flex-grow-1 ms-3">
-        <p class="lead mt-2 ms-2 me-2" th:text="${mention.message}"></p>
-        <span class="ms-2" th:text="${' on ' + mention.formattedTime + ' on ' + mention.formattedDate}"></span>
+        <a role="button" th:id="${'mentionNotification' + mention.id}">
+          <p class="lead mt-2 ms-2 me-2" th:text="${mention.message}"></p>
+          <span class="ms-2" th:text="${' on ' + mention.formattedTime + ' on ' + mention.formattedDate}"></span>
+        </a>
       </div>
     </div>
   </li>
