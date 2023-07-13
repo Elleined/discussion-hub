@@ -199,9 +199,7 @@ function subscribeToPostComments(postId) {
       }
 
       const commentSection = $(".modal-body #commentSection");
-      generateComment(json, commentSection)
-         .then(commentId => bindReplyBtn(commentId, json))
-         .catch(error => alert("Binding replyBtn when generating comment failed! " + error));
+      generateComment(userId, json, commentSection);
    });
 }
 
@@ -290,37 +288,28 @@ function onConnected() {
 
 async function getAllCommentsOf(postId) {
    try {
+      const userId = $("#userId").val();
       const commentSection = $(".modal-body #commentSection"); // Removes the recent comments in the modal
       commentSection.empty();
 
       const commentDTOs = await GetRepository.getAllCommentsOf(postId);
       $.each(commentDTOs, function (index, commentDto) {
-         generateComment(commentDto, commentSection)
-            .then(commentId => {
-               $("#replyBtn" + commentId).on("click", function (event) {
-                  bindReplyBtn(commentId, commentDto);
-               });
-            }).catch(error => alert("Binding replyBtn when generating comment failed! " + error));
+         generateComment(userId, commentDto, commentSection);
       });
    } catch (error) {
       alert("Getting all comments failed! " + error);
    }
 }
 
-function bindReplyBtn(commentId, json) {
-   globalCommentId = commentId;
-
-   subscribeToCommentReplies(commentId);
-
-   const userId = $("#userId").val();
-   SaveRepository.saveTracker(userId, commentId, "REPLY");
-
-   $("#replyModalTitle").text("Replies in " + json.commenterName + " comment in " + json.authorName + " post")
-
-   getAllReplies(commentId);
+export function bindReplyBtn(userId, commentDto) {
+   globalCommentId = commentDto.id;
+   subscribeToCommentReplies(commentDto.id);
+   SaveRepository.saveTracker(userId, commentDto.id, "REPLY");
+   $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post")
+   getAllReplies(commentDto.id);
 }
 
-function bindCommentBtn(postId) {
+export function bindCommentBtn(postId) {
    globalPostId = postId;
    subscribeToPostComments(postId);
 

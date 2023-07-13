@@ -1,20 +1,18 @@
 import { updateCommentUpvote, updateCommentBody } from '../repository/update_repository.js';
 import { deleteComment } from '../repository/delete_repository.js';
 import { getCommentBlock } from '../repository/get_repository.js';
+import { bindReplyBtn } from '../../forum.js';
 
-const generateComment = (commentDto, container) => {
-    return new Promise((resolve, reject) => {
-        getCommentBlock(commentDto)
-            .then(res => {
-                container.append(res);
-                bindUpvoteAndDownVoteBtn(commentDto.id);
-                bindCommentHeaderBtn(commentDto.id);
-                resolve(commentDto.id);
-            }).catch(error => {
-                alert("Generating the comment failed! " + error);
-                reject(error);
+const generateComment = (userId, commentDto, container) => {
+    getCommentBlock(commentDto)
+        .then(res => {
+            container.append(res);
+            bindUpvoteAndDownVoteBtn(commentDto.id);
+            bindCommentHeaderBtn(commentDto.id);
+            $("#replyBtn" + commentDto.id).on("click", function (event) {
+                bindReplyBtn(userId, commentDto, commentSection);
             });
-    });
+        }).catch(error => alert("Generating the comment failed! " + error));
 };
 
 export let previousCommentBody;
