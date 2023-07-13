@@ -256,8 +256,9 @@ function onConnected() {
       if (json.modalOpen) return; // If the comment author modal is open this will not generate a notification block
 
       updateTotalNotificationCount();
-      if ($("#notificationReplyItem_" + json.respondentId + "_" + json.id).length) {
-         updateNotification(json.respondentId, json.id, json.type);
+      const itemContainer = ($("#notificationReplyItem_" + json.respondentId + "_" + json.id);
+      if (itemContainer.length) {
+         updateNotification(json, itemContainer);
          return;
       }
       generateNotification(json, notificationContainer);
