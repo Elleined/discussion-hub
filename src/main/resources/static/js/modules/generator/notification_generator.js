@@ -2,14 +2,13 @@ import { getNotificationBlock, getMentionBlock } from '../repository/get_reposit
 import { bindReplyBtn, bindCommentBtn } from '../../forum.js';
 import { saveTracker } from '../repository/save_repository.js';
 
-const generateNotification = (currentUserId, notificationResponse, container) => {
+const generateNotification = (notificationResponse, container) => {
     if (notificationResponse.type === "REPLY") {
         getNotificationBlock(notificationResponse)
             .then(res => {
                 container.append(res);
                 $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
-                    bindReplyBtn(notificationResponse.id);
-                    saveTracker(currentUserId, notificationResponse.id, "REPLY");
+                    bindReplyBtn(notificationResponse.id, notificationResponse.postId);
                     event.preventDefault();
                 });
             }).catch(error => alert("Generating reply notification block failed! " + error));
@@ -19,7 +18,6 @@ const generateNotification = (currentUserId, notificationResponse, container) =>
                 container.append(res);
                 $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
                     bindCommentBtn(notificationResponse.id);
-                    saveTracker(currentUserId, notificationResponse.id, "COMMENT");
                     event.preventDefault();
                 });
             }).catch(error => alert("Generating comment notification block failed! " + error));

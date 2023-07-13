@@ -1,9 +1,6 @@
 package com.forum.application.mapper;
 
-import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.NotificationResponse;
-import com.forum.application.dto.PostDTO;
-import com.forum.application.dto.ReplyDTO;
+import com.forum.application.dto.*;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Mention;
 import com.forum.application.model.Type;
@@ -58,7 +55,7 @@ public class NotificationMapper {
 
         boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
         int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replierId);
-        return NotificationResponse.builder()
+        return ReplyNotification.replyNotificationBuilder()
                 .id(commentId)
                 .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
                 .respondentPicture(replier.getPicture())
@@ -68,6 +65,7 @@ public class NotificationMapper {
                 .isModalOpen(isModalOpen)
                 .formattedDate(replyDTO.getFormattedDate())
                 .formattedTime(replyDTO.getFormattedTime())
+                .postId(commentDTO.getPostId())
                 .build();
     }
 

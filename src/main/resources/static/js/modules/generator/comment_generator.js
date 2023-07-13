@@ -4,15 +4,15 @@ import { getCommentBlock } from '../repository/get_repository.js';
 import { bindReplyBtn } from '../../forum.js';
 import { saveTracker } from '../repository/save_repository.js';
 
-const generateComment = (userId, commentDto, container) => {
+const generateComment = (commentDto, container) => {
     getCommentBlock(commentDto)
         .then(res => {
             container.append(res);
             bindUpvoteAndDownVoteBtn(commentDto.id);
             bindCommentHeaderBtn(commentDto.id);
             $("#replyBtn" + commentDto.id).on("click", function (event) {
-                bindReplyBtn(commentDto.id);
-                saveTracker(userId, commentDto.id, "REPLY");
+                bindReplyBtn(commentDto.id, commentDto.postId);
+                event.preventDefault();
             });
         }).catch(error => alert("Generating the comment failed! " + error));
 };
