@@ -40,7 +40,10 @@
       </div>
       <div class="row">
         <div class="md-col">
-          <button type="button" th:id="${'replyBtn' + commentDto.id}" href="#" th:value="${commentDto.totalReplies}" th:text="${'Reply  ·  ' + commentDto.totalReplies}" data-bs-toggle="modal" data-bs-target="#replyModal" class="btn btn-primary">Reply</button>
+          <button type="button" th:id="${'replyBtn' + commentDto.id}" href="#" th:value="${commentDto.totalReplies}" th:text="${'Reply  ·  ' + commentDto.totalReplies}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#replyModal"
+                  class="btn btn-primary">Reply</button>
           <span th:text="${' at ' + commentDto.formattedTime + ' on ' + commentDto.formattedDate}"></span>
         </div>
       </div>

@@ -9,7 +9,6 @@ const generateNotification = (currentUserId, notificationResponse, container) =>
                 container.append(res);
                 $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
                     bindReplyBtn(notificationResponse.id);
-                    $("#replyModal").modal("show");
                     saveTracker(currentUserId, notificationResponse.id, "REPLY");
                     event.preventDefault();
                 });
@@ -20,7 +19,6 @@ const generateNotification = (currentUserId, notificationResponse, container) =>
                 container.append(res);
                 $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
                     bindCommentBtn(notificationResponse.id);
-                    $("#commentModal").modal("show");
                     saveTracker(currentUserId, notificationResponse.id, "COMMENT");
                     event.preventDefault();
                 });
