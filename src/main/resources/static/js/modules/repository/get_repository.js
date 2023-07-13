@@ -139,6 +139,10 @@ const getCommentById = commentId => {
     return deferred.promise();
 };
 
+const getAllNotification = currentUserId => {
+
+};
+
 // Use isUserBlocked method instead
 const isBlockedBy = (userId, userToCheckId) => {
     return $.ajax({

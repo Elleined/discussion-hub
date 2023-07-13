@@ -54,7 +54,7 @@ public class NotificationService {
 
     long getAllUnreadNotificationCount(int userId) throws ResourceNotFoundException {
         return commentService.getUnreadCommentsOfAllPost(userId).size() +
-                replyService.getAllUnreadRepliesOfAllCommentsByAuthorId(userId).size() +
+                replyService.getUnreadRepliesOfAllComments(userId).size() +
                 mentionService.getAllUnreadReceiveMentions(userId).size();
     }
 
@@ -64,7 +64,7 @@ public class NotificationService {
                 .map(comment -> notificationMapper.toCommentNotification(comment.getId(), comment.getPostId(), comment.getCommenterId()))
                 .toList();
 
-        List<NotificationResponse> replyNotifications = replyService.getAllUnreadRepliesOfAllCommentsByAuthorId(userId)
+        List<NotificationResponse> replyNotifications = replyService.getUnreadRepliesOfAllComments(userId)
                 .stream()
                 .map(reply -> notificationMapper.toReplyNotification(reply.getId(), reply.getCommentId(), reply.getReplierId()))
                 .toList();

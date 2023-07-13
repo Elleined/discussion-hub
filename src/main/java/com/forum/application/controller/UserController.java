@@ -46,7 +46,7 @@ public class UserController {
     @GetMapping("/unreadReplies/{commentId}")
     public List<ReplyDTO> getAllUnreadReplies(@PathVariable("userId") int commenterId,
                                               @PathVariable("commentId") int commentId) {
-        return replyService.getAllUnreadRepliesOfSpecificCommentById(commenterId, commentId);
+        return replyService.getAllUnreadReplies(commenterId, commentId);
     }
 
     @GetMapping("/unreadReplyCountOfSpecificComment/{commentId}")
