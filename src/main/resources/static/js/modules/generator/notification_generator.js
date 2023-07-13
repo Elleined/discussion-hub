@@ -1,6 +1,14 @@
-import { getNotificationBlock, getMentionBlock } from '../repository/get_repository.js';
-import { bindReplyBtn, bindCommentBtn } from '../../forum.js';
-import { saveTracker } from '../repository/save_repository.js';
+import {
+    getNotificationBlock,
+    getMentionBlock
+} from '../repository/get_repository.js';
+import {
+    bindReplyBtn,
+    bindCommentBtn
+} from '../../forum.js';
+import {
+    saveTracker
+} from '../repository/save_repository.js';
 
 const generateNotification = (notificationResponse, container) => {
     if (notificationResponse.type === "REPLY") {
@@ -30,19 +38,19 @@ const generateMention = (notificationResponse, container) => {
 };
 
 const bindCommentButton = notificationResponse => {
-$("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
-                    bindCommentBtn(notificationResponse.id);
-                    $(this).parent().parent().parent().remove();
-                    event.preventDefault();
-                });
+    $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
+        bindCommentBtn(notificationResponse.id);
+        $(this).parent().parent().parent().remove();
+        event.preventDefault();
+    });
 };
 
 const bindReplyButton = notificationResponse => {
- $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
-                    bindReplyBtn(notificationResponse.id, notificationResponse.postId);
-                    $(this).parent().parent().parent().remove();
-                    event.preventDefault();
-                });
+    $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
+        bindReplyBtn(notificationResponse.id, notificationResponse.postId);
+        $(this).parent().parent().parent().remove();
+        event.preventDefault();
+    });
 };
 
 const updateNotification = (notificationResponse, container) => {
