@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -100,7 +102,7 @@ public class CommentService {
         return getAllUnreadComments(authorId, postId).size();
     }
 
-    public List<CommentDTO> getUnreadCommentsOfAllPost(int userId) throws ResourceNotFoundException {
+    public Set<CommentDTO> getUnreadCommentsOfAllPost(int userId) throws ResourceNotFoundException {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
 
@@ -110,9 +112,10 @@ public class CommentService {
                         .filter(comment -> comment.getStatus() == Status.ACTIVE)
                         .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
-                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
+                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
+                        .distinct())
                 .map(commentMapper::toDTO)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) throws ResourceNotFoundException {

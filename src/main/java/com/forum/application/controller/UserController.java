@@ -7,6 +7,7 @@ import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.service.CommentService;
+import com.forum.application.service.NotificationService;
 import com.forum.application.service.ReplyService;
 import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,12 @@ public class UserController {
     private final UserService userService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final NotificationService notificationService;
+
+    @GetMapping("/getAllNotification")
+    public Set<NotificationResponse> getAllNotification(@PathVariable("userId") int userId) {
+        return notificationService.getAllNotification(userId);
+    }
 
     @GetMapping("/unreadComments/{postId}")
     public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int authorId,

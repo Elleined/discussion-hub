@@ -58,7 +58,7 @@ public class NotificationService {
                 mentionService.getAllUnreadReceiveMentions(userId).size();
     }
 
-    Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
+    public Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
         List<NotificationResponse> commentNotifications = commentService.getUnreadCommentsOfAllPost(userId)
                 .stream()
                 .map(comment -> notificationMapper.toCommentNotification(comment.getId(), comment.getPostId(), comment.getCommenterId()))

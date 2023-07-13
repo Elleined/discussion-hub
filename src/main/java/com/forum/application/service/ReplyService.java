@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -102,7 +104,7 @@ public class ReplyService {
         return replyMapper.toDTO(reply);
     }
 
-    List<ReplyDTO> getUnreadRepliesOfAllComments(int userId) throws ResourceNotFoundException {
+    Set<ReplyDTO> getUnreadRepliesOfAllComments(int userId) throws ResourceNotFoundException {
         User user = userService.getById(userId);
         List<Comment> comments = user.getComments();
 
@@ -112,9 +114,10 @@ public class ReplyService {
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
                         .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
-                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
+                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
+                        .distinct())
                 .map(replyMapper::toDTO)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     public List<ReplyDTO> getAllUnreadReplies(int commenterId, int commentId) throws ResourceNotFoundException {
