@@ -203,7 +203,7 @@ function subscribeToPostComments(postId) {
    });
 }
 
-function subscribeToCommentReplies(commentId) {
+export function subscribeToCommentReplies(commentId) {
    // SendTo URI of Reply
    const userId = $("#userId").val();
    replySubscription = stompClient.subscribe(`/discussion/posts/comments/${commentId}/replies`, function (replyDto) {
@@ -246,15 +246,7 @@ function onConnected() {
          updateNotification(json, itemContainer);
          return;
       }
-
-      generateNotification(json, notificationContainer)
-         .then(res => {
-            $("#commentNotificationButton_" + res.respondentId + "_" + res.id).on("click", function (event) {
-               bindCommentBtn(res.id);
-               $("#commentModal").modal("show");
-               event.preventDefault();
-            });
-         }).catch(error => alert("Binding generated notification failed! " + error));
+      generateNotification(currentUserId, json, notificationContainer);
    });
 
    stompClient.subscribe("/user/notification/replies", function (notificationResponse) {
@@ -267,14 +259,7 @@ function onConnected() {
          updateNotification(json.respondentId, json.id, json.type);
          return;
       }
-      generateNotification(json, notificationContainer)
-         .then(res => {
-            $("#replyNotificationButton_" + res.respondentId + "_" + res.id).on("click", function (event) {
-               bindReplyBtn(res.id, json);
-               $("#replyModal").modal("show");
-               event.preventDefault();
-            });
-         });
+      generateNotification(currentUserId, json, notificationContainer);
    });
 
    stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
@@ -301,12 +286,11 @@ async function getAllCommentsOf(postId) {
    }
 }
 
-export function bindReplyBtn(userId, commentDto) {
-   globalCommentId = commentDto.id;
-   subscribeToCommentReplies(commentDto.id);
-   SaveRepository.saveTracker(userId, commentDto.id, "REPLY");
-   $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post")
-   getAllReplies(commentDto.id);
+export function bindReplyBtn(commentId) {
+   globalCommentId = commentId;
+   subscribeToCommentReplies(commentId);
+   // $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post")
+   getAllReplies(commentId);
 }
 
 export function bindCommentBtn(postId) {
@@ -320,9 +304,6 @@ export function bindCommentBtn(postId) {
    getCommentSectionStatus(postId);
 
    getAllCommentsOf(postId);
-   const userId = $("#userId").val();
-      SaveRepository.saveTracker(userId, postId, "COMMENT");
-
 }
 
 async function getAllReplies(commentId) {

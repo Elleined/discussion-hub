@@ -2,6 +2,7 @@ import { updateCommentUpvote, updateCommentBody } from '../repository/update_rep
 import { deleteComment } from '../repository/delete_repository.js';
 import { getCommentBlock } from '../repository/get_repository.js';
 import { bindReplyBtn } from '../../forum.js';
+import { saveTracker } from '../repository/save_repository.js';
 
 const generateComment = (userId, commentDto, container) => {
     getCommentBlock(commentDto)
@@ -10,7 +11,8 @@ const generateComment = (userId, commentDto, container) => {
             bindUpvoteAndDownVoteBtn(commentDto.id);
             bindCommentHeaderBtn(commentDto.id);
             $("#replyBtn" + commentDto.id).on("click", function (event) {
-                bindReplyBtn(userId, commentDto, commentSection);
+                bindReplyBtn(commentDto.id);
+                saveTracker(userId, commentDto.id, "REPLY");
             });
         }).catch(error => alert("Generating the comment failed! " + error));
 };

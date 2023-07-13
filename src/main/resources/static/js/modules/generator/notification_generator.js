@@ -1,17 +1,31 @@
 import { getNotificationBlock, getMentionBlock } from '../repository/get_repository.js';
+import { bindReplyBtn, bindCommentBtn } from '../../forum.js';
+import { saveTracker } from '../repository/save_repository.js';
 
-const generateNotification = (notificationResponse, container) => {
-    return new Promise((resolve, reject) => {
+const generateNotification = (currentUserId, notificationResponse, container) => {
+    if (notificationResponse.type === "REPLY") {
         getNotificationBlock(notificationResponse)
             .then(res => {
                 container.append(res);
-                resolve(notificationResponse);
-            })
-            .catch(error => {
-                alert("Generating notification block failed! " + error);
-                reject(error);
-            });
-    });
+                $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
+                    bindReplyBtn(notificationResponse.id);
+                    $("#replyModal").modal("show");
+                    saveTracker(currentUserId, notificationResponse.id, "REPLY");
+                    event.preventDefault();
+                });
+            }).catch(error => alert("Generating reply notification block failed! " + error));
+    } else {
+        getNotificationBlock(notificationResponse)
+            .then(res => {
+                container.append(res);
+                $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
+                    bindCommentBtn(notificationResponse.id);
+                    $("#commentModal").modal("show");
+                    saveTracker(currentUserId, notificationResponse.id, "COMMENT");
+                    event.preventDefault();
+                });
+            }).catch(error => alert("Generating comment notification block failed! " + error));
+    }
 };
 
 const generateMention = (notificationResponse, container) => {
