@@ -140,7 +140,10 @@ const getCommentById = commentId => {
 };
 
 const getAllNotification = currentUserId => {
-
+    return $.ajax({
+        type: "GET",
+        url: `/forum/api/users/${currentUserId}/getAllNotification`
+    }).promise();
 };
 
 // Use isUserBlocked method instead
@@ -184,5 +187,6 @@ export {
     getMentionBlock,
     getCommentSectionStatus,
     getSuggestedMentions,
-    isUserBlocked
+    isUserBlocked,
+    getAllNotification
 };
