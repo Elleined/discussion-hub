@@ -56,9 +56,6 @@
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="notificationContainer">
           <!-- The content of this are auto generated in js -->
-          <th:block th:each="notification : ${notifications}">
-            <div th:insert="~{fragments/notification-body :: notification-body-fragment}"></div>
-          </th:block>
           <th:block th:each="mention : ${mentions}">
             <div th:insert="~{fragments/mention-notification :: mention-notification-fragment}"></div>
           </th:block>

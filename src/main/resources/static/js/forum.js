@@ -12,6 +12,7 @@ import generateReply, {
 import generateNotification, {
    updateNotification,
    updateTotalNotificationCount,
+   generateAllNotification,
    generateMention
 } from './modules/generator/notification_generator.js';
 import mention, {
@@ -31,6 +32,10 @@ let globalPostId; // Sets when user clicked the comments
 let globalCommentId; // Sets when user clicked replies
 
 $(document).ready(function () {
+   const notificationContainer = $("#notificationContainer");
+   const userId = $("#userId").val();
+   generateAllNotification(userId, notificationContainer);
+
    $("#postForm").on("submit", function (event) {
       event.preventDefault();
 

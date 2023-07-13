@@ -1,6 +1,7 @@
 import {
     getNotificationBlock,
-    getMentionBlock
+    getMentionBlock,
+    getAllNotification
 } from '../repository/get_repository.js';
 import {
     bindReplyBtn,
@@ -35,6 +36,12 @@ const generateMention = (notificationResponse, container) => {
                 event.preventDefault();
             });
         }).catch(error => alert("Generating mention notification block failed" + error.responseText));
+};
+
+const generateAllNotification = (currentUserId, container) => {
+    getAllNotification(currentUserId)
+        .then(notificationResponse => generateNotification(notificationResponse, container))
+        .catch(error => alert("Generating all notification failed! " + error));
 };
 
 const bindCommentButton = notificationResponse => {
@@ -78,5 +85,6 @@ export default generateNotification;
 export {
     generateMention,
     updateNotification,
-    updateTotalNotificationCount
+    updateTotalNotificationCount,
+    generateAllNotification
 };
