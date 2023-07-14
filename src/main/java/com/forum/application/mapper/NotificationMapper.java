@@ -2,9 +2,7 @@ package com.forum.application.mapper;
 
 import com.forum.application.dto.*;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.Mention;
-import com.forum.application.model.Type;
-import com.forum.application.model.User;
+import com.forum.application.model.*;
 import com.forum.application.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -12,38 +10,35 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationMapper {
-
-    private final PostService postService;
     private final UserService userService;
     private final CommentService commentService;
     private final ReplyService replyService;
     private final MentionHelper mentionHelper;
 
-    @Autowired @Lazy
-    public NotificationMapper(PostService postService, UserService userService, CommentService commentService, ReplyService replyService, MentionHelper mentionHelper) {
-        this.postService = postService;
+    @Autowired
+    @Lazy
+    public NotificationMapper(UserService userService, CommentService commentService, ReplyService replyService, MentionHelper mentionHelper) {
         this.userService = userService;
         this.commentService = commentService;
         this.replyService = replyService;
         this.mentionHelper = mentionHelper;
     }
 
-    public NotificationResponse toCommentNotification(int commentId, int postId) throws ResourceNotFoundException {
-        final PostDTO postDTO = postService.getById(postId);
-        final CommentDTO commentDTO = commentService.getById(commentId);
+    public NotificationResponse toCommentNotification(Comment comment) throws ResourceNotFoundException {
+        Post post = comment.getPost();
 
-        boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
-        int count = commentService.getNotificationCountForRespondent(postDTO.getAuthorId(), postId, commentDTO.getCommenterId());
+        boolean isModalOpen = userService.isModalOpen(post.getAuthor().getId(), post.getId(), Type.COMMENT);
+        int count = commentService.getNotificationCountForRespondent(post.getAuthor().getId(), post.getId(), comment.getCommenter().getId());
         return NotificationResponse.builder()
-                .id(postId)
-                .message(commentDTO.getCommenterName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
-                .respondentPicture(commentDTO.getCommenterPicture())
-                .respondentId(commentDTO.getCommenterId())
+                .id(post.getId())
+                .message(comment.getCommenter().getName() + " commented in your post: " + "\"" + post.getBody() + "\"")
+                .respondentPicture(comment.getCommenter().getPicture())
+                .respondentId(comment.getCommenter().getId())
                 .type(Type.COMMENT)
                 .isModalOpen(isModalOpen)
                 .count(count)
-                .formattedTime(commentDTO.getFormattedTime())
-                .formattedDate(commentDTO.getFormattedDate())
+                .formattedTime(Formatter.formatTime(comment.getDateCreated()))
+                .formattedDate(Formatter.formatDate(comment.getDateCreated()))
                 .build();
     }
 

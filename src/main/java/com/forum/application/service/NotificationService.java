@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
+import com.forum.application.model.Comment;
 import com.forum.application.model.Mention;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,15 +21,14 @@ import java.util.stream.Stream;
 @Slf4j
 public class NotificationService {
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
     private final NotificationMapper notificationMapper;
     private final MentionService mentionService;
-    void broadcastCommentNotification(int commentId, int postId) throws ResourceNotFoundException {
-        var commentNotificationResponse = notificationMapper.toCommentNotification(commentId, postId);
+    void broadcastCommentNotification(Comment comment) throws ResourceNotFoundException {
+        var commentNotificationResponse = notificationMapper.toCommentNotification(comment);
 
-        int authorId = postService.getById(postId).getAuthorId();
+        int authorId = comment.getPost().getAuthor().getId();
         final String subscriberId = String.valueOf(authorId);
         simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/comments", commentNotificationResponse);
 
@@ -61,7 +61,7 @@ public class NotificationService {
     public Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
         List<NotificationResponse> commentNotifications = commentService.getUnreadCommentsOfAllPost(userId)
                 .stream()
-                .map(comment -> notificationMapper.toCommentNotification(comment.getId(), comment.getPostId()))
+                .map(notificationMapper::toCommentNotification)
                 .toList();
 
         List<NotificationResponse> replyNotifications = replyService.getUnreadRepliesOfAllComments(userId)

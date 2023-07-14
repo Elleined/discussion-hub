@@ -2,6 +2,8 @@ package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.mapper.CommentMapper;
+import com.forum.application.model.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,11 +15,11 @@ import org.springframework.web.util.HtmlUtils;
 @Slf4j
 public class WSService {
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final CommentService commentService;
     private final ReplyService replyService;
+    private final CommentMapper commentMapper;
 
-    void broadcastComment(int commentId) {
-        final CommentDTO commentDTO = commentService.getById(commentId);
+    void broadcastComment(Comment comment) {
+        CommentDTO commentDTO = commentMapper.toDTO(comment);
         commentDTO.setBody(HtmlUtils.htmlEscape(commentDTO.getBody()));
 
         final String destination = "/discussion/posts/" + commentDTO.getPostId() + "/comments";

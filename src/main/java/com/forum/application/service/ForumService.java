@@ -4,6 +4,8 @@ import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.*;
+import com.forum.application.mapper.CommentMapper;
+import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Type;
 import com.forum.application.validator.Validator;
@@ -26,6 +28,7 @@ public class ForumService {
     private final ReplyService replyService;
     private final WSService wsService;
     private final NotificationService notificationService;
+    private final CommentMapper commentMapper;
 
     public PostDTO savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             BlockedException,
@@ -57,15 +60,15 @@ public class ForumService {
         if (postService.isDeleted(postId)) throw new ResourceNotFoundException("The post you trying to comment is either be deleted or does not exists anymore!");
         if (userService.isYouBeenBlockedBy(currentUserId, authorId)) throw new BlockedException("Cannot comment because this user block you already!");
 
-        int commentId = commentService.save(currentUserId, postId, body);
+        Comment comment = commentService.save(currentUserId, postId, body);
 
-        wsService.broadcastComment(commentId);
-        notificationService.broadcastCommentNotification(commentId, postId);
+        wsService.broadcastComment(comment);
+        notificationService.broadcastCommentNotification(comment);
         if (mentionedUserIds != null) {
-            userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId)
+            userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, comment.getId())
                     .forEach(notificationService::broadcastMentionNotification);
         }
-        return commentService.getById(commentId);
+        return commentMapper.toDTO(comment);
     }
 
     public ReplyDTO saveReply(int commentId, String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
@@ -108,8 +111,8 @@ public class ForumService {
     }
 
     public void deleteComment(int commentId) {
-        commentService.delete(commentId);
-        wsService.broadcastComment(commentId);
+        Comment comment = commentService.delete(commentId);
+        wsService.broadcastComment(comment);
     }
 
     public void deleteReply(int replyId) {
@@ -165,10 +168,9 @@ public class ForumService {
     }
 
     public CommentDTO updateCommentBody(int commentId, String newBody) {
-        commentService.updateCommentBody(commentId, newBody);
-        wsService.broadcastComment(commentId);
-
-        return commentService.getById(commentId);
+        Comment comment = commentService.updateCommentBody(commentId, newBody);
+        wsService.broadcastComment(comment);
+        return commentMapper.toDTO(comment);
     }
 
     public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {

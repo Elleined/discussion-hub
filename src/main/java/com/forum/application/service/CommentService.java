@@ -30,7 +30,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    int save(int commenterId, int postId, String body) throws ResourceNotFoundException {
+    Comment save(int commenterId, int postId, String body) throws ResourceNotFoundException {
         User commenter = userService.getById(commenterId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
@@ -44,14 +44,13 @@ public class CommentService {
                 .status(Status.ACTIVE)
                 .build();
 
-        commentRepository.save(comment);
         log.debug("Comment with body of {} saved successfully", comment.getBody());
-        return comment.getId();
+        return commentRepository.save(comment);
     }
 
-    void delete(int commentId) {
-        this.setStatus(commentId);
+    Comment delete(int commentId) {
         log.debug("Comment with id of {} are now inactive!", commentId);
+        return this.setStatus(commentId);
     }
 
     public boolean isDeleted(int commentId) throws ResourceNotFoundException {
@@ -102,7 +101,7 @@ public class CommentService {
         return getAllUnreadComments(authorId, postId).size();
     }
 
-    public Set<CommentDTO> getUnreadCommentsOfAllPost(int userId) throws ResourceNotFoundException {
+    public Set<Comment> getUnreadCommentsOfAllPost(int userId) throws ResourceNotFoundException {
         User user = userService.getById(userId);
         List<Post> posts = user.getPosts();
 
@@ -112,9 +111,7 @@ public class CommentService {
                         .filter(comment -> comment.getStatus() == Status.ACTIVE)
                         .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
-                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
-                        .distinct())
-                .map(commentMapper::toDTO)
+                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
                 .collect(Collectors.toSet());
     }
 
@@ -125,12 +122,13 @@ public class CommentService {
         return this.getById(commentId);
     }
 
-    void updateCommentBody(int commentId, String newBody) throws ResourceNotFoundException {
+    Comment updateCommentBody(int commentId, String newBody) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        if (comment.getBody().equals(newBody)) return; // Returning if user doesn't change the comment body
+        if (comment.getBody().equals(newBody)) return comment;
         comment.setBody(newBody);
         commentRepository.save(comment);
         log.debug("Comment with id of {} updated with the new body of {}", commentId, newBody);
+        return comment;
     }
 
     private void readComment(int commentId) throws ResourceNotFoundException {
@@ -177,7 +175,7 @@ public class CommentService {
         return post.getCommentSectionStatus() == Post.CommentSectionStatus.CLOSED;
     }
 
-    void setStatus(int commentId) throws ResourceNotFoundException {
+    Comment setStatus(int commentId) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         comment.setStatus(Status.INACTIVE);
         commentRepository.save(comment);
@@ -186,6 +184,7 @@ public class CommentService {
                 .stream()
                 .map(Reply::getId)
                 .forEach(replyService::setStatus);
+        return comment;
     }
 
     private void setUpvote(int respondentId, int commentId, int newUpvoteCount) throws ResourceNotFoundException {
