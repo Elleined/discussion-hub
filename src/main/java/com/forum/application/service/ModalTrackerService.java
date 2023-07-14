@@ -6,6 +6,8 @@ import com.forum.application.repository.ModalTrackerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -16,6 +18,8 @@ public class ModalTrackerService {
 
     private final ModalTrackerRepository modalTrackerRepository;
 
+    @Transactional(propagation = Propagation.SUPPORTS,
+            isolation = Isolation.READ_COMMITTED)
     ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
         ModalTracker modalTracker = ModalTracker.builder()
                 .receiverId(receiverId)
@@ -31,7 +35,7 @@ public class ModalTrackerService {
     ModalTracker getTrackerOfUserById(int userId) {
         return modalTrackerRepository.findById(userId).orElse(null);
     }
-
+    
     void deleteTrackerOfUserById(int userId, Type type) {
         ModalTracker modalTracker = getTrackerOfUserById(userId);
         if (modalTracker.getType() == type) {
