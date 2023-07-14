@@ -12,7 +12,7 @@ public class NotificationResponse {
     private String respondentPicture;
     private int respondentId;
     private Type type;
-    private boolean isModalOpen;
+    private String notificationStatus;
     private int count;
     private String formattedDate;
     private String formattedTime;

@@ -257,7 +257,7 @@ function onConnected() {
    stompClient.subscribe("/user/notification/replies", function (notificationResponse) {
       const json = JSON.parse(notificationResponse.body);
       if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
-      if (json.modalOpen) return; // If the comment author modal is open this will not generate a notification block
+      if (json.notificationStatus === "READ") return; // If the comment author modal is open this will not generate a notification block
 
       updateTotalNotificationCount();
       const itemContainer = $("#notificationReplyItem_" + json.respondentId + "_" + json.id);
@@ -270,7 +270,7 @@ function onConnected() {
 
    stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
       const json = JSON.parse(notificationResponse.body);
-      if (json.modalOpen) return;
+      if (json.notificationStatus === "READ") return;
 
       updateTotalNotificationCount();
       generateMention(json, notificationContainer);

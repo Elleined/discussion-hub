@@ -10,15 +10,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationMapper {
-    private final UserService userService;
     private final CommentService commentService;
     private final ReplyService replyService;
     private final MentionHelper mentionHelper;
 
     @Autowired
     @Lazy
-    public NotificationMapper(UserService userService, CommentService commentService, ReplyService replyService, MentionHelper mentionHelper) {
-        this.userService = userService;
+    public NotificationMapper(CommentService commentService, ReplyService replyService, MentionHelper mentionHelper) {
         this.commentService = commentService;
         this.replyService = replyService;
         this.mentionHelper = mentionHelper;
@@ -26,8 +24,6 @@ public class NotificationMapper {
 
     public NotificationResponse toCommentNotification(Comment comment) throws ResourceNotFoundException {
         Post post = comment.getPost();
-
-        boolean isModalOpen = userService.isModalOpen(post.getAuthor().getId(), post.getId(), Type.COMMENT);
         int count = commentService.getNotificationCountForRespondent(post.getAuthor().getId(), post.getId(), comment.getCommenter().getId());
         return NotificationResponse.builder()
                 .id(post.getId())
@@ -35,7 +31,7 @@ public class NotificationMapper {
                 .respondentPicture(comment.getCommenter().getPicture())
                 .respondentId(comment.getCommenter().getId())
                 .type(Type.COMMENT)
-                .isModalOpen(isModalOpen)
+                .notificationStatus(comment.getNotificationStatus().name())
                 .count(count)
                 .formattedTime(Formatter.formatTime(comment.getDateCreated()))
                 .formattedDate(Formatter.formatDate(comment.getDateCreated()))
@@ -45,7 +41,6 @@ public class NotificationMapper {
     public NotificationResponse toReplyNotification(Reply reply) throws ResourceNotFoundException {
         final Comment comment = reply.getComment();
 
-        boolean isModalOpen = userService.isModalOpen(comment.getCommenter().getId(), comment.getId(), Type.REPLY);
         int count = replyService.getNotificationCountForRespondent(comment.getCommenter().getId(), comment.getId(), reply.getReplier().getId());
         return ReplyNotification.replyNotificationBuilder()
                 .id(comment.getId())
@@ -54,7 +49,7 @@ public class NotificationMapper {
                 .respondentId(reply.getReplier().getId())
                 .type(Type.REPLY)
                 .count(count)
-                .isModalOpen(isModalOpen)
+                .notificationStatus(reply.getNotificationStatus().name())
                 .formattedDate(Formatter.formatDate(reply.getDateCreated()))
                 .formattedTime(Formatter.formatTime(reply.getDateCreated()))
                 .postId(comment.getPost().getId())
@@ -63,18 +58,14 @@ public class NotificationMapper {
 
     public NotificationResponse toMentionNotification(Mention mention) throws ResourceNotFoundException {
         User mentioningUser = mention.getMentioningUser();
-        User mentionedUser = mention.getMentionedUser();
         String message = mentionHelper.getMessage(mentioningUser, mention.getType(), mention.getTypeId());
-
-        int parentId = mentionHelper.getParentId(mention.getType(), mention.getTypeId());
-        boolean isModalOpen = userService.isModalOpen(mentionedUser.getId(), parentId, mention.getType());
         return NotificationResponse.builder()
                 .id(mention.getId())
                 .message(message)
                 .respondentPicture(mentioningUser.getPicture())
                 .formattedDate(Formatter.formatDate(mention.getCreatedAt()))
                 .formattedTime(Formatter.formatTime(mention.getCreatedAt()))
-                .isModalOpen(isModalOpen)
+                .notificationStatus(mention.getNotificationStatus().name())
                 .build();
     }
 }
