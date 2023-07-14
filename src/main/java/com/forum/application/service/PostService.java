@@ -30,6 +30,7 @@ public class PostService {
     private final CommentService commentService;
     private final PostMapper postMapper;
 
+
     int save(int authorId, String body) throws ResourceNotFoundException {
         User author = userService.getById(authorId);
 
@@ -102,12 +103,7 @@ public class PostService {
     private void setStatus(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + postId + " does not exists!"));
         post.setStatus(Status.INACTIVE);
-        postRepository.save(post);
-
-        post.getComments()
-                .stream()
-                .map(Comment::getId)
-                .forEach(commentService::setStatus);
+        post.getComments().forEach(commentService::setStatus);
     }
 
     public boolean isDeleted(int postId) throws ResourceNotFoundException {

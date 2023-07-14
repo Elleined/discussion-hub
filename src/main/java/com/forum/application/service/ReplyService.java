@@ -47,8 +47,9 @@ public class ReplyService {
     }
 
     Reply delete(int replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         log.debug("Reply with id of {} are now inactive!", replyId);
-        return this.setStatus(replyId);
+        return this.setStatus(reply);
     }
 
     Reply updateReplyBody(int replyId, String newReplyBody) throws ResourceNotFoundException {
@@ -141,8 +142,7 @@ public class ReplyService {
         return getAllUnreadReplies(commenterId, commentId).size();
     }
 
-    Reply setStatus(int replyId) throws ResourceNotFoundException {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+    Reply setStatus(Reply reply) throws ResourceNotFoundException {
         reply.setStatus(Status.INACTIVE);
         return replyRepository.save(reply);
     }

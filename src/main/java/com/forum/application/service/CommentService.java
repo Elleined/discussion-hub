@@ -49,8 +49,9 @@ public class CommentService {
     }
 
     Comment delete(int commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         log.debug("Comment with id of {} are now inactive!", commentId);
-        return this.setStatus(commentId);
+        return this.setStatus(comment);
     }
 
     public boolean isDeleted(int commentId) throws ResourceNotFoundException {
@@ -175,15 +176,11 @@ public class CommentService {
         return post.getCommentSectionStatus() == Post.CommentSectionStatus.CLOSED;
     }
 
-    Comment setStatus(int commentId) throws ResourceNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+    Comment setStatus(Comment comment) throws ResourceNotFoundException {
         comment.setStatus(Status.INACTIVE);
         commentRepository.save(comment);
 
-        comment.getReplies()
-                .stream()
-                .map(Reply::getId)
-                .forEach(replyService::setStatus);
+        comment.getReplies().forEach(replyService::setStatus);
         return comment;
     }
 
