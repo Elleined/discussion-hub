@@ -22,4 +22,5 @@ public class CommentDTO {
     private String status;
     private int totalReplies;
     private String notificationStatus;
+    private String postBody;
 }

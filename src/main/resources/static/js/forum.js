@@ -97,7 +97,6 @@ $(document).ready(function () {
    $(".card-body #commentBtn").on("click", function (event) {
       globalPostId = $(this).attr("href").split("/")[2];
       bindCommentBtn(globalPostId);
-
       event.preventDefault();
    });
 
@@ -292,6 +291,20 @@ async function getAllCommentsOf(postId) {
    }
 }
 
+async function getAllReplies(commentId) {
+   try {
+      const replySection = $(".modal-body #replySection");
+      replySection.empty();
+
+      const replyDTOs = await GetRepository.getAllRepliesOf(commentId);
+      $.each(replyDTOs, function (index, replyDto) {
+         generateReply(replyDto, replySection);
+      });
+   } catch (error) {
+      alert("Getting all replies failed! " + error);
+   }
+}
+
 export function bindCommentBtn(postId) {
    globalPostId = postId;
    subscribeToPostComments(postId);
@@ -312,8 +325,9 @@ export function bindReplyBtn(commentId, postId) {
    globalCommentId = commentId;
 
    subscribeToCommentReplies(commentId);
-
-   // $("#replyModalTitle").text("Replies in " + commentDto.commenterName + " comment in " + commentDto.authorName + " post")
+   GetRepository.getCommentById(commentId)
+        .then(commentDto => $("#replyModalTitle").text(`Replies in ${commentDto.commenterName} comment: ${commentDto.body} in ${commentDto.authorName} post: ${commentDto.postBody}`))
+        .catch(error => alert("Setting reply modal title failed! " + error));
 
    getCommentSectionStatus(postId);
 
@@ -321,20 +335,6 @@ export function bindReplyBtn(commentId, postId) {
 
    const userId = $("#userId").val();
    SaveRepository.saveTracker(userId, commentId, "REPLY");
-}
-
-async function getAllReplies(commentId) {
-   try {
-      const replySection = $(".modal-body #replySection");
-      replySection.empty();
-
-      const replyDTOs = await GetRepository.getAllRepliesOf(commentId);
-      $.each(replyDTOs, function (index, replyDto) {
-         generateReply(replyDto, replySection);
-      });
-   } catch (error) {
-      alert("Getting all replies failed! " + error);
-   }
 }
 
 async function getCommentSectionStatus(postId) {

@@ -20,7 +20,7 @@ public class Post {
     @Column(name = "post_id")
     private int id;
 
-    @Column(name = "body")
+    @Column(name = "body", nullable = false)
     private String body;
 
     @Column(name = "date_created")

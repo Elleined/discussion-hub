@@ -25,7 +25,8 @@ public abstract class CommentMapper {
             @Mapping(target = "authorName", source = "comment.post.author.name"),
             @Mapping(target = "status", source = "comment.status"),
             @Mapping(target = "totalReplies", expression = "java(commentService.getTotalReplies(comment))"),
-            @Mapping(target = "notificationStatus", source = "comment.notificationStatus")
+            @Mapping(target = "notificationStatus", source = "comment.notificationStatus"),
+            @Mapping(target = "postBody", source = "comment.post.body")
     })
     public abstract CommentDTO toDTO(Comment comment);
 }

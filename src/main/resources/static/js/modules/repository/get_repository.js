@@ -125,18 +125,10 @@ const getPostById = postId => {
 };
 
 const getCommentById = commentId => {
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "GET",
-        url: `/forum/api/posts/0/comments/${commentId}`,
-        success: function(response) {
-            deferred.resolve(response);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
-        }
-    });
-    return deferred.promise();
+        url: `/forum/api/posts/0/comments/${commentId}`
+    }).promise();
 };
 
 const getAllNotification = currentUserId => {
