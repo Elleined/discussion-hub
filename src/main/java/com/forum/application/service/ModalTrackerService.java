@@ -24,7 +24,7 @@ public class ModalTrackerService {
                 .build();
 
         var saveModalTracker = modalTrackerRepository.save(modalTracker);
-        log.debug("Saving modal tracker for the receiver id of {} success!", receiverId);
+        log.debug("Saving modal tracker for the receiver with id of {} and Type of {} with associated id of {} success!", receiverId, type, associateTypeIdOpened);
         return saveModalTracker;
     }
 

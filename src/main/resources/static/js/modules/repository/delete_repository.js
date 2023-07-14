@@ -41,17 +41,12 @@ const deleteReply = replyId => {
 const deleteTracker = (userId, type) => {
     $.ajax({
         type: "DELETE",
-        url: "/forum/api/users/" + userId + "/deleteTracker",
-        data: {
-            type: type
-        },
-        success: function(response) {
-            console.log("User with id of " + userId + " modal tracker deleted successfully!")
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Deleting the modal tracker of user with id of " + userId + " failed");
-        }
-    });
+        url: `/forum/api/users/${userId}/deleteTracker`,
+        data: { type: type }
+    })
+    .promise()
+    .then(res => console.log(`Deleting modal tracker for ${userId} with type of ${type} success`))
+    .catch(error => alert("Deleting modal tracker failed!" + error));
 };
 
 export {
