@@ -1,7 +1,6 @@
 package com.forum.application.service;
 
 import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.NotificationResponse;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.*;
@@ -61,7 +60,7 @@ public class ForumService {
         int commentId = commentService.save(currentUserId, postId, body);
 
         wsService.broadcastComment(commentId);
-        notificationService.broadcastCommentNotification(commentId, postId, currentUserId);
+        notificationService.broadcastCommentNotification(commentId, postId);
         if (mentionedUserIds != null) {
             userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, commentId)
                     .forEach(notificationService::broadcastMentionNotification);
@@ -85,7 +84,7 @@ public class ForumService {
 
         int replyId = replyService.save(currentUserId, commentId, body);
         wsService.broadcastReply(replyId);
-        notificationService.broadcastReplyNotification(replyId, commentId, currentUserId);
+        notificationService.broadcastReplyNotification(replyId, commentId);
 
         if (mentionedUserIds != null){
             userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId)
@@ -140,10 +139,6 @@ public class ForumService {
 
     public long getAllUnreadNotificationCount(int userId) {
         return notificationService.getAllUnreadNotificationCount(userId);
-    }
-
-    public Set<NotificationResponse> getAllNotification(int userId) {
-        return notificationService.getAllNotification(userId);
     }
 
     public CommentDTO updateUpvote(int commentId, int newUpvoteCount) throws NoLoggedInUserException,

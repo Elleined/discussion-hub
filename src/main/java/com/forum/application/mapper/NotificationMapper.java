@@ -28,18 +28,17 @@ public class NotificationMapper {
         this.mentionHelper = mentionHelper;
     }
 
-    public NotificationResponse toCommentNotification(int commentId, int postId, int commenterId) throws ResourceNotFoundException {
+    public NotificationResponse toCommentNotification(int commentId, int postId) throws ResourceNotFoundException {
         final PostDTO postDTO = postService.getById(postId);
         final CommentDTO commentDTO = commentService.getById(commentId);
-        final User commenter = userService.getById(commenterId);
 
         boolean isModalOpen = userService.isModalOpen(postDTO.getAuthorId(), postId, Type.COMMENT);
-        int count = commentService.getNotificationCountForRespondent(postDTO.getAuthorId(), postId, commenterId);
+        int count = commentService.getNotificationCountForRespondent(postDTO.getAuthorId(), postId, commentDTO.getCommenterId());
         return NotificationResponse.builder()
                 .id(postId)
-                .message(commenter.getName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
-                .respondentPicture(commenter.getPicture())
-                .respondentId(commenterId)
+                .message(commentDTO.getCommenterName() + " commented in your post: " + "\"" + postDTO.getBody() + "\"")
+                .respondentPicture(commentDTO.getCommenterPicture())
+                .respondentId(commentDTO.getCommenterId())
                 .type(Type.COMMENT)
                 .isModalOpen(isModalOpen)
                 .count(count)
@@ -48,18 +47,17 @@ public class NotificationMapper {
                 .build();
     }
 
-    public NotificationResponse toReplyNotification(int replyId, int commentId, int replierId) throws ResourceNotFoundException {
+    public NotificationResponse toReplyNotification(int replyId, int commentId) throws ResourceNotFoundException {
         final CommentDTO commentDTO = commentService.getById(commentId);
         final ReplyDTO replyDTO = replyService.getById(replyId);
-        final User replier = userService.getById(replierId);
 
         boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
-        int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replierId);
+        int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replyDTO.getReplierId());
         return ReplyNotification.replyNotificationBuilder()
                 .id(commentId)
-                .message(replier.getName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
-                .respondentPicture(replier.getPicture())
-                .respondentId(replierId)
+                .message(replyDTO.getReplierName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
+                .respondentPicture(replyDTO.getReplierPicture())
+                .respondentId(replyDTO.getReplierId())
                 .type(Type.REPLY)
                 .count(count)
                 .isModalOpen(isModalOpen)

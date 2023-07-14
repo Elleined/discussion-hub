@@ -12,8 +12,9 @@ public class ReplyNotification extends NotificationResponse {
     private int postId;
 
     @Builder(builderMethodName = "replyNotificationBuilder")
-    public ReplyNotification(int id, String message, String respondentPicture, int respondentId, String uri, Type type, boolean isModalOpen, int count, String formattedDate, String formattedTime, int postId) {
-        super(id, message, respondentPicture, respondentId, uri, type, isModalOpen, count, formattedDate, formattedTime);
+
+    public ReplyNotification(int id, String message, String respondentPicture, int respondentId, Type type, boolean isModalOpen, int count, String formattedDate, String formattedTime, int postId) {
+        super(id, message, respondentPicture, respondentId, type, isModalOpen, count, formattedDate, formattedTime);
         this.postId = postId;
     }
 }
