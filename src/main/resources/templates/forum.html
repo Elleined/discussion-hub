@@ -11,11 +11,22 @@
 <div class="container mt-3 mb-3">
   <div class="row">
     <div class="col-md-3">
-      <a th:href="@{/forum/posts/{authorId} (authorId=${userId}) }">
-        <button type="button" class="btn btn-primary mb-3">
-          See all posts
-        </button>
-      </a>
+      <div class="row">
+        <div class="col-md-6">
+          <a th:href="@{/forum/posts/{authorId} (authorId=${userId}) }">
+            <button type="button" class="btn btn-primary mb-3">
+              See all posts
+            </button>
+          </a>
+        </div>
+        <div class="col-md-6">
+          <a th:href="@{/forum/users/blockedUsers}">
+            <button type="button" class="btn btn-primary mb-3">
+              See all blocked users
+            </button>
+          </a>
+        </div>
+      </div>
     </div>
     <div class="col-md-3">
       <form id="postForm">
