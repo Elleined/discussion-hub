@@ -23,15 +23,17 @@
             <a class="btn btn-outline-danger btn-rounded mt-1"
                data-mdb-ripple-color="dark"
                data-mdb-toggle="modal"
-               data-mdb-target="#blockModal"
+               data-mdb-target="#unblockModal"
                role="button"
                th:href="@{/forum/api/users/{userId}/unblockUser/{userToBeUnblockedId} (userId=${currentUserId}, userToBeUnblockedId=${blockedUser.id}) }"
                id="blockBtn">
-                Block
+                Unblock
             </a>
         </div>
     </div>
     <hr>
 </th:block>
+
+<div th:insert="~{/fragments/block-modal :: unblock-modal-fragment}"></div>
 </body>
 </html>

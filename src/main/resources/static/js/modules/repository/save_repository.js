@@ -110,7 +110,7 @@ const unblockUser = href => {
         url: href
     })
     .promise()
-    .then(res => alert("You Successfully unblock this user"))
+    .then(res => location.reload())
     .catch(error => alert("Unblocking this user failed!" + error));
 }
 
