@@ -40,8 +40,11 @@ const generateMention = (notificationResponse, container) => {
 
 const generateAllNotification = (currentUserId, container) => {
     getAllNotification(currentUserId)
-        .then(notificationResponse => generateNotification(notificationResponse, container))
-        .catch(error => alert("Generating all notification failed! " + error));
+        .then(notificationResponses => {
+            $.each(notificationResponses, function(index, notificationResponse) {
+                generateNotification(notificationResponse, container);
+            });
+        }).catch(error => alert("Generating all notification failed! " + error));
 };
 
 const bindCommentButton = notificationResponse => {
