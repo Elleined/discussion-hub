@@ -42,23 +42,22 @@ public class NotificationMapper {
                 .build();
     }
 
-    public NotificationResponse toReplyNotification(int replyId, int commentId) throws ResourceNotFoundException {
-        final CommentDTO commentDTO = commentService.getById(commentId);
-        final ReplyDTO replyDTO = replyService.getById(replyId);
+    public NotificationResponse toReplyNotification(Reply reply) throws ResourceNotFoundException {
+        final Comment comment = reply.getComment();
 
-        boolean isModalOpen = userService.isModalOpen(commentDTO.getCommenterId(), commentId, Type.REPLY);
-        int count = replyService.getNotificationCountForRespondent(commentDTO.getCommenterId(), commentId, replyDTO.getReplierId());
+        boolean isModalOpen = userService.isModalOpen(comment.getCommenter().getId(), comment.getId(), Type.REPLY);
+        int count = replyService.getNotificationCountForRespondent(comment.getCommenter().getId(), comment.getId(), reply.getReplier().getId());
         return ReplyNotification.replyNotificationBuilder()
-                .id(commentId)
-                .message(replyDTO.getReplierName() + " replied to your comment: " +  "\"" + commentDTO.getBody() + "\"")
-                .respondentPicture(replyDTO.getReplierPicture())
-                .respondentId(replyDTO.getReplierId())
+                .id(comment.getId())
+                .message(reply.getReplier().getName() + " replied to your comment: " +  "\"" + comment.getBody() + "\"")
+                .respondentPicture(reply.getReplier().getPicture())
+                .respondentId(reply.getReplier().getId())
                 .type(Type.REPLY)
                 .count(count)
                 .isModalOpen(isModalOpen)
-                .formattedDate(replyDTO.getFormattedDate())
-                .formattedTime(replyDTO.getFormattedTime())
-                .postId(commentDTO.getPostId())
+                .formattedDate(Formatter.formatDate(reply.getDateCreated()))
+                .formattedTime(Formatter.formatTime(reply.getDateCreated()))
+                .postId(comment.getPost().getId())
                 .build();
     }
 

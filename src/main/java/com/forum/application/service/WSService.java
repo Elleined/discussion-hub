@@ -3,7 +3,9 @@ package com.forum.application.service;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.mapper.CommentMapper;
+import com.forum.application.mapper.ReplyMapper;
 import com.forum.application.model.Comment;
+import com.forum.application.model.Reply;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -15,8 +17,8 @@ import org.springframework.web.util.HtmlUtils;
 @Slf4j
 public class WSService {
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final ReplyService replyService;
     private final CommentMapper commentMapper;
+    private final ReplyMapper replyMapper;
 
     void broadcastComment(Comment comment) {
         CommentDTO commentDTO = commentMapper.toDTO(comment);
@@ -26,8 +28,8 @@ public class WSService {
         simpMessagingTemplate.convertAndSend(destination, commentDTO);
         log.debug("Comment with body of {} broadcast successfully to {}", commentDTO.getBody(), destination);
     }
-    void broadcastReply(int replyId) {
-        final ReplyDTO replyDTO = replyService.getById(replyId);
+    void broadcastReply(Reply reply) {
+        ReplyDTO replyDTO = replyMapper.toDTO(reply);
         replyDTO.setBody(HtmlUtils.htmlEscape(replyDTO.getBody()));
 
         final String destination = "/discussion/posts/comments/" + replyDTO.getCommentId() + "/replies";

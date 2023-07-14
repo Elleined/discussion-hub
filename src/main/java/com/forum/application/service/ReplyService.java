@@ -28,7 +28,7 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final ReplyMapper replyMapper;
 
-    int save(int replierId, int commentId, String body) throws ResourceNotFoundException {
+    Reply save(int replierId, int commentId, String body) throws ResourceNotFoundException {
         User replier = userService.getById(replierId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
 
@@ -42,22 +42,21 @@ public class ReplyService {
                 .notificationStatus(status)
                 .build();
 
-        replyRepository.save(reply);
         log.debug("Reply with body of {} saved successfully!", reply.getBody());
-        return reply.getId();
+        return replyRepository.save(reply);
     }
 
-    void delete(int replyId) {
-        this.setStatus(replyId);
+    Reply delete(int replyId) {
         log.debug("Reply with id of {} are now inactive!", replyId);
+        return this.setStatus(replyId);
     }
 
-    void updateReplyBody(int replyId, String newReplyBody) throws ResourceNotFoundException {
+    Reply updateReplyBody(int replyId, String newReplyBody) throws ResourceNotFoundException {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
-        if (reply.getBody().equals(newReplyBody)) return;
+        if (reply.getBody().equals(newReplyBody)) return reply;
         reply.setBody(newReplyBody);
-        replyRepository.save(reply);
         log.debug("Reply with id of {} updated with the new body of {}", replyId, newReplyBody);
+        return replyRepository.save(reply);
     }
 
     private void readReply(int replyId) throws ResourceNotFoundException {
@@ -104,7 +103,7 @@ public class ReplyService {
         return replyMapper.toDTO(reply);
     }
 
-    Set<ReplyDTO> getUnreadRepliesOfAllComments(int userId) throws ResourceNotFoundException {
+    Set<Reply> getUnreadRepliesOfAllComments(int userId) throws ResourceNotFoundException {
         User user = userService.getById(userId);
         List<Comment> comments = user.getComments();
 
@@ -114,9 +113,7 @@ public class ReplyService {
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
                         .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
-                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
-                        .distinct())
-                .map(replyMapper::toDTO)
+                        .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
                 .collect(Collectors.toSet());
     }
 
@@ -144,9 +141,9 @@ public class ReplyService {
         return getAllUnreadReplies(commenterId, commentId).size();
     }
 
-    void setStatus(int replyId) throws ResourceNotFoundException {
+    Reply setStatus(int replyId) throws ResourceNotFoundException {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         reply.setStatus(Status.INACTIVE);
-        replyRepository.save(reply);
+        return replyRepository.save(reply);
     }
 }

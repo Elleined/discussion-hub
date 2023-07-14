@@ -5,8 +5,10 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.*;
 import com.forum.application.mapper.CommentMapper;
+import com.forum.application.mapper.ReplyMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
+import com.forum.application.model.Reply;
 import com.forum.application.model.Type;
 import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,9 @@ public class ForumService {
     private final ReplyService replyService;
     private final WSService wsService;
     private final NotificationService notificationService;
+
     private final CommentMapper commentMapper;
+    private final ReplyMapper replyMapper;
 
     public PostDTO savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             BlockedException,
@@ -85,15 +89,15 @@ public class ForumService {
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("The comment you trying to reply is either be deleted or does not exists anymore!");
         if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
 
-        int replyId = replyService.save(currentUserId, commentId, body);
-        wsService.broadcastReply(replyId);
-        notificationService.broadcastReplyNotification(replyId, commentId);
+        Reply reply = replyService.save(currentUserId, commentId, body);
+        wsService.broadcastReply(reply);
+        notificationService.broadcastReplyNotification(reply);
 
         if (mentionedUserIds != null){
-            userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, replyId)
+            userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, reply.getId())
                     .forEach(notificationService::broadcastMentionNotification);
         }
-        return replyService.getById(replyId);
+        return replyMapper.toDTO(reply);
     }
 
     public PostDTO getPostById(int postId) {
@@ -116,8 +120,8 @@ public class ForumService {
     }
 
     public void deleteReply(int replyId) {
-        replyService.delete(replyId);
-        wsService.broadcastReply(replyId);
+        Reply reply = replyService.delete(replyId);
+        wsService.broadcastReply(reply);
     }
 
     public List<PostDTO> getAllPost() {
@@ -174,10 +178,10 @@ public class ForumService {
     }
 
     public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {
-        replyService.updateReplyBody(replyId, newReplyBody);
-        wsService.broadcastReply(replyId);
+        Reply reply = replyService.updateReplyBody(replyId, newReplyBody);
+        wsService.broadcastReply(reply);
 
-        return replyService.getById(replyId);
+        return replyMapper.toDTO(reply);
     }
 
     public String getCommentSectionStatus(int postId) {

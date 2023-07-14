@@ -5,6 +5,7 @@ import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Mention;
+import com.forum.application.model.Reply;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -25,6 +26,7 @@ public class NotificationService {
     private final ReplyService replyService;
     private final NotificationMapper notificationMapper;
     private final MentionService mentionService;
+
     void broadcastCommentNotification(Comment comment) throws ResourceNotFoundException {
         var commentNotificationResponse = notificationMapper.toCommentNotification(comment);
 
@@ -35,10 +37,10 @@ public class NotificationService {
         log.debug("Comment notification successfully sent to {}", subscriberId);
     }
 
-    void broadcastReplyNotification(int replyId, int commentId) throws ResourceNotFoundException {
-        var replyNotificationResponse = notificationMapper.toReplyNotification(replyId, commentId);
+    void broadcastReplyNotification(Reply reply) throws ResourceNotFoundException {
+        var replyNotificationResponse = notificationMapper.toReplyNotification(reply);
 
-        int commenterId = commentService.getById(commentId).getCommenterId();
+        int commenterId = reply.getComment().getCommenter().getId();
         final String subscriberId = String.valueOf(commenterId);
         simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
 
@@ -66,7 +68,7 @@ public class NotificationService {
 
         List<NotificationResponse> replyNotifications = replyService.getUnreadRepliesOfAllComments(userId)
                 .stream()
-                .map(reply -> notificationMapper.toReplyNotification(reply.getId(), reply.getCommentId()))
+                .map(notificationMapper::toReplyNotification)
                 .toList();
 
         return Stream.of(commentNotifications, replyNotifications)
