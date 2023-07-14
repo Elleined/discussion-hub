@@ -1,4 +1,77 @@
-<div class="commentContainer container ms-5"  th:id="${'commentContainer' + commentDto.id }" >
+<div class="commentContainer container"
+     th:id="${'commentContainer' + commentDto.id }"
+     th:if="${currentUserId == commentDto.commenterId}">
+  <div class="row gx-5 ">
+
+    <div class="col-md-6">
+      <div class="container">
+        <div class="row" style="height: 70px">
+          <div class="col-md-6">
+
+            <a class="btn btn-danger" role="button" href="#" th:id="${'commentDeleteBtn' + commentDto.id}" >
+              <i class="fas fa-trash"></i> Delete </a>
+            <a class="btn btn-primary" role="button" href="#" th:id="${'editCommentBtn' + commentDto.id}">
+              <i class="fas fa-pencil"></i> Edit </a>
+
+
+          </div>
+          <div class="col-md-6">
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <div class="grid" style="row-gap: 0;">
+                <div class="g-col-6">
+
+                  <span th:text="${' at ' + commentDto.formattedTime + ' on ' + commentDto.formattedDate}"></span>
+                </div>
+                <div class="g-col-6 d-md-flex justify-content-md-end">
+                  <span class="md5 mb-5 mt-2 me-2" th:text="${commentDto.commenterName}"></span>
+
+                </div>
+              </div>
+              <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" th:src="${'/img/' + commentDto.commenterPicture}" />
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-2">
+          <button type="button" th:id="${'editCommentSaveBtn' + commentDto.id}" class="btn btn-primary" href="#">Save</button>
+        </div>
+        <div class="col-md-10 d-md-flex justify-content-md-end">
+          <p th:text="${commentDto.body}" th:id="${'commentBody' + commentDto.id}"></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <button type="button" th:id="${'replyBtn' + commentDto.id}" href="#" th:value="${commentDto.totalReplies}" th:text="${'Reply  ·  ' + commentDto.totalReplies}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#replyModal"
+                  class="btn btn-primary">Reply</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-1">
+      <div class="row gx-5">
+        <a type="button" href="#" th:id="${'upvoteBtn' + commentDto.id}">
+          <i class="fas fa-angle-up fa-3x"></i>
+        </a>
+      </div>
+      <span class="d-flex justify-content-center mt-2 mb-2" th:id="${'upvoteValue' + commentDto.id}" th:text="${commentDto.upvote}"></span>
+      <div class="row gx-5">
+        <a type="button" href="#" th:id="${'downvoteBtn' + commentDto.id}">
+          <i class="fas fa-angle-down fa-3x"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <hr>
+</div>
+
+<div class="commentContainer container ms-5"
+     th:id="${'commentContainer' + commentDto.id }"
+     th:unless="${currentUserId == commentDto.commenterId}">
   <div class="row gx-5 ">
     <div class="col-md-1">
       <div class="row gx-5">
@@ -20,22 +93,11 @@
             <img class="rounded-circle shadow-4-strong" alt="avatar2" height="50px" width="50px" th:src="${'/img/' + commentDto.commenterPicture}" />
             <span class="md5 mb-5" th:text="${commentDto.commenterName}"></span>
           </div>
-          <div class="col-md-6" th:if="${currentUserId == commentDto.commenterId}">
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a class="btn btn-danger" role="button" href="#" th:id="${'commentDeleteBtn' + commentDto.id}" >
-                <i class="fas fa-trash"></i> Delete </a>
-              <a class="btn btn-primary" role="button" href="#" th:id="${'editCommentBtn' + commentDto.id}">
-                <i class="fas fa-pencil"></i> Edit </a>
-            </div>
-          </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-10">
           <p class="mt-2" th:text="${commentDto.body}" th:id="${'commentBody' + commentDto.id}"></p>
-        </div>
-        <div class="col-md-2" th:if="${currentUserId == commentDto.commenterId}">
-          <button type="button" th:id="${'editCommentSaveBtn' + commentDto.id}" class="btn btn-primary" href="#">Save</button>
         </div>
       </div>
       <div class="row">

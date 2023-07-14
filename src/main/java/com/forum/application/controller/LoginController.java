@@ -1,5 +1,7 @@
 package com.forum.application.controller;
 
+import com.forum.application.model.Comment;
+import com.forum.application.service.CommentService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping
 public class LoginController {
     private final UserService userService;
-
     @GetMapping
-    public String gotoLogin(HttpSession session) {
+    public String gotoLogin(HttpSession session, Model model) {
 
         String email = (String) session.getAttribute("email");
         if (email != null) return "redirect:/forum";
-
         return "login";
     }
 
