@@ -104,10 +104,21 @@ const blockUser = href => {
     });
 };
 
+const unblockUser = href => {
+    $.ajax({
+        type: "PATCH",
+        url: href
+    })
+    .promise()
+    .then(res => alert("You Successfully unblock this user"))
+    .catch(error => alert("Unblocking this user failed!" + error));
+}
+
 export {
     saveTracker,
     savePost,
     saveComment,
     saveReply,
-    blockUser
+    blockUser,
+    unblockUser
 };

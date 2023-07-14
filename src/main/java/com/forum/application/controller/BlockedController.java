@@ -27,6 +27,7 @@ public class BlockedController {
         int currentUserId = userService.getCurrentUser().getId();
         Set<UserDTO> blockedUsers = userService.getAllBlockedUsers(currentUserId);
         model.addAttribute("blockedUsers", blockedUsers);
+        model.addAttribute("currentUserId", currentUserId);
         return "blocked-users";
     }
 }

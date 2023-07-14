@@ -3,8 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Forum</title>
+    <div th:replace="~{fragments/links :: links-fragment}"></div>
+    <script th:src="@{/js/blocked_user.js}" type="module"></script>
 </head>
 <body>
+<h1 class="display-1 text-primary-emphasis" align="center">Blocked Users</h1>
+<hr>
 
+<h2 th:if="${blockedUsers.isEmpty()}">No Blocked Users Yet :)</h2>
+<th:block th:each="blockedUser : ${blockedUsers}">
+    <div class="blockedUserSelector d-flex align-items-center ms-5">
+        <div class="flex-shrink-0">
+            <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;" th:src="${'/img/' + blockedUser.picture}">
+        </div>
+        <div class="flex-grow-1 ms-3">
+            <p class="lead mt-2 ms-2 me-2" th:text="${blockedUser.name}"></p>
+        </div>
+        <div class="d-md-flex justify-content-md-end me-5">
+            <a class="btn btn-outline-danger btn-rounded mt-1"
+               data-mdb-ripple-color="dark"
+               data-mdb-toggle="modal"
+               data-mdb-target="#blockModal"
+               role="button"
+               th:href="@{/forum/api/users/{userId}/unblockUser/{userToBeUnblockedId} (userId=${currentUserId}, userToBeUnblockedId=${blockedUser.id}) }"
+               id="blockBtn">
+                Block
+            </a>
+        </div>
+    </div>
+    <hr>
+</th:block>
 </body>
 </html>

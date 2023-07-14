@@ -54,7 +54,7 @@
    </div>
 </th:block>
 
-<input type="hidden" id="userId" name="userId" th:value="${userId}"/>
+<input type="hidden" id="userId" name="userId" th:value="${currentUserId}"/>
 <div th:insert="~{fragments/comment-modal :: comment-modal-fragment}"></div>
 <div th:insert="~{fragments/reply-modal :: reply-modal-fragment}"></div>
 </body>
