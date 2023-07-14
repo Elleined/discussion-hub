@@ -22,7 +22,10 @@ public class ModalTrackerService {
                 .associatedTypeIdOpened(associateTypeIdOpened)
                 .type(Type.valueOf(type))
                 .build();
-        return modalTrackerRepository.save(modalTracker);
+
+        var saveModalTracker = modalTrackerRepository.save(modalTracker);
+        log.debug("Saving modal tracker for the receiver id of {} success!", receiverId);
+        return saveModalTracker;
     }
 
     ModalTracker getTrackerOfUserById(int userId) {
@@ -31,7 +34,10 @@ public class ModalTrackerService {
 
     void deleteTrackerOfUserById(int userId, Type type) {
         ModalTracker modalTracker = getTrackerOfUserById(userId);
-        if (modalTracker.getType() == type) modalTrackerRepository.deleteById(userId);
+        if (modalTracker.getType() == type) {
+            modalTrackerRepository.deleteById(userId);
+            log.debug("Deleting modal tracker for receiver with id of {} success!", userId);
+        }
     }
 
     boolean isModalOpen(int userId, int associatedTypeId, Type type) {
