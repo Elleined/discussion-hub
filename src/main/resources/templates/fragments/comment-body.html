@@ -41,6 +41,12 @@
         <div class="col-md-10 d-md-flex justify-content-md-end">
           <p th:text="${commentDto.body}" th:id="${'commentBody' + commentDto.id}"></p>
         </div>
+        <img
+                th:if="${commentDto.attachedPicture != null}"
+                th:src="${'/img/' + commentDto.attachedPicture}"
+                class="mb-4 img-fluid rounded"
+                alt="Townhouses and Skyscrapers"
+        />
       </div>
       <div class="row">
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -98,6 +104,12 @@
       <div class="row">
         <div class="col-md-10">
           <p class="mt-2" th:text="${commentDto.body}" th:id="${'commentBody' + commentDto.id}"></p>
+          <img
+                  th:if="${commentDto.attachedPicture != null}"
+                  th:src="${'/img/' + commentDto.attachedPicture}"
+                  class="mb-4 img-fluid rounded"
+                  alt="Townhouses and Skyscrapers"
+          />
         </div>
       </div>
       <div class="row">

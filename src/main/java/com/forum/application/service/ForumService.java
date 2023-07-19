@@ -50,7 +50,7 @@ public class ForumService {
         return postService.getById(postId);
     }
 
-    public CommentDTO saveComment(int postId, String body, Set<Integer> mentionedUserIds) throws ResourceNotFoundException,
+    public CommentDTO saveComment(int postId, String body, String attachedPicture, Set<Integer> mentionedUserIds) throws ResourceNotFoundException,
             NoLoggedInUserException,
             ClosedCommentSectionException,
             BlockedException,
@@ -64,7 +64,7 @@ public class ForumService {
         if (postService.isDeleted(postId)) throw new ResourceNotFoundException("The post you trying to comment is either be deleted or does not exists anymore!");
         if (userService.isYouBeenBlockedBy(currentUserId, authorId)) throw new BlockedException("Cannot comment because this user block you already!");
 
-        Comment comment = commentService.save(currentUserId, postId, body);
+        Comment comment = commentService.save(currentUserId, postId, body, attachedPicture);
 
         wsService.broadcastComment(comment);
         notificationService.broadcastCommentNotification(comment);

@@ -31,9 +31,10 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CommentDTO> saveComment(@PathVariable("postId") int postId,
                                                   @RequestParam("body") String body,
+                                                  @RequestParam("attachedPicture") String attachedPicture,
                                                   @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds) {
 
-        CommentDTO commentDTO = forumService.saveComment(postId, body, mentionedUserIds);
+        CommentDTO commentDTO = forumService.saveComment(postId, body, attachedPicture, mentionedUserIds);
         return ResponseEntity.ok( commentDTO );
     }
 

@@ -30,8 +30,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    Comment save(int commenterId, int postId, String body) throws ResourceNotFoundException {
-        User commenter = userService.getById(commenterId);
+    Comment save(int currentUserId, int postId, String body, String attachedPicture) throws ResourceNotFoundException {
+        User commenter = userService.getById(currentUserId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
         NotificationStatus status = userService.isModalOpen(post.getAuthor().getId(), postId, Type.COMMENT) ? NotificationStatus.READ : NotificationStatus.UNREAD;
@@ -40,6 +40,7 @@ public class CommentService {
                 .dateCreated(LocalDateTime.now())
                 .post(post)
                 .commenter(commenter)
+                .attachedPicture(attachedPicture)
                 .notificationStatus(status)
                 .status(Status.ACTIVE)
                 .build();

@@ -34,6 +34,9 @@ public class Comment {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "attached_picture")
+    private String attachedPicture;
+
     @Column(name = "notification_status")
     @Enumerated(EnumType.STRING)
     private NotificationStatus notificationStatus;
