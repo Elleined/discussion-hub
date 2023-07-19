@@ -20,4 +20,5 @@ public class ReplyDTO {
     private String status;
     private int postId;
     private String notificationStatus;
+    private String attachedPicture;
 }

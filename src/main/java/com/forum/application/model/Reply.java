@@ -32,6 +32,8 @@ public class Reply {
     @Enumerated(EnumType.STRING)
     private NotificationStatus notificationStatus;
 
+    @Column(name = "attached_picture")
+    private String attachedPicture;
     @ManyToOne
     @JoinColumn(
             name = "comment_id",

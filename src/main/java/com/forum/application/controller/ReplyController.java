@@ -5,6 +5,7 @@ import com.forum.application.service.ForumService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.rsocket.service.RSocketExchange;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,9 +32,10 @@ public class ReplyController {
     @PostMapping
     public ResponseEntity<ReplyDTO> saveReply(@PathVariable("commentId") int commentId,
                                        @RequestParam("body") String body,
+                                       @RequestParam(required = false, name = "attachedPicture") String attachedPicture,
                                        @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds) {
 
-        ReplyDTO replyDTO = forumService.saveReply(commentId, body, mentionedUserIds);
+        ReplyDTO replyDTO = forumService.saveReply(commentId, body, attachedPicture, mentionedUserIds);
         return ResponseEntity.ok (replyDTO );
     }
 

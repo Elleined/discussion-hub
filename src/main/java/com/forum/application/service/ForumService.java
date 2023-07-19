@@ -75,7 +75,7 @@ public class ForumService {
         return commentMapper.toDTO(comment);
     }
 
-    public ReplyDTO saveReply(int commentId, String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
+    public ReplyDTO saveReply(int commentId, String body, String attachedPicture, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             NoLoggedInUserException,
             ClosedCommentSectionException,
             ResourceNotFoundException,
@@ -89,7 +89,7 @@ public class ForumService {
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("The comment you trying to reply is either be deleted or does not exists anymore!");
         if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
 
-        Reply reply = replyService.save(currentUserId, commentId, body);
+        Reply reply = replyService.save(currentUserId, commentId, body, attachedPicture);
         wsService.broadcastReply(reply);
         notificationService.broadcastReplyNotification(reply);
 

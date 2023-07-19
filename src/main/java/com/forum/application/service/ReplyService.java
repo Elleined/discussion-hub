@@ -28,8 +28,8 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final ReplyMapper replyMapper;
 
-    Reply save(int replierId, int commentId, String body) throws ResourceNotFoundException {
-        User replier = userService.getById(replierId);
+    Reply save(int currentUserId, int commentId, String body,String attachedPicture) throws ResourceNotFoundException {
+        User replier = userService.getById(currentUserId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
 
         NotificationStatus status = userService.isModalOpen(comment.getCommenter().getId(), commentId, Type.REPLY) ? NotificationStatus.READ : NotificationStatus.UNREAD;
@@ -38,6 +38,7 @@ public class ReplyService {
                 .dateCreated(LocalDateTime.now())
                 .replier(replier)
                 .comment(comment)
+                .attachedPicture(attachedPicture)
                 .status(Status.ACTIVE)
                 .notificationStatus(status)
                 .build();
