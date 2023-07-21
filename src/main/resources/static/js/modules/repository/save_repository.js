@@ -45,13 +45,14 @@ const saveComment = (body, postId, attachedPicture, mentionedUserIds) => {
     }).promise();
 };
 
-const saveReply = (body, commentId, mentionedUserIds) => {
+const saveReply = (body, commentId, attachedPicture, mentionedUserIds) => {
     const dataArray = Array.from(mentionedUserIds);
     return $.ajax({
         type: "POST",
         url: `/forum/api/posts/comments/${commentId}/replies`,
         data: {
             body: body,
+            attachedPicture: attachedPicture,
             mentionedUserIds: dataArray.join(",")
         }
     }).promise();

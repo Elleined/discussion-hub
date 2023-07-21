@@ -1,7 +1,5 @@
 package com.forum.application.controller;
 
-import com.forum.application.model.Comment;
-import com.forum.application.service.CommentService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

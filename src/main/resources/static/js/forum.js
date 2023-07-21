@@ -4,7 +4,8 @@ import * as GetRepository from './modules/repository/get_repository.js';
 import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
 import uploadPhoto, {
-   getAttachedPicture
+   getAttachedPicture,
+   clearAttachedPicture
 } from './modules/upload_photo.js';
 import generateComment, {
    previousCommentBody
@@ -122,6 +123,7 @@ $(document).ready(function () {
 
       $("#commentBody").val("");
       $("#commentImagePreview").addClass("d-none");
+      clearAttachedPicture();
       getMentionedUsers().clear();
    });
 
@@ -137,11 +139,14 @@ $(document).ready(function () {
       const body = $("#replyBody").val();
       if ($.trim(body) === '') return;
       const mentionedUsers = getMentionedUsers();
-      SaveRepository.saveReply(body, globalCommentId, mentionedUsers)
+      const attachedPicture = getAttachedPicture();
+      SaveRepository.saveReply(body, globalCommentId, attachedPicture, mentionedUsers)
          .then(res => console.table(res))
          .catch((xhr, status, error) => alert("Error Occurred! Cannot save reply " + xhr.responseText));
 
       $("#replyBody").val("");
+      $("#replyImagePreview").addClass("d-none");
+      clearAttachedPicture();
       getMentionedUsers().clear();
    });
 
@@ -366,10 +371,17 @@ async function updatePostBody(href, newPostBody) {
 }
 
 function bindUploadPhoto() {
+   // comment
    const commentUploadBtn = $("#commentUploadBtn");
    const commentFileInput = $("#commentFileInput");
    const commentImagePreview = $("#commentImagePreview");
    uploadPhoto(commentUploadBtn, commentFileInput, commentImagePreview);
+
+   // reply
+   const replyUploadBtn = $("#replyUploadBtn");
+   const replyFileInput = $("#replyFileInput");
+   const replyImagePreview = $("#replyImagePreview");
+   uploadPhoto(replyUploadBtn, replyFileInput, replyImagePreview);
 }
 
 function bindGenerateAllNotification() {

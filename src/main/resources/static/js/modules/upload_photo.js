@@ -17,5 +17,6 @@ const uploadPhoto = (uploadBtn, inputField, imagePreview) => {
    });
 };
 
+export const clearAttachedPicture = () => attachedPicture = null;
 export const getAttachedPicture = () => attachedPicture;
 export default uploadPhoto;

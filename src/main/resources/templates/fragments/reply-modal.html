@@ -16,19 +16,25 @@
           <form id="replyForm" name="replyForm">
             <div class="container">
               <div class="row ">
-                <div class="col-md-9">
+                <div class="col-md-10">
                   <textarea class="form-control" id="replyBody" name="replyBody" placeholder="Write a reply..."></textarea>
                 </div>
                 <div class="col-md-2">
-                  <button type="submit" class="btn btn-primary">
+                  <button type="submit" class="btn btn-primary me-3">
                     <i class="far fa-paper-plane"></i>
-                    Reply
                   </button>
+                  <button type="button" id="replyUploadBtn" class="btn btn-outline-secondary btn-rounded" data-mdb-ripple-color="dark">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                  <input class="d-none" type="file" id="replyFileInput">
                 </div>
-              </div>
-              <div class="list-group list-group-light" id="replyMentionList">
 
               </div>
+
+              <div class="mt-3" style="height: 100px; width: 100px">
+                <img src="#" id="replyImagePreview" class="img-fluid rounded d-none" alt="selected image"/>
+              </div>
+              <div class="list-group list-group-light" id="replyMentionList"></div>
             </div>
           </form>
         </div>

@@ -1,9 +1,13 @@
 package com.forum.application.mapper;
 
-import com.forum.application.dto.*;
+import com.forum.application.dto.NotificationResponse;
+import com.forum.application.dto.ReplyNotification;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
-import com.forum.application.service.*;
+import com.forum.application.service.CommentService;
+import com.forum.application.service.Formatter;
+import com.forum.application.service.MentionHelper;
+import com.forum.application.service.ReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
