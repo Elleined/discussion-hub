@@ -190,7 +190,7 @@ function subscribeToPostComments(postId) {
    const userId = $("#userId").val();
    commentSubscription = stompClient.subscribe(`/discussion/posts/${postId}/comments`, function (commentDto) {
       const json = JSON.parse(commentDto.body);
-      const commentContainer = $("div").filter("#commentContainer" + json.id);
+      const commentContainer = $("#commentContainer" + json.id);
 
       // Use for delete
       if (json.status === "INACTIVE") {
@@ -207,6 +207,12 @@ function subscribeToPostComments(postId) {
          return;
       }
 
+      // Used for update
+      if (previousCommentBody === json.body && commentContainer.length) {
+         $("#commentBody" + json.id).text(json.body);
+         return;
+      }
+
       const commentSection = $(".modal-body #commentSection");
       generateComment(json, commentSection);
    });
@@ -217,7 +223,7 @@ export function subscribeToCommentReplies(commentId) {
    const userId = $("#userId").val();
    replySubscription = stompClient.subscribe(`/discussion/posts/comments/${commentId}/replies`, function (replyDto) {
       const json = JSON.parse(replyDto.body);
-      const replyContainer = $("div").filter("#replyContainer" + json.id);
+      const replyContainer = $("#replyContainer" + json.id);
 
       // Use for delete
       if (json.status === "INACTIVE") {
@@ -234,6 +240,10 @@ export function subscribeToCommentReplies(commentId) {
          return;
       }
 
+      if (previousReplyBody === json.body && replyContainer.length) {
+         $("#replyBody" + json.id).text(json.body);
+         return;
+      }
       const replySection = $(".modal-body #replySection");
       generateReply(json, replySection);
    });

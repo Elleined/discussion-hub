@@ -56,22 +56,13 @@ const updatePostBody = (href, newPostBody) => {
 };
 
 const updateCommentBody = (commentId, newCommentBody) => {
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "PATCH",
         url: `/forum/api/posts/0/comments/body/${commentId}`,
         data: {
             newCommentBody: newCommentBody
-        },
-        success: function(response) {
-            deferred.resolve(response);
-            console.log("Comment with id of " + commentId + " updated successfully with new comment body of " + newCommentBody);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
         }
-    });
-    return deferred.promise();
+    }).promise();
 };
 
 const updateReplyBody = (replyId, newReplyBody) => {

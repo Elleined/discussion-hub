@@ -78,7 +78,8 @@ async function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
 async function updateBody(commentId, newCommentBody) {
     try {
         await updateCommentBody(commentId, newCommentBody);
-
+        
+        console.log("Comment with id of " + commentId + " updated successfully with new comment body of " + newCommentBody);
         $("#commentBody" + commentId).attr("contenteditable", "false");
         $("#editCommentSaveBtn" + commentId).hide();
     } catch (error) {
