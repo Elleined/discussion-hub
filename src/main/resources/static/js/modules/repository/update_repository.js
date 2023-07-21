@@ -17,23 +17,12 @@ const updateCommentSectionStatus = (postId, newStatus) => {
     return deferred.promise();
 };
 
-const updateCommentUpvote = (commentId, newUpvoteCount) => {
-    const deferred = $.Deferred();
+const updateCommentUpvote = (commentId) => {
     $.ajax({
         type: "PATCH",
         url: `/forum/api/posts/0/comments/upvote/${commentId}`,
-        data: {
-            newUpvoteCount: newUpvoteCount
-        },
-        success: function(response) {
-            deferred.resolve(response);
-            console.log("Comment with id of " + commentId + " updated successfully with new upvote count of " + newUpvoteCount);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
-        }
-    });
-    return deferred.promise();
+        data: { commentId: commentId }
+    }).promise();
 };
 
 const updatePostBody = (href, newPostBody) => {
@@ -41,9 +30,7 @@ const updatePostBody = (href, newPostBody) => {
     $.ajax({
         type: "PATCH",
         url: `/forum/api${href}`,
-        data: {
-            newPostBody: newPostBody
-        },
+        data: { newPostBody: newPostBody },
         success: function(response) {
             deferred.resolve(response);
             console.log("Post updated successfully with new body of " + newPostBody);

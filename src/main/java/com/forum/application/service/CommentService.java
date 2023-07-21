@@ -10,7 +10,6 @@ import com.forum.application.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -118,10 +117,10 @@ public class CommentService {
                 .collect(Collectors.toSet());
     }
 
-    CommentDTO updateUpvote(int respondentId, int commentId, int newUpvoteCount) throws ResourceNotFoundException {
-        this.setUpvote(respondentId, commentId, newUpvoteCount);
+    CommentDTO updateUpvote(int respondentId, int commentId) throws ResourceNotFoundException {
+        this.setUpvote(respondentId, commentId);
 
-        log.debug("User with id of {} upvoted the Comment with id of {} successfully with new upvote count of {} ", respondentId, commentId, newUpvoteCount);
+        log.debug("User with id of {} upvoted the Comment with id of {} successfully", respondentId, commentId);
         return this.getById(commentId);
     }
 
@@ -159,11 +158,6 @@ public class CommentService {
                 .forEach(this::readComment);
     }
 
-    boolean isNotValidUpvoteValue(int oldUpvoteCount, int newUpvoteCount) {
-        int next = newUpvoteCount + 1;
-        int previous = newUpvoteCount - 1;
-        return oldUpvoteCount != next && oldUpvoteCount != previous;
-    }
 
     boolean isUserAlreadyUpvoteComment(int respondentId, int commentId) throws ResourceNotFoundException {
         User respondent = userService.getById(respondentId);
@@ -186,9 +180,9 @@ public class CommentService {
         return comment;
     }
 
-    private void setUpvote(int respondentId, int commentId, int newUpvoteCount) throws ResourceNotFoundException {
+    private void setUpvote(int respondentId, int commentId) throws ResourceNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        comment.setUpvote(newUpvoteCount);
+        comment.setUpvote(comment.getUpvote() + 1);
         commentRepository.save(comment);
 
         User respondent = userService.getById(respondentId);

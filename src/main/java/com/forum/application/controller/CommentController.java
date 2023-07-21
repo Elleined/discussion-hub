@@ -45,10 +45,8 @@ public class CommentController {
     }
 
     @PatchMapping("/upvote/{commentId}")
-    public ResponseEntity<CommentDTO> updateCommentUpvote(@PathVariable("commentId") int commentId,
-                                                          @RequestParam("newUpvoteCount") int newUpvoteCount) {
-
-        CommentDTO commentDTO = forumService.updateUpvote(commentId, newUpvoteCount);
+    public ResponseEntity<CommentDTO> updateCommentUpvote(@PathVariable("commentId") int commentId) {
+        CommentDTO commentDTO = forumService.updateUpvote(commentId);
         return ResponseEntity.ok( commentDTO );
     }
 

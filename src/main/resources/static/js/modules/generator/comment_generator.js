@@ -49,26 +49,26 @@ function bindUpvoteAndDownVoteBtn(commentId) {
     $("#upvoteBtn" + commentId).on("click", function(event) {
         event.preventDefault();
         if (isClicked) return;
-        let originalUpdateValue = parseInt($("#upvoteValue" + commentId).text());
-        const newUpvoteValue = originalUpdateValue + 1;
-        updateUpvote(commentId, newUpvoteValue, originalUpdateValue);
+        const originalUpdateValue = $("#upvoteValue" + commentId).text();
+        updateUpvote(commentId, originalUpdateValue);
         isClicked = true;
     });
 
     $("#downvoteBtn" + commentId).on("click", function(event) {
         event.preventDefault();
         if (isClicked) return;
-        let originalUpdateValue = parseInt($("#upvoteValue" + commentId).text());
-        const newUpvoteValue = originalUpdateValue - 1;
-        updateUpvote(commentId, newUpvoteValue, originalUpdateValue);
+        let originalUpdateValue = $("#upvoteValue" + commentId).text();
+        updateUpvote(commentId, originalUpdateValue);
         isClicked = true;
     });
 }
 
-async function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
+async function updateUpvote(commentId, originalUpdateValue) {
     try {
-        await updateCommentUpvote(commentId, newUpvoteCount);
-        $("#upvoteValue" + commentId).text(newUpvoteCount);
+        await updateCommentUpvote(commentId);
+
+        console.log("Comment with id of " + commentId + " updated successfully");
+        $("#upvoteValue" + commentId).text(parseInt(originalUpdateValue) + 1);
     } catch (error) {
         $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
         alert("Updating the comment upvote count failed! " + error);
@@ -78,7 +78,7 @@ async function updateUpvote(commentId, newUpvoteCount, originalUpdateValue) {
 async function updateBody(commentId, newCommentBody) {
     try {
         await updateCommentBody(commentId, newCommentBody);
-        
+
         console.log("Comment with id of " + commentId + " updated successfully with new comment body of " + newCommentBody);
         $("#commentBody" + commentId).attr("contenteditable", "false");
         $("#editCommentSaveBtn" + commentId).hide();
