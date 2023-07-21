@@ -37,7 +37,7 @@
                   th:if="${commentDto.attachedPicture != null}"
                   th:src="${'/img/' + commentDto.attachedPicture}"
                   class="mb-4 img-fluid rounded"
-                  alt="Townhouses and Skyscrapers"
+                  alt="attached picture"
           />
         </div>
         <div class="col-md-2" th:if="${currentUserId == commentDto.commenterId}">

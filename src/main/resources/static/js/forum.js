@@ -113,9 +113,12 @@ $(document).ready(function () {
       event.preventDefault();
       const attachedPicture = getAttachedPicture();
 
-      SaveRepository.saveComment(body, globalPostId, attachedPicture);
-      return;
       const body = $("#commentBody").val();
+      SaveRepository.saveComment(body, globalPostId, attachedPicture, [2])
+        .then(res => console.table(res))
+        .catch((xhr, status, error) => alert("Error Occurred! Cannot saved comment! " + xhr.responseText));
+
+      return;
       if ($.trim(body) === '') return;
       if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
          SaveRepository.saveComment(body, globalPostId, mentionedUsersId);

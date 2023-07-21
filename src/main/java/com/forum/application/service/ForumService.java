@@ -66,12 +66,13 @@ public class ForumService {
 
         Comment comment = commentService.save(currentUserId, postId, body, attachedPicture);
 
-        wsService.broadcastComment(comment);
-        notificationService.broadcastCommentNotification(comment);
         if (mentionedUserIds != null) {
             userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, comment.getId())
                     .forEach(notificationService::broadcastMentionNotification);
         }
+
+        wsService.broadcastComment(comment);
+        notificationService.broadcastCommentNotification(comment);
         return commentMapper.toDTO(comment);
     }
 
@@ -90,13 +91,13 @@ public class ForumService {
         if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
 
         Reply reply = replyService.save(currentUserId, commentId, body, attachedPicture);
-        wsService.broadcastReply(reply);
-        notificationService.broadcastReplyNotification(reply);
-
         if (mentionedUserIds != null){
             userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, reply.getId())
                     .forEach(notificationService::broadcastMentionNotification);
         }
+
+        wsService.broadcastReply(reply);
+        notificationService.broadcastReplyNotification(reply);
         return replyMapper.toDTO(reply);
     }
 
