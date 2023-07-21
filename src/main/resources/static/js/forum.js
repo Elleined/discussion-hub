@@ -3,6 +3,7 @@ import * as SaveRepository from './modules/repository/save_repository.js';
 import * as GetRepository from './modules/repository/get_repository.js';
 import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
+import uploadPhoto, { getAttachedPicture } from './modules/upload_photo.js';
 import generateComment, {
    previousCommentBody
 } from './modules/generator/comment_generator.js';
@@ -32,9 +33,8 @@ let globalPostId; // Sets when user clicked the comments
 let globalCommentId; // Sets when user clicked replies
 
 $(document).ready(function () {
-   const notificationContainer = $("#notificationContainer");
-   const userId = $("#userId").val();
-   generateAllNotification(userId, notificationContainer);
+   bindGenerateAllNotification();
+   bindUploadPhoto();
 
    $("#postForm").on("submit", function (event) {
       event.preventDefault();
@@ -111,7 +111,10 @@ $(document).ready(function () {
 
    $(".commentModal #commentForm").on("submit", function (event) {
       event.preventDefault();
+      const attachedPicture = getAttachedPicture();
 
+      SaveRepository.saveComment(body, globalPostId, attachedPicture);
+      return;
       const body = $("#commentBody").val();
       if ($.trim(body) === '') return;
       if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
@@ -121,6 +124,7 @@ $(document).ready(function () {
       }
 
       $("#commentBody").val("");
+      $("#commentImagePreview").addClass("d-none");
       mentionedUsersId.clear();
    });
 
@@ -364,6 +368,19 @@ async function updatePostBody(href, newPostBody) {
    } catch (error) {
       alert("Updating the post body failed! " + error);
    }
+}
+
+function bindUploadPhoto() {
+    const commentUploadBtn = $("#commentUploadBtn");
+    const commentFileInput = $("#commentFileInput");
+    const commentImagePreview = $("#commentImagePreview");
+    uploadPhoto(commentUploadBtn, commentFileInput, commentImagePreview);
+}
+
+function bindGenerateAllNotification() {
+    const notificationContainer = $("#notificationContainer");
+    const userId = $("#userId").val();
+    generateAllNotification(userId, notificationContainer);
 }
 
 function disconnect() {

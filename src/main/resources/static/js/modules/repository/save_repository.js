@@ -42,28 +42,17 @@ const savePost = (body, mentionedUserIds) => {
     return deferred.promise();
 }
 
-const saveComment = (body, postId, mentionedUserIds) => {
+const saveComment = (body, postId, attachedPicture, mentionedUserIds) => {
     const dataArray = Array.from(mentionedUserIds);
-
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "POST",
         url:  `/forum/api/posts/${postId}/comments`,
         data: {
             body: body,
+            attachedPicture: attachedPicture,
             mentionedUserIds: dataArray.join(",")
-        },
-        success: function(response) {
-            deferred.resolve(response);
-            console.log("Comment saved successfully!");
-            console.table(response);
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-            deferred.reject(xhr.responseText);
         }
-    });
-    return deferred.promise();
+    }).promise();
 };
 
 const saveReply = (body, commentId, mentionedUserIds) => {
