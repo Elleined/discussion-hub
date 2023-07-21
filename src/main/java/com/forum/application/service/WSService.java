@@ -26,7 +26,7 @@ public class WSService {
 
         final String destination = "/discussion/posts/" + commentDTO.getPostId() + "/comments";
         simpMessagingTemplate.convertAndSend(destination, commentDTO);
-        log.debug("Comment with body of {} broadcast successfully to {}", commentDTO.getBody(), destination);
+        log.debug("Comment with id of {} and body of {} broadcast successfully to {}", comment.getId(), commentDTO.getBody(), destination);
     }
     void broadcastReply(Reply reply) {
         ReplyDTO replyDTO = replyMapper.toDTO(reply);
@@ -34,6 +34,6 @@ public class WSService {
 
         final String destination = "/discussion/posts/comments/" + replyDTO.getCommentId() + "/replies";
         simpMessagingTemplate.convertAndSend(destination, replyDTO);
-        log.debug("Reply with body of {} broadcast successfully to {}", replyDTO.getBody(), destination);
+        log.debug("Reply with id of {} and body of {} broadcast successfully to {}", reply.getId(), replyDTO.getBody(), destination);
     }
 }

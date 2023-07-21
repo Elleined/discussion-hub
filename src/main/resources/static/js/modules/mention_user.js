@@ -1,5 +1,7 @@
 import { getSuggestedMentions } from './repository/get_repository.js';
 
+const mentionedUsersId = new Set();
+
 const mention = (userId, inputField, mentionList) => {
     const userInputValue = inputField.val();
     const lastWord = userInputValue.split(" ").pop();
@@ -10,7 +12,7 @@ const mention = (userId, inputField, mentionList) => {
         .then(users => {
             console.log("User mentioned: " + username);
             users.forEach(user => {
-                generateMentionList(user, mentionList);
+                generateMentionBlock(user, mentionList);
                 bindGeneratedButton(user.id, username, inputField);
             });
         }).catch(error => console.error(error));
@@ -18,10 +20,7 @@ const mention = (userId, inputField, mentionList) => {
     mentionList.empty();
 };
 
-export const mentionedUsersId = new Set();
-export default mention;
-
-function generateMentionList(user, mentionList) {
+function generateMentionBlock(user, mentionList) {
     const image = `/img/${user.picture}`;
     const mentionBtnId = `mentionBtn_${user.id}`;
     const nameSpanId = `nameSpan_${user.id}`;
@@ -49,3 +48,6 @@ function bindGeneratedButton(userId, username, inputField) {
         inputField.focus();
     });
 }
+
+export const getMentionedUsers = () => mentionedUsersId;
+export default mention;

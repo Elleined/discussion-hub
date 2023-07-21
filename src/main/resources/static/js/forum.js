@@ -3,7 +3,9 @@ import * as SaveRepository from './modules/repository/save_repository.js';
 import * as GetRepository from './modules/repository/get_repository.js';
 import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
-import uploadPhoto, { getAttachedPicture } from './modules/upload_photo.js';
+import uploadPhoto, {
+   getAttachedPicture
+} from './modules/upload_photo.js';
 import generateComment, {
    previousCommentBody
 } from './modules/generator/comment_generator.js';
@@ -17,7 +19,7 @@ import generateNotification, {
    generateMention
 } from './modules/generator/notification_generator.js';
 import mention, {
-   mentionedUsersId
+   getMentionedUsers
 } from './modules/mention_user.js';
 
 const socket = new SockJS("/websocket");
@@ -38,18 +40,16 @@ $(document).ready(function () {
 
    $("#postForm").on("submit", function (event) {
       event.preventDefault();
-
       const body = $("#postBody").val();
-      if ($.trim(body) === '') return;
 
-      if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
-         SaveRepository.savePost(body, mentionedUsersId);
-      } else {
-         SaveRepository.savePost(body);
-      }
+      if ($.trim(body) === '') return;
+      const mentionedUsers = getMentionedUsers();
+      SaveRepository.savePost(body, mentionedUsers)
+         .then(res => window.location.href = "/forum")
+         .catch((xhr, status, error) => alert(xhr.responseText));
 
       $("#postBody").val("");
-      mentionedUsersId.clear();
+      getMentionedUsers().clear();
    });
 
    $("#postBody").on("input", function (event) {
@@ -111,24 +111,18 @@ $(document).ready(function () {
 
    $(".commentModal #commentForm").on("submit", function (event) {
       event.preventDefault();
-      const attachedPicture = getAttachedPicture();
-
       const body = $("#commentBody").val();
-      SaveRepository.saveComment(body, globalPostId, attachedPicture, [2])
-        .then(res => console.table(res))
-        .catch((xhr, status, error) => alert("Error Occurred! Cannot saved comment! " + xhr.responseText));
 
-      return;
       if ($.trim(body) === '') return;
-      if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
-         SaveRepository.saveComment(body, globalPostId, mentionedUsersId);
-      } else {
-         SaveRepository.saveComment(body, globalPostId);
-      }
+      const attachedPicture = getAttachedPicture();
+      const mentionedUsers = getMentionedUsers();
+      SaveRepository.saveComment(body, globalPostId, attachedPicture, mentionedUsers)
+         .then(res => console.table(res))
+         .catch((xhr, status, error) => alert("Error Occurred! Cannot save comment " + xhr.responseText));
 
       $("#commentBody").val("");
       $("#commentImagePreview").addClass("d-none");
-      mentionedUsersId.clear();
+      getMentionedUsers().clear();
    });
 
    $("#commentBody").on("input", function () {
@@ -142,15 +136,13 @@ $(document).ready(function () {
 
       const body = $("#replyBody").val();
       if ($.trim(body) === '') return;
-
-      if (mentionedUsersId !== null || mentionedUsersId.size() !== 0) {
-         SaveRepository.saveReply(body, globalCommentId, mentionedUsersId);
-      } else {
-         SaveRepository.saveReply(body, globalCommentId);
-      }
+      const mentionedUsers = getMentionedUsers();
+      SaveRepository.saveReply(body, globalCommentId, mentionedUsers)
+         .then(res => console.table(res))
+         .catch((xhr, status, error) => alert("Error Occurred! Cannot save reply " + xhr.responseText));
 
       $("#replyBody").val("");
-      mentionedUsersId.clear();
+      getMentionedUsers().clear();
    });
 
    $("#replyBody").on("input", function (event) {
@@ -333,8 +325,8 @@ export function bindReplyBtn(commentId, postId) {
 
    subscribeToCommentReplies(commentId);
    GetRepository.getCommentById(commentId)
-        .then(commentDto => $("#replyModalTitle").text(`Replies in ${commentDto.commenterName} comment: ${commentDto.body} in ${commentDto.authorName} post: ${commentDto.postBody}`))
-        .catch(error => alert("Setting reply modal title failed! " + error));
+      .then(commentDto => $("#replyModalTitle").text(`Replies in ${commentDto.commenterName} comment: ${commentDto.body} in ${commentDto.authorName} post: ${commentDto.postBody}`))
+      .catch(error => alert("Setting reply modal title failed! " + error));
 
    getCommentSectionStatus(postId);
 
@@ -374,16 +366,16 @@ async function updatePostBody(href, newPostBody) {
 }
 
 function bindUploadPhoto() {
-    const commentUploadBtn = $("#commentUploadBtn");
-    const commentFileInput = $("#commentFileInput");
-    const commentImagePreview = $("#commentImagePreview");
-    uploadPhoto(commentUploadBtn, commentFileInput, commentImagePreview);
+   const commentUploadBtn = $("#commentUploadBtn");
+   const commentFileInput = $("#commentFileInput");
+   const commentImagePreview = $("#commentImagePreview");
+   uploadPhoto(commentUploadBtn, commentFileInput, commentImagePreview);
 }
 
 function bindGenerateAllNotification() {
-    const notificationContainer = $("#notificationContainer");
-    const userId = $("#userId").val();
-    generateAllNotification(userId, notificationContainer);
+   const notificationContainer = $("#notificationContainer");
+   const userId = $("#userId").val();
+   generateAllNotification(userId, notificationContainer);
 }
 
 function disconnect() {

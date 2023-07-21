@@ -22,24 +22,14 @@ const saveTracker = (userId, associatedTypeId, type) => {
 
 const savePost = (body, mentionedUserIds) => {
     const dataArray = Array.from(mentionedUserIds);
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "POST",
         url: "/forum/api/posts",
         data: {
             body: body,
             mentionedUserIds: dataArray.join(",")
-        },
-        success: function(response) {
-            deferred.resolve(response);
-             window.location.href = "/forum";
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-            deferred.reject(xhr.responseText);
         }
-    });
-    return deferred.promise();
+    }).promise();
 }
 
 const saveComment = (body, postId, attachedPicture, mentionedUserIds) => {
@@ -57,26 +47,14 @@ const saveComment = (body, postId, attachedPicture, mentionedUserIds) => {
 
 const saveReply = (body, commentId, mentionedUserIds) => {
     const dataArray = Array.from(mentionedUserIds);
-
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "POST",
         url: `/forum/api/posts/comments/${commentId}/replies`,
         data: {
             body: body,
             mentionedUserIds: dataArray.join(",")
-        },
-        success: function(response) {
-            deferred.resolve(response);
-            console.log("Reply saved sucessfully!");
-            console.table(response);
-        },
-        error: function(xhr, status, error) {
-            alert(xhr.responseText);
-            deferred.reject(xhr.responseText);
         }
-    });
-    return deferred.promise();
+    }).promise();
 };
 
 const blockUser = href => {

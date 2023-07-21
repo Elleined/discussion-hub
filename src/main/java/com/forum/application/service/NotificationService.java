@@ -34,7 +34,7 @@ public class NotificationService {
         final String subscriberId = String.valueOf(authorId);
         simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/comments", commentNotificationResponse);
 
-        log.debug("Comment notification successfully sent to {}", subscriberId);
+        log.debug("Comment notification successfully sent to author with id of {}", subscriberId);
     }
 
     void broadcastReplyNotification(Reply reply) throws ResourceNotFoundException {
@@ -44,7 +44,7 @@ public class NotificationService {
         final String subscriberId = String.valueOf(commenterId);
         simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
 
-        log.debug("Reply notification successfully sent to {}", subscriberId);
+        log.debug("Reply notification successfully sent to commenter with id of {}", subscriberId);
     }
 
     void broadcastMentionNotification(int mentionId) throws ResourceNotFoundException {
