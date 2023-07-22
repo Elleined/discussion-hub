@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "tbl_forum_reply")
@@ -34,6 +35,7 @@ public class Reply {
 
     @Column(name = "attached_picture")
     private String attachedPicture;
+
     @ManyToOne
     @JoinColumn(
             name = "comment_id",
@@ -49,4 +51,7 @@ public class Reply {
             foreignKey = @ForeignKey(name = "FK_replier_id")
     )
     private User replier;
+
+    @ManyToMany(mappedBy = "likedReplies")
+    private Set<User> likes;
 }

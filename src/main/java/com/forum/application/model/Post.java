@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tbl_forum_post")
@@ -45,6 +46,9 @@ public class Post {
     // post id reference is in comment table
     @OneToMany(mappedBy = "post")
     private List<Comment> comments;
+
+    @ManyToMany(mappedBy = "likedPosts")
+    private Set<User> likes;
 
     public enum CommentSectionStatus {OPEN, CLOSED}
 }

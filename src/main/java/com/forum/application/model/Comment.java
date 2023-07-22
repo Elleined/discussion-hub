@@ -63,4 +63,7 @@ public class Comment {
 
     @ManyToMany(mappedBy = "upvotedComments")
     private Set<User> upvotingUsers;
+
+    @ManyToMany(mappedBy = "likedComments")
+    private Set<User> likes;
 }

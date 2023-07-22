@@ -1,5 +1,8 @@
 package com.forum.application.model;
 
+import com.forum.application.model.NotificationStatus;
+import com.forum.application.model.Type;
+import com.forum.application.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -56,6 +56,48 @@ public class User {
     )
     private Set<User> blockedUsers;
 
+    @ManyToMany
+    @JoinTable(
+            name = "tbl_liked_post",
+            joinColumns = @JoinColumn(
+                    name = "liker_id",
+                    referencedColumnName = "user_id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "post_id",
+                    referencedColumnName = "post_id"
+            )
+    )
+    private Set<Post> likedPosts;
+
+    @ManyToMany
+    @JoinTable(
+            name = "tbl_liked_comment",
+            joinColumns = @JoinColumn(
+                    name = "liker_id",
+                    referencedColumnName = "user_id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "comment_id",
+                    referencedColumnName = "comment_id"
+            )
+    )
+    private Set<Comment> likedComments;
+
+    @ManyToMany
+    @JoinTable(
+            name = "tbl_liked_reply",
+            joinColumns = @JoinColumn(
+                    name = "liker_id",
+                    referencedColumnName = "user_id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "reply_id",
+                    referencedColumnName = "reply_id"
+            )
+    )
+    private Set<Reply> likedReplies;
+
     // user id reference is in post table
     @OneToMany(mappedBy = "author")
     @Setter(AccessLevel.NONE)
