@@ -1,4 +1,5 @@
 package com.forum.application.model;
+import com.forum.application.model.like.ReplyLike;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,6 +53,6 @@ public class Reply {
     )
     private User replier;
 
-    @ManyToMany(mappedBy = "likedReplies")
-    private Set<User> likes;
+    @OneToMany(mappedBy = "reply")
+    private Set<ReplyLike> likes;
 }

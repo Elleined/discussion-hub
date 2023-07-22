@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.PostMapper;
+import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Post.CommentSectionStatus;
@@ -29,7 +30,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentService commentService;
     private final PostMapper postMapper;
-
 
     int save(int authorId, String body) throws ResourceNotFoundException {
         User author = userService.getById(authorId);
@@ -100,13 +100,7 @@ public class PostService {
         return post.getCommentSectionStatus() == CommentSectionStatus.CLOSED;
     }
 
-    private void setStatus(int postId) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + postId + " does not exists!"));
-        post.setStatus(Status.INACTIVE);
-        post.getComments().forEach(commentService::setStatus);
-    }
-
-    public boolean isDeleted(int postId) throws ResourceNotFoundException {
+    boolean isDeleted(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getStatus() == Status.INACTIVE;
     }
@@ -139,4 +133,11 @@ public class PostService {
 
         return commentCount + commentRepliesCount;
     }
+
+    private void setStatus(int postId) throws ResourceNotFoundException {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + postId + " does not exists!"));
+        post.setStatus(Status.INACTIVE);
+        post.getComments().forEach(commentService::setStatus);
+    }
+
 }

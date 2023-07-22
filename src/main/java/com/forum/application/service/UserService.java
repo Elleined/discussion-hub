@@ -32,9 +32,11 @@ public class UserService {
     private final BlockService blockService;
     private final ModalTrackerService modalTrackerService;
     private final MentionService mentionService;
+
     private final UserMapper userMapper;
     private final NotificationMapper notificationMapper;
     private final HttpSession session;
+
     public int save(User user) {
         int userId = userRepository.save(user).getId();
         log.debug("User registered successfully! with id of {}", userId);

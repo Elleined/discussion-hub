@@ -1,5 +1,8 @@
 package com.forum.application.model;
 
+import com.forum.application.model.like.CommentLike;
+import com.forum.application.model.like.PostLike;
+import com.forum.application.model.like.ReplyLike;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -56,47 +59,14 @@ public class User {
     )
     private Set<User> blockedUsers;
 
-    @ManyToMany
-    @JoinTable(
-            name = "tbl_liked_post",
-            joinColumns = @JoinColumn(
-                    name = "liker_id",
-                    referencedColumnName = "user_id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "post_id",
-                    referencedColumnName = "post_id"
-            )
-    )
-    private Set<Post> likedPosts;
+    @OneToMany(mappedBy = "respondentId")
+    private Set<PostLike> likedPosts;
 
-    @ManyToMany
-    @JoinTable(
-            name = "tbl_liked_comment",
-            joinColumns = @JoinColumn(
-                    name = "liker_id",
-                    referencedColumnName = "user_id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "comment_id",
-                    referencedColumnName = "comment_id"
-            )
-    )
-    private Set<Comment> likedComments;
+    @OneToMany(mappedBy = "respondentId")
+    private Set<CommentLike> likedComments;
 
-    @ManyToMany
-    @JoinTable(
-            name = "tbl_liked_reply",
-            joinColumns = @JoinColumn(
-                    name = "liker_id",
-                    referencedColumnName = "user_id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "reply_id",
-                    referencedColumnName = "reply_id"
-            )
-    )
-    private Set<Reply> likedReplies;
+    @OneToMany(mappedBy = "respondentId")
+    private Set<ReplyLike> likedReplies;
 
     // user id reference is in post table
     @OneToMany(mappedBy = "author")

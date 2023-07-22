@@ -1,5 +1,6 @@
 package com.forum.application.model;
 
+import com.forum.application.model.like.CommentLike;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -61,9 +62,9 @@ public class Comment {
     @OneToMany(mappedBy = "comment")
     private List<Reply> replies;
 
+    @OneToMany(mappedBy = "comment")
+    private Set<CommentLike> likes;
+
     @ManyToMany(mappedBy = "upvotedComments")
     private Set<User> upvotingUsers;
-
-    @ManyToMany(mappedBy = "likedComments")
-    private Set<User> likes;
 }
