@@ -23,7 +23,6 @@ class LikeService {
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
 
-    @Transactional
     int addPostLike(int respondentId, int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
@@ -39,6 +38,12 @@ class LikeService {
                 .build();
 
         likeRepository.save(postLike);
+        post.getLikes().add(postLike);
+        respondent.getLikedPosts().add(postLike);
+
+        postRepository.save(post);
+        userRepository.save(respondent);
+
         log.debug("User with id of {} liked post with id of {}", respondentId, postId);
         return postId;
     }
@@ -59,6 +64,11 @@ class LikeService {
                 .build();
 
         likeRepository.save(commentLike);
+        comment.getLikes().add(commentLike);
+        respondent.getLikedComments().add(commentLike);
+
+        commentRepository.save(comment);
+        userRepository.save(respondent);
         log.debug("User with id of {} liked comment with id of {}", respondent, commentId);
         return commentId;
     }
@@ -78,6 +88,11 @@ class LikeService {
                 .build();
 
         likeRepository.save(replyLike);
+        reply.getLikes().add(replyLike);
+        respondent.getLikedReplies().add(replyLike);
+
+        replyRepository.save(reply);
+        userRepository.save(respondent);
         log.debug("User with id of {} liked reply with id of {}", respondentId, replyId);
         return replyId;
     }

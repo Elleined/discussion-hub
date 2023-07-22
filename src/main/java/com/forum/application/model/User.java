@@ -59,13 +59,19 @@ public class User {
     )
     private Set<User> blockedUsers;
 
+    // user id reference is in tbl liked post
     @OneToMany(mappedBy = "respondent")
+    @Setter(AccessLevel.NONE)
     private Set<PostLike> likedPosts;
 
+    // user id reference is in tbl liked comment
     @OneToMany(mappedBy = "respondent")
+    @Setter(AccessLevel.NONE)
     private Set<CommentLike> likedComments;
 
+    // user id refenrece is in tbl liked reply
     @OneToMany(mappedBy = "respondent")
+    @Setter(AccessLevel.NONE)
     private Set<ReplyLike> likedReplies;
 
     // user id reference is in post table

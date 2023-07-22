@@ -46,10 +46,12 @@ public class Post {
 
     // post id reference is in comment table
     @OneToMany(mappedBy = "post")
+    @Setter(AccessLevel.NONE)
     private List<Comment> comments;
 
     // post id reference is in tbl liked post
     @OneToMany(mappedBy = "post")
+    @Setter(AccessLevel.NONE)
     private Set<PostLike> likes;
 
     public enum CommentSectionStatus {OPEN, CLOSED}

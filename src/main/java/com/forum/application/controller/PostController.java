@@ -73,6 +73,7 @@ public class PostController {
                                             @PathVariable("postId") int postId) {
 
         PostDTO postDTO = forumService.likePost(respondentId, postId);
+        System.out.println(postDTO);
         return ResponseEntity.ok( postDTO );
     }
 }
