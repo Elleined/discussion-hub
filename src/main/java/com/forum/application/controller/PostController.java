@@ -67,4 +67,12 @@ public class PostController {
         PostDTO postDTO = forumService.updatePostBody(postId, newPostBody);
         return ResponseEntity.ok( postDTO );
     }
+
+    @PatchMapping("/{postId}/like/{respondentId}")
+    public ResponseEntity<PostDTO> likePost(@PathVariable("respondentId") int respondentId,
+                                            @PathVariable("postId") int postId) {
+
+        PostDTO postDTO = forumService.likePost(respondentId, postId);
+        return ResponseEntity.ok( postDTO );
+    }
 }

@@ -5,10 +5,7 @@ import com.forum.application.model.*;
 import com.forum.application.model.like.CommentLike;
 import com.forum.application.model.like.PostLike;
 import com.forum.application.model.like.ReplyLike;
-import com.forum.application.repository.CommentRepository;
-import com.forum.application.repository.PostRepository;
-import com.forum.application.repository.ReplyRepository;
-import com.forum.application.repository.UserRepository;
+import com.forum.application.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +20,7 @@ public class LikeService {
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
 
     Post addPostLike(int respondentId, int postId) {
@@ -39,11 +37,9 @@ public class LikeService {
                 .notificationStatus(notificationStatus)
                 .build();
 
-        post.getLikes().add(postLike);
-        respondent.getLikedPosts().add(postLike);
-
-        userRepository.save(respondent);
-        return postRepository.save(post);
+        likeRepository.save(postLike);
+        log.debug("User with id of {} liked post with id of {}", respondentId, postId);
+        return post;
     }
 
     Comment addCommentLike(int respondentId, int commentId) {
@@ -60,11 +56,9 @@ public class LikeService {
                 .notificationStatus(notificationStatus)
                 .build();
 
-        comment.getLikes().add(commentLike);
-        respondent.getLikedComments().add(commentLike);
-
-        userRepository.save(respondent);
-        return commentRepository.save(comment);
+        likeRepository.save(commentLike);
+        log.debug("User with id of {} liked comment with id of {}", respondent, commentId);
+        return comment;
     }
 
     Reply addReplyLike(int respondentId, int replyId) {
@@ -81,10 +75,8 @@ public class LikeService {
                 .notificationStatus(notificationStatus)
                 .build();
 
-        reply.getLikes().add(replyLike);
-        respondent.getLikedReplies().add(replyLike);
-
-        userRepository.save(respondent);
-        return replyRepository.save(reply);
+        likeRepository.save(replyLike);
+        log.debug("User with id of {} liked reply with id of {}", respondentId, replyId);
+        return reply;
     }
 }

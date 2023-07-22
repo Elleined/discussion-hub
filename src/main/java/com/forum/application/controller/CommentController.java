@@ -57,4 +57,12 @@ public class CommentController {
         CommentDTO commentDTO = forumService.updateCommentBody(commentId, newCommentBody);
         return ResponseEntity.ok( commentDTO );
     }
+
+    @PatchMapping("/{commentId}/like/{respondentId}")
+    public ResponseEntity<CommentDTO> likeComment(@PathVariable("respondentId") int respondentId,
+                                                  @PathVariable("commentId") int commentId) {
+
+        CommentDTO commentDTO = forumService.likeComment(respondentId, commentId);
+        return ResponseEntity.ok( commentDTO );
+    }
 }
