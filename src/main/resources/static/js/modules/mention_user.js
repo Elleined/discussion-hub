@@ -50,4 +50,5 @@ function bindGeneratedButton(userId, username, inputField) {
 }
 
 export const getMentionedUsers = () => mentionedUsersId;
+export const clearMentionedUsers = () => mentionedUsersId.clear();
 export default mention;

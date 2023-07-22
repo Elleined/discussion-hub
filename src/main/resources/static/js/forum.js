@@ -8,10 +8,10 @@ import uploadPhoto, {
    clearAttachedPicture
 } from './modules/upload_photo.js';
 import generateComment, {
-   previousCommentBody
+   getPreviousCommentBody
 } from './modules/generator/comment_generator.js';
 import generateReply, {
-   previousReplyBody
+   getPreviousReplyBody
 } from './modules/generator/reply_generator.js';
 import generateNotification, {
    updateNotification,
@@ -20,7 +20,8 @@ import generateNotification, {
    generateMention
 } from './modules/generator/notification_generator.js';
 import mention, {
-   getMentionedUsers
+   getMentionedUsers,
+   clearMentionedUsers
 } from './modules/mention_user.js';
 
 const socket = new SockJS("/websocket");
@@ -50,7 +51,7 @@ $(document).ready(function () {
          .catch((xhr, status, error) => alert(xhr.responseText));
 
       $("#postBody").val("");
-      getMentionedUsers().clear();
+      clearMentionedUsers();
    });
 
    $("#postBody").on("input", function (event) {
@@ -124,7 +125,7 @@ $(document).ready(function () {
       $("#commentBody").val("");
       $("#commentImagePreview").addClass("d-none");
       clearAttachedPicture();
-      getMentionedUsers().clear();
+      clearMentionedUsers();
    });
 
    $("#commentBody").on("input", function () {
@@ -147,7 +148,7 @@ $(document).ready(function () {
       $("#replyBody").val("");
       $("#replyImagePreview").addClass("d-none");
       clearAttachedPicture();
-      getMentionedUsers().clear();
+      clearMentionedUsers();
    });
 
    $("#replyBody").on("input", function (event) {
@@ -202,13 +203,13 @@ function subscribeToPostComments(postId) {
       if (GetRepository.isUserBlocked(userId, json.commenterId)) return;
 
       // Used for update
-      if (previousCommentBody !== json.body && commentContainer.length) {
+      if (getPreviousCommentBody() !== json.body && commentContainer.length) {
          $("#commentBody" + json.id).text(json.body);
          return;
       }
 
       // Used for update
-      if (previousCommentBody === json.body && commentContainer.length) {
+      if (getPreviousCommentBody() === json.body && commentContainer.length) {
          $("#commentBody" + json.id).text(json.body);
          return;
       }
@@ -235,12 +236,12 @@ export function subscribeToCommentReplies(commentId) {
       if (GetRepository.isUserBlocked(userId, json.replierId)) return;
 
       // Use for update
-      if (previousReplyBody !== json.body && replyContainer.length) {
+      if (getPreviousReplyBody() !== json.body && replyContainer.length) {
          $("#replyBody" + json.id).text(json.body);
          return;
       }
 
-      if (previousReplyBody === json.body && replyContainer.length) {
+      if (getPreviousReplyBody() === json.body && replyContainer.length) {
          $("#replyBody" + json.id).text(json.body);
          return;
       }

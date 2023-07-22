@@ -4,6 +4,8 @@ import { getCommentBlock } from '../repository/get_repository.js';
 import { bindReplyBtn } from '../../forum.js';
 import { saveTracker } from '../repository/save_repository.js';
 
+let previousCommentBody = null;
+
 const generateComment = (commentDto, container) => {
     getCommentBlock(commentDto)
         .then(res => {
@@ -16,9 +18,6 @@ const generateComment = (commentDto, container) => {
             });
         }).catch(error => alert("Generating the comment failed! " + error));
 };
-
-export let previousCommentBody;
-export default generateComment;
 
 function bindCommentHeaderBtn(commentId) {
     $("#commentDeleteBtn" + commentId).on("click", function(event) {
@@ -40,6 +39,7 @@ function bindCommentHeaderBtn(commentId) {
         // Adding the editCommentSaveBtn click listener only when user clicks the editCommentBtn
         editCommentSaveBtn.on("click", function() {
             updateBody(commentId, commentBodyText.text());
+            previousCommentBody = null;
         });
     });
 }
@@ -49,28 +49,28 @@ function bindUpvoteAndDownVoteBtn(commentId) {
     $("#upvoteBtn" + commentId).on("click", function(event) {
         event.preventDefault();
         if (isClicked) return;
-        const originalUpdateValue = $("#upvoteValue" + commentId).text();
-        updateUpvote(commentId, originalUpdateValue);
+        const currentUpvoteCount = $("#upvoteValue" + commentId).text();
+        updateUpvote(commentId, currentUpvoteCount);
         isClicked = true;
     });
 
     $("#downvoteBtn" + commentId).on("click", function(event) {
         event.preventDefault();
         if (isClicked) return;
-        let originalUpdateValue = $("#upvoteValue" + commentId).text();
-        updateUpvote(commentId, originalUpdateValue);
+        let currentUpvoteCount = $("#upvoteValue" + commentId).text();
+        updateUpvote(commentId, currentUpvoteCount);
         isClicked = true;
     });
 }
 
-async function updateUpvote(commentId, originalUpdateValue) {
+async function updateUpvote(commentId, currentUpvoteCount) {
     try {
         await updateCommentUpvote(commentId);
 
         console.log("Comment with id of " + commentId + " updated successfully");
-        $("#upvoteValue" + commentId).text(parseInt(originalUpdateValue) + 1);
+        $("#upvoteValue" + commentId).text(parseInt(currentUpvoteCount) + 1);
     } catch (error) {
-        $("#upvoteValue" + commentId).text(originalUpdateValue); // Reset the upvote value to the original value from the server
+        $("#upvoteValue" + commentId).text(currentUpvoteCount); // Reset the upvote value to the original value from the server
         alert("Updating the comment upvote count failed! " + error);
     }
 }
@@ -86,3 +86,6 @@ async function updateBody(commentId, newCommentBody) {
         alert("Updating comment body failed! " + error);
     }
 }
+
+export const getPreviousCommentBody = () => previousCommentBody;
+export default generateComment;

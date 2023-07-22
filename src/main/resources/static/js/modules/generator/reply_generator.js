@@ -2,6 +2,8 @@ import { getReplyBlock } from '../repository/get_repository.js';
 import { deleteReply } from '../repository/delete_repository.js';
 import { updateReplyBody } from '../repository/update_repository.js';
 
+export let previousReplyBody = null;
+
 const generateReply = (replyDto, container) => {
         getReplyBlock(replyDto)
             .then(res => {
@@ -9,9 +11,6 @@ const generateReply = (replyDto, container) => {
                 bindReplyHeaderBtn(replyDto.id);
         }).catch(error => alert("Generating reply failed! " + error.responseText));
 };
-
-export let previousReplyBody;
-export default generateReply;
 
 function bindReplyHeaderBtn(replyId) {
    const editReplySaveBtn = $("#editReplySaveBtn" + replyId);
@@ -37,6 +36,10 @@ function bindReplyHeaderBtn(replyId) {
 
          editReplySaveBtn.hide();
          replyBody.attr("contenteditable", "false");
+         previousReplyBody = null;
       });
    });
 }
+
+export const getPreviousReplyBody = () => previousReplyBody;
+export default generateReply;
