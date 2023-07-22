@@ -173,8 +173,8 @@ public class ForumService {
         return postService.getById(postId);
     }
 
-    public PostDTO likePost(int userId, int postId) {
-        Post post = likeService.addPostLike(userId, postId);
+    public PostDTO likePost(int respondentId, int postId) {
+        Post post = likeService.addPostLike(respondentId, postId);
         return postMapper.toDTO(post);
     }
     public CommentDTO updateCommentBody(int commentId, String newBody) {
@@ -183,10 +183,20 @@ public class ForumService {
         return commentMapper.toDTO(comment);
     }
 
+    public CommentDTO likeComment(int respondentId, int commentId) {
+        Comment comment = likeService.addCommentLike(respondentId, commentId);
+        return commentMapper.toDTO(comment);
+    }
+
     public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {
         Reply reply = replyService.updateReplyBody(replyId, newReplyBody);
         wsService.broadcastReply(reply);
 
+        return replyMapper.toDTO(reply);
+    }
+
+    public ReplyDTO likeReply(int respondentId, int replyId) {
+        Reply reply = likeService.addReplyLike(respondentId, replyId);
         return replyMapper.toDTO(reply);
     }
 

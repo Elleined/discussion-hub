@@ -1,6 +1,8 @@
 package com.forum.application.model.like;
 
+import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Reply;
+import com.forum.application.model.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,7 +15,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "tbl_liked_reply")
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public final class ReplyLike extends Like {
 
     @ManyToOne
@@ -22,4 +23,10 @@ public final class ReplyLike extends Like {
             referencedColumnName = "reply_id"
     )
     private Reply reply;
+
+    @Builder(builderMethodName = "replyLikeBuilder")
+    public ReplyLike(int id, User respondent, NotificationStatus notificationStatus, Reply reply) {
+        super(id, respondent, notificationStatus);
+        this.reply = reply;
+    }
 }

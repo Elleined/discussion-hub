@@ -1,11 +1,10 @@
 package com.forum.application.service;
 
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.model.NotificationStatus;
-import com.forum.application.model.Post;
-import com.forum.application.model.Type;
-import com.forum.application.model.User;
+import com.forum.application.model.*;
+import com.forum.application.model.like.CommentLike;
 import com.forum.application.model.like.PostLike;
+import com.forum.application.model.like.ReplyLike;
 import com.forum.application.repository.CommentRepository;
 import com.forum.application.repository.PostRepository;
 import com.forum.application.repository.ReplyRepository;
@@ -26,11 +25,11 @@ public class LikeService {
     private final UserRepository userRepository;
     private final ModalTrackerService modalTrackerService;
 
-    Post addPostLike(int userId, int postId) {
+    Post addPostLike(int respondentId, int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        User respondent = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(userId, post.getId(), Type.POST)
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, post.getId(), Type.POST)
                 ? NotificationStatus.READ
                 : NotificationStatus.UNREAD;
 
@@ -43,7 +42,49 @@ public class LikeService {
         post.getLikes().add(postLike);
         respondent.getLikedPosts().add(postLike);
 
-        return post;
+        userRepository.save(respondent);
+        return postRepository.save(post);
     }
 
+    Comment addCommentLike(int respondentId, int commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
+
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, comment.getId(), Type.POST)
+                ? NotificationStatus.READ
+                : NotificationStatus.UNREAD;
+
+        CommentLike commentLike = CommentLike.commentLikeBuilder()
+                .comment(comment)
+                .respondent(respondent)
+                .notificationStatus(notificationStatus)
+                .build();
+
+        comment.getLikes().add(commentLike);
+        respondent.getLikedComments().add(commentLike);
+
+        userRepository.save(respondent);
+        return commentRepository.save(comment);
+    }
+
+    Reply addReplyLike(int respondentId, int replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
+
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, reply.getId(), Type.POST)
+                ? NotificationStatus.READ
+                : NotificationStatus.UNREAD;
+
+        ReplyLike replyLike = ReplyLike.replyLikeBuilder()
+                .reply(reply)
+                .respondent(respondent)
+                .notificationStatus(notificationStatus)
+                .build();
+
+        reply.getLikes().add(replyLike);
+        respondent.getLikedReplies().add(replyLike);
+
+        userRepository.save(respondent);
+        return replyRepository.save(reply);
+    }
 }
