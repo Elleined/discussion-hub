@@ -3,14 +3,15 @@ package com.forum.application.model.like;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Getter
 @Setter
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class Like {
 
     @Id

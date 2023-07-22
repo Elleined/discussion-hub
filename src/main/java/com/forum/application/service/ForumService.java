@@ -5,6 +5,7 @@ import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.exception.*;
 import com.forum.application.mapper.CommentMapper;
+import com.forum.application.mapper.PostMapper;
 import com.forum.application.mapper.ReplyMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
@@ -29,8 +30,10 @@ public class ForumService {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final WSService wsService;
+    private final LikeService likeService;
     private final NotificationService notificationService;
 
+    private final PostMapper postMapper;
     private final CommentMapper commentMapper;
     private final ReplyMapper replyMapper;
 
@@ -170,6 +173,10 @@ public class ForumService {
         return postService.getById(postId);
     }
 
+    public PostDTO likePost(int userId, int postId) {
+        Post post = likeService.addPostLike(userId, postId);
+        return postMapper.toDTO(post);
+    }
     public CommentDTO updateCommentBody(int commentId, String newBody) {
         Comment comment = commentService.updateCommentBody(commentId, newBody);
         wsService.broadcastComment(comment);
