@@ -59,13 +59,13 @@ public class User {
     )
     private Set<User> blockedUsers;
 
-    @OneToMany(mappedBy = "respondentId")
+    @OneToMany(mappedBy = "respondent")
     private Set<PostLike> likedPosts;
 
-    @OneToMany(mappedBy = "respondentId")
+    @OneToMany(mappedBy = "respondent")
     private Set<CommentLike> likedComments;
 
-    @OneToMany(mappedBy = "respondentId")
+    @OneToMany(mappedBy = "respondent")
     private Set<ReplyLike> likedReplies;
 
     // user id reference is in post table

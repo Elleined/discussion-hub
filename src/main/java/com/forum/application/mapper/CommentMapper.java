@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-@Mapper(componentModel = "spring", imports = Formatter.class)
+@Mapper(componentModel = "spring", imports = Formatter.class, uses = UserMapper.class)
 public abstract class CommentMapper {
 
     @Autowired @Lazy
@@ -26,7 +26,8 @@ public abstract class CommentMapper {
             @Mapping(target = "status", source = "comment.status"),
             @Mapping(target = "totalReplies", expression = "java(commentService.getTotalReplies(comment))"),
             @Mapping(target = "notificationStatus", source = "comment.notificationStatus"),
-            @Mapping(target = "postBody", source = "comment.post.body")
+            @Mapping(target = "postBody", source = "comment.post.body"),
+            @Mapping(target = "likers", source = "comment.likes")
     })
     public abstract CommentDTO toDTO(Comment comment);
 }

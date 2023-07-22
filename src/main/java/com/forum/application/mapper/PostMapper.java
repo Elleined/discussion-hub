@@ -11,7 +11,7 @@ import org.mapstruct.Mappings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-@Mapper(componentModel = "spring", imports = Formatter.class)
+@Mapper(componentModel = "spring", imports = Formatter.class, uses = UserMapper.class)
 public abstract class PostMapper {
 
     @Autowired @Lazy
@@ -25,7 +25,8 @@ public abstract class PostMapper {
             @Mapping(target = "authorPicture", source = "post.author.picture"),
             @Mapping(target = "totalCommentAndReplies", expression = "java(postService.getTotalCommentsAndReplies(post))"),
             @Mapping(target = "status", source = "post.status"),
-            @Mapping(target = "commentSectionStatus", source = "post.commentSectionStatus")
+            @Mapping(target = "commentSectionStatus", source = "post.commentSectionStatus"),
+            @Mapping(target = "likers", source = "post.likes")
     })
     public abstract PostDTO toDTO(Post post);
 

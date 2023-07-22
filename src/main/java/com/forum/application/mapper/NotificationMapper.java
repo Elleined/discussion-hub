@@ -4,7 +4,6 @@ import com.forum.application.dto.NotificationResponse;
 import com.forum.application.dto.ReplyNotification;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
-import com.forum.application.model.Mention;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.Formatter;
 import com.forum.application.service.MentionHelper;

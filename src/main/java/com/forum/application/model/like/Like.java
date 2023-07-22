@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-abstract class Like {
+public abstract class Like {
 
     @Id
     @GeneratedValue(
@@ -31,7 +31,7 @@ abstract class Like {
             name = "respondent_id",
             referencedColumnName = "user_id"
     )
-    private User respondentId;
+    private User respondent;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "notification_status")

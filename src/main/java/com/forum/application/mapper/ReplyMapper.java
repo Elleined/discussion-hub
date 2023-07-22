@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring", imports = Formatter.class)
+@Mapper(componentModel = "spring", imports = Formatter.class, uses = UserMapper.class)
 public abstract class ReplyMapper {
 
     @Mappings({
@@ -20,7 +20,8 @@ public abstract class ReplyMapper {
             @Mapping(target = "replierPicture", source = "replier.picture"),
             @Mapping(target = "status", source = "reply.status"),
             @Mapping(target = "postId", source = "reply.comment.post.id"),
-            @Mapping(target = "notificationStatus", source = "reply.notificationStatus")
+            @Mapping(target = "notificationStatus", source = "reply.notificationStatus"),
+            @Mapping(target = "likers", source = "reply.likes")
     })
     public abstract ReplyDTO toDTO(Reply reply);
 }

@@ -3,12 +3,12 @@ package com.forum.application.service;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.PostMapper;
-import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Post.CommentSectionStatus;
 import com.forum.application.model.Status;
 import com.forum.application.model.User;
+import com.forum.application.model.like.PostLike;
 import com.forum.application.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -108,6 +109,11 @@ public class PostService {
     public String getCommentSectionStatus(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getCommentSectionStatus().name();
+    }
+
+    Set<PostLike> getLikes(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        return post.getLikes();
     }
 
     public int getTotalCommentsAndReplies(Post post) {

@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Builder
@@ -24,4 +25,5 @@ public class CommentDTO {
     private String notificationStatus;
     private String postBody;
     private String attachedPicture;
+    private Set<UserDTO> likers;
 }

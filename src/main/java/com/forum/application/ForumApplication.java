@@ -1,7 +1,5 @@
 package com.forum.application;
 
-import com.forum.application.model.Post;
-import com.forum.application.model.User;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
