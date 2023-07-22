@@ -27,6 +27,7 @@ public class CommentService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final ReplyService replyService;
+    private final LikeService likeService;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
@@ -74,9 +75,8 @@ public class CommentService {
                 .toList();
     }
 
-    public CommentDTO getById(int commentId) throws ResourceNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
-        return commentMapper.toDTO(comment);
+    public Comment getById(int commentId) throws ResourceNotFoundException {
+        return commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
     }
 
     public List<CommentDTO> getAllUnreadComments(int authorId, int postId) throws ResourceNotFoundException {
@@ -117,11 +117,10 @@ public class CommentService {
                 .collect(Collectors.toSet());
     }
 
-    CommentDTO updateUpvote(int respondentId, int commentId) throws ResourceNotFoundException {
+    int updateUpvote(int respondentId, int commentId) throws ResourceNotFoundException {
         this.setUpvote(respondentId, commentId);
-
         log.debug("User with id of {} upvoted the Comment with id of {} successfully", respondentId, commentId);
-        return this.getById(commentId);
+        return commentId;
     }
 
     Comment updateCommentBody(int commentId, String newBody) throws ResourceNotFoundException {
@@ -131,6 +130,10 @@ public class CommentService {
         commentRepository.save(comment);
         log.debug("Comment with id of {} updated with the new body of {}", commentId, newBody);
         return comment;
+    }
+
+    int likeComment(int respondentId, int commentId) {
+        return likeService.addCommentLike(respondentId, commentId);
     }
 
     private void readComment(int commentId) throws ResourceNotFoundException {

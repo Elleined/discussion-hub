@@ -56,4 +56,9 @@ class PostRepositoryTest {
     void getAll() {
         postRepository.findAll().forEach(System.out::println);
     }
+
+    @Test
+    void getById() {
+
+    }
 }

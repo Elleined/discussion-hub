@@ -30,10 +30,8 @@ public class ForumService {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final WSService wsService;
-    private final LikeService likeService;
     private final NotificationService notificationService;
 
-    private final PostMapper postMapper;
     private final CommentMapper commentMapper;
     private final ReplyMapper replyMapper;
 
@@ -86,7 +84,7 @@ public class ForumService {
             BlockedException {
 
         int currentUserId = userService.getCurrentUser().getId();
-        int commenterId = commentService.getById(commentId).getCommenterId();
+        int commenterId = commentService.getById(commentId).getCommenter().getId();
 
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Reply body cannot be empty!");
         if (commentService.isCommentSectionClosed(commentId)) throw new ClosedCommentSectionException("Cannot reply to this comment because author already closed the comment section for this post!");
@@ -108,10 +106,13 @@ public class ForumService {
         return postService.getById(postId);
     }
     public CommentDTO getCommentById(int commentId) {
-        return commentService.getById(commentId);
+        Comment comment = commentService.getById(commentId);
+        return commentMapper.toDTO(comment);
     }
+
     public ReplyDTO getReplyById(int replyId) {
-        return replyService.getById(replyId);
+        Reply reply = replyService.getById(replyId);
+        return replyMapper.toDTO(reply);
     }
 
     public void deletePost(int postId) {
@@ -160,7 +161,9 @@ public class ForumService {
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("The comment you trying to upvote might be deleted by the author or does not exists anymore!");
         if (commentService.isUserAlreadyUpvoteComment(currentUserId, commentId)) throw new UpvoteException("You can only up vote and down vote a comment once!");
 
-        return commentService.updateUpvote(currentUserId, commentId);
+        int updatedCommentId = commentService.updateUpvote(currentUserId, commentId);
+        Comment comment = commentService.getById(updatedCommentId);
+        return commentMapper.toDTO(comment);
     }
 
     public PostDTO updateCommentSectionStatus(int postId, Post.CommentSectionStatus status) {
@@ -174,8 +177,8 @@ public class ForumService {
     }
 
     public PostDTO likePost(int respondentId, int postId) {
-        Post post = likeService.addPostLike(respondentId, postId);
-        return postMapper.toDTO(post);
+        int updatedPostId = postService.likePost(respondentId, postId);
+        return postService.getById(updatedPostId);
     }
     public CommentDTO updateCommentBody(int commentId, String newBody) {
         Comment comment = commentService.updateCommentBody(commentId, newBody);
@@ -184,8 +187,8 @@ public class ForumService {
     }
 
     public CommentDTO likeComment(int respondentId, int commentId) {
-        Comment comment = likeService.addCommentLike(respondentId, commentId);
-        return commentMapper.toDTO(comment);
+        int updatedCommentId = commentService.likeComment(respondentId, commentId);
+        return commentMapper.toDTO( commentService.getById( updatedCommentId ) );
     }
 
     public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {
@@ -196,8 +199,8 @@ public class ForumService {
     }
 
     public ReplyDTO likeReply(int respondentId, int replyId) {
-        Reply reply = likeService.addReplyLike(respondentId, replyId);
-        return replyMapper.toDTO(reply);
+        int updatedReplyId = replyService.likeReply(respondentId, replyId);
+        return replyMapper.toDTO( replyService.getById( updatedReplyId ) );
     }
 
     public String getCommentSectionStatus(int postId) {

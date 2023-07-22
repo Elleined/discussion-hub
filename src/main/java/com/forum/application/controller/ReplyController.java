@@ -51,4 +51,12 @@ public class ReplyController {
         ReplyDTO replyDTO = forumService.updateReplyBody(replyId, newReplyBody);
         return ResponseEntity.ok( replyDTO );
     }
+
+    @PatchMapping("/{replyId}/like/{respondentId}")
+    public ResponseEntity<ReplyDTO> likeReply(@PathVariable("respondentId") int respondentId,
+                                              @PathVariable("replyId") int replyId) {
+
+        ReplyDTO replyDTO = forumService.likeReply(respondentId, replyId);
+        return ResponseEntity.ok( replyDTO );
+    }
 }

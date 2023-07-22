@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class LikeService {
+class LikeService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
@@ -23,7 +23,8 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
 
-    Post addPostLike(int respondentId, int postId) {
+    @Transactional
+    int addPostLike(int respondentId, int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -39,10 +40,11 @@ public class LikeService {
 
         likeRepository.save(postLike);
         log.debug("User with id of {} liked post with id of {}", respondentId, postId);
-        return post;
+        return postId;
     }
 
-    Comment addCommentLike(int respondentId, int commentId) {
+
+    int addCommentLike(int respondentId, int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -58,10 +60,10 @@ public class LikeService {
 
         likeRepository.save(commentLike);
         log.debug("User with id of {} liked comment with id of {}", respondent, commentId);
-        return comment;
+        return commentId;
     }
 
-    Reply addReplyLike(int respondentId, int replyId) {
+    int addReplyLike(int respondentId, int replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -77,6 +79,6 @@ public class LikeService {
 
         likeRepository.save(replyLike);
         log.debug("User with id of {} liked reply with id of {}", respondentId, replyId);
-        return reply;
+        return replyId;
     }
 }

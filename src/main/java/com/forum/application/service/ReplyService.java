@@ -26,6 +26,8 @@ public class ReplyService {
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
+    private final LikeService likeService;
+
     private final ReplyMapper replyMapper;
 
     Reply save(int currentUserId, int commentId, String body,String attachedPicture) throws ResourceNotFoundException {
@@ -61,6 +63,9 @@ public class ReplyService {
         return replyRepository.save(reply);
     }
 
+    int  likeReply(int respondentId, int replyId) {
+        return likeService.addReplyLike(respondentId, replyId);
+    }
     private void readReply(int replyId) throws ResourceNotFoundException {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         reply.setNotificationStatus(NotificationStatus.READ);
@@ -100,9 +105,8 @@ public class ReplyService {
                 .toList();
     }
 
-    public ReplyDTO getById(int replyId) throws ResourceNotFoundException {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
-        return replyMapper.toDTO(reply);
+    public Reply getById(int replyId) throws ResourceNotFoundException {
+        return replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
     }
 
     Set<Reply> getUnreadRepliesOfAllComments(int userId) throws ResourceNotFoundException {
