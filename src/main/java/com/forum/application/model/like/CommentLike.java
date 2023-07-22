@@ -8,11 +8,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tbl_liked_comment")
-@Builder
 @NoArgsConstructor
 public final class CommentLike extends Like {
 
@@ -21,6 +22,7 @@ public final class CommentLike extends Like {
             name = "comment_id",
             referencedColumnName = "comment_id"
     )
+    @Getter @Setter
     private Comment comment;
 
     @Builder(builderMethodName = "commentLikeBuilder")

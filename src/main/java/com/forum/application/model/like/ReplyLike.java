@@ -7,13 +7,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tbl_liked_reply")
-@Builder
 @NoArgsConstructor
 public final class ReplyLike extends Like {
 
@@ -22,6 +22,7 @@ public final class ReplyLike extends Like {
             name = "reply_id",
             referencedColumnName = "reply_id"
     )
+    @Getter @Setter
     private Reply reply;
 
     @Builder(builderMethodName = "replyLikeBuilder")
