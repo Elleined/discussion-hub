@@ -16,17 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 class LikeService {
-    private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
 
-    Post likePost(int respondentId, int postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+    void likePost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
-
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, post.getId(), ModalTracker.Type.POST)
                 ? NotificationStatus.READ
                 : NotificationStatus.UNREAD;
@@ -40,30 +37,26 @@ class LikeService {
         post.getLikes().add(postLike);
         respondent.getLikedPosts().add(postLike);
         likeRepository.save(postLike);
-        log.debug("User with id of {} liked post with id of {}", respondentId, postId);
-        return post;
+        log.debug("User with id of {} liked post with id of {}", respondentId, post.getId());
     }
 
-    boolean isUserAlreadyLikedPost(int respondentId, int postId) {
+    boolean isUserAlreadyLikedPost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
-        return respondent.getLikedPosts().stream().anyMatch(postLike -> postLike.getPost().getId() == postId);
+        return respondent.getLikedPosts().stream().anyMatch(postLike -> postLike.getPost() == post);
     }
 
-    Post unlikePost(int respondentId, int postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+    void unlikePost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         PostLike postLike = respondent.getLikedPosts()
                 .stream()
-                .filter(like -> like.getPost().getId() == postId)
+                .filter(like -> like.getPost() == post)
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("User does not like post with id of " + postId));
+                .orElseThrow(() -> new ResourceNotFoundException("User does not like post with id of " + post.getId()));
 
         post.getLikes().remove(postLike);
         respondent.getLikedPosts().remove(postLike);
         likeRepository.delete(postLike);
-
-        log.debug("User with id of {} unlike post with id of {}", respondentId, postId);
-        return post;
+        log.debug("User with id of {} unlike post with id of {}", respondentId, post.getId());
     }
 
 

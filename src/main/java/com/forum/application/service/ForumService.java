@@ -246,12 +246,12 @@ public class ForumService {
     }
 
     public PostDTO likePost(int respondentId, int postId) {
-        if (likeService.isUserAlreadyLikedPost(respondentId, postId)) {
-            Post post = likeService.unlikePost(respondentId, postId);
+        Post post = postService.getById(postId);
+        if (likeService.isUserAlreadyLikedPost(respondentId, post)) {
+            likeService.unlikePost(respondentId, post);
             return postMapper.toDTO(post);
         }
-
-        Post post = likeService.likePost(respondentId, postId);
+        likeService.likePost(respondentId, post);
         return postMapper.toDTO(post);
     }
 
