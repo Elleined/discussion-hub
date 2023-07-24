@@ -42,7 +42,7 @@ public class ReplyService {
                 .replier(replier)
                 .comment(comment)
                 .attachedPicture(attachedPicture)
-                .status(Status.ACTIVE)
+                .status(Comment.Status.ACTIVE)
                 .notificationStatus(status)
                 .build();
 
@@ -82,7 +82,7 @@ public class ReplyService {
         log.trace("Will mark all as read because the current user with id of {} is the commenter of the comment {}", currentUserId, comment.getCommenter().getId());
         comment.getReplies()
                 .stream()
-                .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
                 .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
                 .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .map(Reply::getId)
@@ -95,7 +95,7 @@ public class ReplyService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         return comment.getReplies()
                 .stream()
-                .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
                 .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
                 .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
@@ -114,7 +114,7 @@ public class ReplyService {
         return comments.stream()
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
-                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                        .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
                         .filter(reply -> !blockService.isBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> !blockService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
@@ -131,7 +131,7 @@ public class ReplyService {
 
         return comment.getReplies()
                 .stream()
-                .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
                 .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
                 .filter(reply -> !blockService.isBlockedBy(commenterId, reply.getReplier().getId()))
                 .filter(reply -> !blockService.isYouBeenBlockedBy(commenterId, reply.getReplier().getId()))
@@ -151,16 +151,16 @@ public class ReplyService {
     }
 
     Reply setStatus(Reply reply) throws ResourceNotFoundException {
-        reply.setStatus(Status.INACTIVE);
+        reply.setStatus(Comment.Status.INACTIVE);
         return replyRepository.save(reply);
     }
 
     boolean isDeleted(int replyId) throws ResourceNotFoundException {
         Reply reply = getById(replyId);
-        return reply.getStatus() == Status.INACTIVE;
+        return reply.getStatus() == Comment.Status.INACTIVE;
     }
 
     boolean isDeleted(Reply reply) throws  ResourceNotFoundException {
-        return reply.getStatus() == Status.INACTIVE;
+        return reply.getStatus() == Comment.Status.INACTIVE;
     }
 }

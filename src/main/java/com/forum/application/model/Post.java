@@ -31,7 +31,7 @@ public class Post {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Comment.Status status;
 
     @Column(name = "comment_section_status")
     @Enumerated(EnumType.STRING)
@@ -55,7 +55,9 @@ public class Post {
     @Setter(AccessLevel.NONE)
     private Set<PostLike> likes;
 
+    // post id refernce is on tbl mention post
     @OneToMany(mappedBy = "post")
+    @Setter(AccessLevel.NONE)
     private Set<PostMention> mentions;
 
     public enum CommentSectionStatus {OPEN, CLOSED}

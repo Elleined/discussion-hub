@@ -29,7 +29,7 @@ public class Reply {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Comment.Status status;
 
     @Column(name = "notification_status")
     @Enumerated(EnumType.STRING)

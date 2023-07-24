@@ -61,6 +61,7 @@ public class Comment {
 
     // comment id reference is in reply table
     @OneToMany(mappedBy = "comment")
+    @Setter(AccessLevel.NONE)
     private List<Reply> replies;
 
     // comment id refernce is in tbl like comment
@@ -75,4 +76,9 @@ public class Comment {
 
     @ManyToMany(mappedBy = "upvotedComments")
     private Set<User> upvotingUsers;
+
+    public enum Status {
+        ACTIVE,
+        INACTIVE
+    }
 }
