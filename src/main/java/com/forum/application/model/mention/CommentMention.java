@@ -28,7 +28,8 @@ public final class CommentMention extends Mention {
     private Comment comment;
 
     @Builder(builderMethodName = "commentMentionBuilder")
-    public CommentMention(int id, LocalDateTime createdAt, NotificationStatus notificationStatus, User mentionedUser, User mentioningUser) {
+    public CommentMention(int id, LocalDateTime createdAt, NotificationStatus notificationStatus, User mentionedUser, User mentioningUser, Comment comment) {
         super(id, createdAt, notificationStatus, mentionedUser, mentioningUser);
+        this.comment = comment;
     }
 }

@@ -6,10 +6,7 @@ import com.forum.application.mapper.CommentMapper;
 import com.forum.application.mapper.PostMapper;
 import com.forum.application.mapper.ReplyMapper;
 import com.forum.application.mapper.UserMapper;
-import com.forum.application.model.Comment;
-import com.forum.application.model.ModalTracker;
-import com.forum.application.model.Post;
-import com.forum.application.model.Reply;
+import com.forum.application.model.*;
 import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,9 +46,13 @@ public class ForumService {
 
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Body cannot be empty! Please provide text for your post to be posted!");
 
-        int currentUserId = userService.getCurrentUser().getId();
-        Post post = postService.save(currentUserId, body);
-        // mention here if (mentionedUserIds != null)
+        User currentUser = userService.getCurrentUser();
+        Post post = postService.save(currentUser.getId(), body);
+
+        if (mentionedUserIds != null) {
+            mentionService.addAllPostMention(currentUser, mentionedUserIds, post);
+            // broadcast mention notification here
+        }
         return postMapper.toDTO(post);
     }
 
@@ -61,17 +62,20 @@ public class ForumService {
             BlockedException,
             EmptyBodyException {
 
-        int currentUserId = userService.getCurrentUser().getId();
+        User currentUser = userService.getCurrentUser();
         int authorId = postService.getById(postId).getAuthor().getId();
 
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Comment body cannot be empty! Please provide text for your comment");
         if (postService.isCommentSectionClosed(postId)) throw new ClosedCommentSectionException("Cannot comment because author already closed the comment section for this post!");
         if (postService.isDeleted(postId)) throw new ResourceNotFoundException("The post you trying to comment is either be deleted or does not exists anymore!");
-        if (blockService.isYouBeenBlockedBy(currentUserId, authorId)) throw new BlockedException("Cannot comment because this user block you already!");
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), authorId)) throw new BlockedException("Cannot comment because this user block you already!");
 
-        Comment comment = commentService.save(currentUserId, postId, body, attachedPicture);
+        Comment comment = commentService.save(currentUser.getId(), postId, body, attachedPicture);
 
-        // mention here if (mentionedUserIds != null)
+        if (mentionedUserIds != null) {
+            mentionService.addAllCommentMention(currentUser, mentionedUserIds, comment);
+            // broadcast comment mention here
+        }
 
         wsService.broadcastComment(comment);
         notificationService.broadcastCommentNotification(comment);
@@ -84,16 +88,20 @@ public class ForumService {
             ResourceNotFoundException,
             BlockedException {
 
-        int currentUserId = userService.getCurrentUser().getId();
+        User currentUser = userService.getCurrentUser();
         int commenterId = commentService.getById(commentId).getCommenter().getId();
 
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Reply body cannot be empty!");
         if (commentService.isCommentSectionClosed(commentId)) throw new ClosedCommentSectionException("Cannot reply to this comment because author already closed the comment section for this post!");
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("The comment you trying to reply is either be deleted or does not exists anymore!");
-        if (blockService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
 
-        Reply reply = replyService.save(currentUserId, commentId, body, attachedPicture);
-        // mention here if (mentionedUserIds != null)
+        Reply reply = replyService.save(currentUser.getId(), commentId, body, attachedPicture);
+
+        if (mentionedUserIds != null) {
+            mentionService.addAllReplyMention(currentUser, mentionedUserIds, reply);
+            // broadcast reply mention here
+        }
 
         wsService.broadcastReply(reply);
         notificationService.broadcastReplyNotification(reply);
