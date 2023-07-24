@@ -20,6 +20,7 @@ public class PostDTO {
     private int totalCommentAndReplies;
     private String status;
     private String commentSectionStatus;
+    private int totalLikes;
     private Set<UserDTO> likers;
     private Set<UserDTO> mentionedUsers;
 }

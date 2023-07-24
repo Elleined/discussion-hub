@@ -27,7 +27,8 @@ public abstract class PostMapper {
             @Mapping(target = "status", source = "post.status"),
             @Mapping(target = "commentSectionStatus", source = "post.commentSectionStatus"),
             @Mapping(target = "likers", source = "post.likes"),
-            @Mapping(target = "mentionedUsers", source = "post.mentions")
+            @Mapping(target = "mentionedUsers", source = "post.mentions"),
+            @Mapping(target = "totalLikes", expression = "java(post.getLikes().size())")
     })
     public abstract PostDTO toDTO(Post post);
 

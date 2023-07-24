@@ -22,6 +22,7 @@ public class ReplyDTO {
     private int postId;
     private String notificationStatus;
     private String attachedPicture;
+    private int totalLikes;
     private Set<UserDTO> likers;
     private Set<UserDTO> mentionedUsers;
 }
