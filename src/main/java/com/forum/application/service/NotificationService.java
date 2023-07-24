@@ -23,6 +23,7 @@ public class NotificationService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final CommentService commentService;
     private final ReplyService replyService;
+
     private final NotificationMapper notificationMapper;
 
     void broadcastCommentNotification(Comment comment) throws ResourceNotFoundException {

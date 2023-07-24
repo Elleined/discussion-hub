@@ -23,7 +23,7 @@ class LikeService {
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
 
-    int likePost(int respondentId, int postId) {
+    Post likePost(int respondentId, int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -37,19 +37,37 @@ class LikeService {
                 .notificationStatus(notificationStatus)
                 .build();
 
-        likeRepository.save(postLike);
         post.getLikes().add(postLike);
         respondent.getLikedPosts().add(postLike);
-
-        postRepository.save(post);
-        userRepository.save(respondent);
-
+        likeRepository.save(postLike);
         log.debug("User with id of {} liked post with id of {}", respondentId, postId);
-        return postId;
+        return post;
+    }
+
+    boolean isUserAlreadyLikedPost(int respondentId, int postId) {
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
+        return respondent.getLikedPosts().stream().anyMatch(postLike -> postLike.getPost().getId() == postId);
+    }
+
+    Post unlikePost(int respondentId, int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
+        PostLike postLike = respondent.getLikedPosts()
+                .stream()
+                .filter(like -> like.getPost().getId() == postId)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("User does not like post with id of " + postId));
+
+        post.getLikes().remove(postLike);
+        respondent.getLikedPosts().remove(postLike);
+        likeRepository.delete(postLike);
+
+        log.debug("User with id of {} unlike post with id of {}", respondentId, postId);
+        return post;
     }
 
 
-    int likeComment(int respondentId, int commentId) {
+    Comment likeComment(int respondentId, int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -63,17 +81,15 @@ class LikeService {
                 .notificationStatus(notificationStatus)
                 .build();
 
-        likeRepository.save(commentLike);
         comment.getLikes().add(commentLike);
         respondent.getLikedComments().add(commentLike);
+        likeRepository.save(commentLike);
 
-        commentRepository.save(comment);
-        userRepository.save(respondent);
         log.debug("User with id of {} liked comment with id of {}", respondent, commentId);
-        return commentId;
+        return comment;
     }
 
-    int likeReply(int respondentId, int replyId) {
+    Reply likeReply(int respondentId, int replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -87,13 +103,10 @@ class LikeService {
                 .notificationStatus(notificationStatus)
                 .build();
 
-        likeRepository.save(replyLike);
         reply.getLikes().add(replyLike);
         respondent.getLikedReplies().add(replyLike);
-
-        replyRepository.save(reply);
-        userRepository.save(respondent);
+        likeRepository.save(replyLike);
         log.debug("User with id of {} liked reply with id of {}", respondentId, replyId);
-        return replyId;
+        return reply;
     }
 }

@@ -5,7 +5,9 @@ import com.forum.application.dto.NotificationResponse;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
+import com.forum.application.service.CommentService;
 import com.forum.application.service.ForumService;
+import com.forum.application.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +20,12 @@ import java.util.Set;
 @RequestMapping("/forum/api/users/{userId}")
 public class UserController {
     private final ForumService forumService;
+    private final CommentService commentService;
+    private final ReplyService replyService;
 
     @GetMapping("/getAllNotification")
     public Set<NotificationResponse> getAllNotification(@PathVariable("userId") int userId) {
-        return notificationService.getAllNotification(userId);
+        return forumService.getAllNotification(userId);
     }
 
     @GetMapping("/unreadComments/{postId}")
@@ -64,34 +68,34 @@ public class UserController {
 
     @GetMapping("/getAllBlockedUsers")
     public Set<UserDTO> getAllBlockedUserOf(@PathVariable("userId") int userId) {
-        return blockService.getAllBlockedUsers(userId);
+        return forumService.getAllBlockedUsers(userId);
     }
 
     @PatchMapping("/blockUser/{userToBeBlockedId}")
     public ResponseEntity<String> blockUser(@PathVariable("userId") int userId,
                                             @PathVariable("userToBeBlockedId") int userToBeBlockedId) {
 
-        blockService.blockUser(userId, userToBeBlockedId);
+        forumService.blockUser(userId, userToBeBlockedId);
         return ResponseEntity.ok("User with id of " + userToBeBlockedId + " blocked successfully");
     }
 
     @PatchMapping("/unblockUser/{userToBeUnblockedId}")
     public ResponseEntity<String> unblockUser(@PathVariable("userId") int userId,
                                               @PathVariable("userToBeUnblockedId") int userToBeUnblockedId) {
-        blockService.unBlockUser(userId, userToBeUnblockedId);
+        forumService.unBlockUser(userId, userToBeUnblockedId);
         return ResponseEntity.ok("User with id of " + userToBeUnblockedId + " unblocked successfully");
     }
 
     @GetMapping("/isBlockedBy/{userToCheckId}")
     public boolean isBlockedBy(@PathVariable("userId") int userId,
                                @PathVariable("userToCheckId") int userToCheckId) {
-        return blockService.isBlockedBy(userId, userToCheckId);
+        return forumService.isBlockedBy(userId, userToCheckId);
     }
 
     @GetMapping("/isYouBeenBlockedBy/{suspectedBlockerId}")
     public boolean isYouBeenBlockedBy(@PathVariable("userId") int userId,
                                       @PathVariable("suspectedBlockerId") int suspectedBlockerId) {
-        return blockService.isYouBeenBlockedBy(userId, suspectedBlockerId);
+        return forumService.isYouBeenBlockedBy(userId, suspectedBlockerId);
     }
 
     @PostMapping("/saveTracker")
@@ -99,25 +103,25 @@ public class UserController {
                                                     @RequestParam("associatedTypeId") int associateTypeId,
                                                     @RequestParam("type") String type) {
 
-        ModalTracker modalTracker = modalTrackerService.saveTrackerOfUserById(receiverId, associateTypeId, type);
+        ModalTracker modalTracker = forumService.saveTrackerOfUserById(receiverId, associateTypeId, type);
         return ResponseEntity.ok(modalTracker);
     }
 
     @GetMapping("/getTracker")
     public ModalTracker getTrackerByUserId(@PathVariable("userId") int userId) {
-        return modalTrackerService.getTrackerOfUserById(userId);
+        return forumService.getTrackerOfUserById(userId);
     }
 
     @DeleteMapping("/deleteTracker")
     public ResponseEntity<ModalTracker> deleteTrackerByUserId(@PathVariable("userId") int userId,
                                                               @RequestParam("type") String type) {
-        modalTrackerService.deleteTrackerOfUserById(userId, type);
+        forumService.deleteTrackerOfUserById(userId, type);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/getSuggestedMentions")
     public List<UserDTO> getSuggestedMentions(@PathVariable("userId") int userId,
                                               @RequestParam("name") String name) {
-        return mentionService.getSuggestedMentions(userId, name);
+        return forumService.getSuggestedMentions(userId, name);
     }
 }

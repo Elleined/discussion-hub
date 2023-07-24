@@ -1,8 +1,6 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.PostDTO;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.mapper.PostMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Post.CommentSectionStatus;
@@ -28,9 +26,8 @@ public class PostService {
     private final BlockService blockService;
     private final PostRepository postRepository;
     private final CommentService commentService;
-    private final PostMapper postMapper;
 
-    int save(int authorId, String body) throws ResourceNotFoundException {
+    Post save(int authorId, String body) throws ResourceNotFoundException {
         User author = userService.getById(authorId);
 
         Post post = Post.builder()
@@ -41,9 +38,8 @@ public class PostService {
                 .commentSectionStatus(CommentSectionStatus.OPEN)
                 .build();
 
-        postRepository.save(post);
         log.debug("Post with body of {} saved successfully!", post.getBody());
-        return post.getId();
+        return postRepository.save(post);
     }
 
     void delete(int postId) {
@@ -51,27 +47,26 @@ public class PostService {
         log.debug("Post with id of {} are now inactive", postId);
     }
 
-    void updatePostBody(int postId, String newBody) throws ResourceNotFoundException {
+    Post updatePostBody(int postId, String newBody) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        if (post.getBody().equals(newBody)) return; // Returning if user doesn't change the post body
+        if (post.getBody().equals(newBody)) return post; // Returning if user doesn't change the post body
         post.setBody(newBody);
-        postRepository.save(post);
         log.debug("Post with id of {} updated with the new body of {}", postId, newBody);
+        return postRepository.save(post);
     }
 
-    void updateCommentSectionStatus(int postId, CommentSectionStatus status) throws ResourceNotFoundException {
+    Post updateCommentSectionStatus(int postId, CommentSectionStatus status) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         post.setCommentSectionStatus(status);
-        postRepository.save(post);
         log.debug("Comment section of Post with id of {} are now {}", postId, post.getCommentSectionStatus().name());
+        return postRepository.save(post);
     }
 
-    public PostDTO getById(int postId) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        return postMapper.toDTO(post);
+    public Post getById(int postId) throws ResourceNotFoundException {
+        return postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
     }
 
-    List<PostDTO> getAll() {
+    List<Post> getAll() {
         int currentUserId = userService.getCurrentUser().getId();
 
         return postRepository.findAll()
@@ -80,17 +75,15 @@ public class PostService {
                 .filter(post -> !blockService.isBlockedBy(currentUserId, post.getAuthor().getId()))
                 .filter(post -> !blockService.isYouBeenBlockedBy(currentUserId, post.getAuthor().getId()))
                 .sorted(Comparator.comparing(Post::getDateCreated).reversed())
-                .map(postMapper::toDTO)
                 .toList();
     }
 
-    List<PostDTO> getAllByAuthorId(int authorId) throws ResourceNotFoundException {
+    List<Post> getAllByAuthorId(int authorId) throws ResourceNotFoundException {
         if (!userService.existsById(authorId)) throw new ResourceNotFoundException("User with id of " + authorId + " does not exists");
         return postRepository.fetchAllByAuthorId(authorId)
                 .stream()
                 .filter(post -> post.getStatus() == Status.ACTIVE)
-                .map(postMapper::toDTO)
-                .sorted(Comparator.comparing(PostDTO::getDateCreated).reversed())
+                .sorted(Comparator.comparing(Post::getDateCreated).reversed())
                 .toList();
     }
 

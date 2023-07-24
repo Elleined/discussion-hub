@@ -1,14 +1,13 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.CommentDTO;
-import com.forum.application.dto.PostDTO;
-import com.forum.application.dto.ReplyDTO;
-import com.forum.application.dto.UserDTO;
+import com.forum.application.dto.*;
 import com.forum.application.exception.*;
 import com.forum.application.mapper.CommentMapper;
+import com.forum.application.mapper.PostMapper;
 import com.forum.application.mapper.ReplyMapper;
 import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.Comment;
+import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Post;
 import com.forum.application.model.Reply;
 import com.forum.application.validator.Validator;
@@ -30,15 +29,18 @@ public class ForumService {
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
-    private final LikeService likeService;
     private final BlockService blockService;
     private final WSService wsService;
+    private final LikeService likeService;
+    private final ModalTrackerService modalTrackerService;
     private final NotificationService notificationService;
     private final MentionService mentionService;
 
+    private final PostMapper postMapper;
     private final CommentMapper commentMapper;
     private final ReplyMapper replyMapper;
     private final UserMapper userMapper;
+
 
     public PostDTO savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             BlockedException,
@@ -48,10 +50,9 @@ public class ForumService {
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Body cannot be empty! Please provide text for your post to be posted!");
 
         int currentUserId = userService.getCurrentUser().getId();
-        int postId = postService.save(currentUserId, body);
+        Post post = postService.save(currentUserId, body);
         // mention here if (mentionedUserIds != null)
-
-        return postService.getById(postId);
+        return postMapper.toDTO(post);
     }
 
     public CommentDTO saveComment(int postId, String body, String attachedPicture, Set<Integer> mentionedUserIds) throws ResourceNotFoundException,
@@ -61,7 +62,7 @@ public class ForumService {
             EmptyBodyException {
 
         int currentUserId = userService.getCurrentUser().getId();
-        int authorId = postService.getById(postId).getAuthorId();
+        int authorId = postService.getById(postId).getAuthor().getId();
 
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Comment body cannot be empty! Please provide text for your comment");
         if (postService.isCommentSectionClosed(postId)) throw new ClosedCommentSectionException("Cannot comment because author already closed the comment section for this post!");
@@ -100,7 +101,8 @@ public class ForumService {
     }
 
     public PostDTO getPostById(int postId) {
-        return postService.getById(postId);
+        Post post = postService.getById(postId);
+        return postMapper.toDTO(post);
     }
     public CommentDTO getCommentById(int commentId) {
         Comment comment = commentService.getById(commentId);
@@ -127,11 +129,17 @@ public class ForumService {
     }
 
     public List<PostDTO> getAllPost() {
-        return postService.getAll();
+        return postService.getAll()
+                .stream()
+                .map(postMapper::toDTO)
+                .toList();
     }
 
     public List<PostDTO> getAllByAuthorId(int authorId) {
-        return postService.getAllByAuthorId(authorId);
+        return postService.getAllByAuthorId(authorId)
+                .stream()
+                .map(postMapper::toDTO)
+                .toList();
     }
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
@@ -148,6 +156,10 @@ public class ForumService {
         return notificationService.getAllUnreadNotificationCount(userId);
     }
 
+    public Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
+        return notificationService.getAllNotification(userId);
+    }
+
     public CommentDTO updateUpvote(int commentId) throws NoLoggedInUserException,
             ResourceNotFoundException,
             UpvoteException {
@@ -162,28 +174,19 @@ public class ForumService {
     }
 
     public PostDTO updateCommentSectionStatus(int postId, Post.CommentSectionStatus status) {
-        postService.updateCommentSectionStatus(postId, status);
-        return postService.getById(postId);
+        Post post = postService.updateCommentSectionStatus(postId, status);
+        return postMapper.toDTO(post);
     }
 
     public PostDTO updatePostBody(int postId, String newBody) {
-        postService.updatePostBody(postId, newBody);
-        return postService.getById(postId);
+        Post post = postService.updatePostBody(postId, newBody);
+        return postMapper.toDTO(post);
     }
 
-    public PostDTO likePost(int respondentId, int postId) {
-        int updatedPostId = likeService.likePost(respondentId, postId);
-        return postService.getById(updatedPostId);
-    }
     public CommentDTO updateCommentBody(int commentId, String newBody) {
         Comment comment = commentService.updateCommentBody(commentId, newBody);
         wsService.broadcastComment(comment);
         return commentMapper.toDTO(comment);
-    }
-
-    public CommentDTO likeComment(int respondentId, int commentId) {
-        int updatedCommentId = likeService.likeComment(respondentId, commentId);
-        return commentMapper.toDTO( commentService.getById( updatedCommentId ) );
     }
 
     public ReplyDTO updateReplyBody(int replyId, String newReplyBody) {
@@ -191,11 +194,6 @@ public class ForumService {
         wsService.broadcastReply(reply);
 
         return replyMapper.toDTO(reply);
-    }
-
-    public ReplyDTO likeReply(int respondentId, int replyId) {
-        int updatedReplyId = likeService.likeReply(respondentId, replyId);
-        return replyMapper.toDTO( replyService.getById( updatedReplyId ) );
     }
 
     public String getCommentSectionStatus(int postId) {
@@ -212,10 +210,58 @@ public class ForumService {
                 .toList();
     }
 
+    public void blockUser(int userId, int userToBeBlockedId) {
+        blockService.blockUser(userId, userToBeBlockedId);
+    }
+
+    public void unBlockUser(int userId, int userToBeUnblockedId) {
+        blockService.unBlockUser(userId, userToBeUnblockedId);
+    }
+
+    public boolean isBlockedBy(int userId, int userToCheckId) {
+        return blockService.isBlockedBy(userId, userToCheckId);
+    }
+
+    public boolean isYouBeenBlockedBy(int userId, int suspectedUserId) {
+        return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
+    }
+
     public Set<UserDTO> getAllBlockedUsers(int currentUserId) {
         return blockService.getAllBlockedUsers(currentUserId)
                 .stream()
                 .map(userMapper::toDTO)
                 .collect(Collectors.toSet());
+    }
+
+    public ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
+        return modalTrackerService.saveTrackerOfUserById(receiverId, associateTypeIdOpened, type);
+    }
+
+    public ModalTracker getTrackerOfUserById(int userId) {
+        return modalTrackerService.getTrackerOfUserById(userId);
+    }
+
+    public void deleteTrackerOfUserById(int userId, String type) {
+        modalTrackerService.deleteTrackerOfUserById(userId, ModalTracker.Type.valueOf(type));
+    }
+
+    public PostDTO likePost(int respondentId, int postId) {
+        if (likeService.isUserAlreadyLikedPost(respondentId, postId)) {
+            Post post = likeService.unlikePost(respondentId, postId);
+            return postMapper.toDTO(post);
+        }
+
+        Post post = likeService.likePost(respondentId, postId);
+        return postMapper.toDTO(post);
+    }
+
+    public CommentDTO likeComment(int respondentId, int commentId) {
+        Comment comment = likeService.likeComment(respondentId, commentId);
+        return commentMapper.toDTO(comment);
+    }
+
+    public ReplyDTO likeReply(int respondentId, int replyId) {
+        Reply reply = likeService.likeReply(respondentId, replyId);
+        return replyMapper.toDTO(reply);
     }
 }
