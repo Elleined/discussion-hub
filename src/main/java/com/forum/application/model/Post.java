@@ -1,6 +1,8 @@
 package com.forum.application.model;
 
 import com.forum.application.model.like.PostLike;
+import com.forum.application.model.mention.Mentions;
+import com.forum.application.model.mention.PostMention;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,6 +55,9 @@ public class Post {
     @OneToMany(mappedBy = "post")
     @Setter(AccessLevel.NONE)
     private Set<PostLike> likes;
+
+    @OneToMany(mappedBy = "post")
+    private Set<PostMention> mentions;
 
     public enum CommentSectionStatus {OPEN, CLOSED}
 }

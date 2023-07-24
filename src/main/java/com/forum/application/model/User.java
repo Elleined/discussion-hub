@@ -3,6 +3,8 @@ package com.forum.application.model;
 import com.forum.application.model.like.CommentLike;
 import com.forum.application.model.like.PostLike;
 import com.forum.application.model.like.ReplyLike;
+import com.forum.application.model.mention.CommentMention;
+import com.forum.application.model.mention.PostMention;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -98,4 +100,25 @@ public class User {
     @OneToMany(mappedBy = "mentionedUser")
     @Setter(AccessLevel.NONE)
     private List<Mention> receiveMentions;
+
+    // user id reference is in tbl mention post
+    @OneToMany(mappedBy = "mentioningUser")
+    @Setter(AccessLevel.NONE)
+    private Set<PostMention> sentPostMentions;
+
+    // user id reference is in tbl mention post
+    @OneToMany(mappedBy = "mentionedUser")
+    @Setter(AccessLevel.NONE)
+    private Set<PostMention> receivePostMentions;
+
+    // user id reference is in tbl mention comment
+    @OneToMany(mappedBy = "mentioningUser")
+    @Setter(AccessLevel.NONE)
+    private Set<CommentMention> sentCommentMentions;
+
+    // user id reference is in tbl mention comment
+    @OneToMany(mappedBy = "mentionedUser")
+    @Setter(AccessLevel.NONE)
+    private Set<CommentMention> receiveCommentMentions;
+
 }
