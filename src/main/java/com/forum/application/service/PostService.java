@@ -4,6 +4,7 @@ import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Post.CommentSectionStatus;
+import com.forum.application.model.Status;
 import com.forum.application.model.User;
 import com.forum.application.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -33,11 +36,14 @@ public class PostService {
                 .body(body)
                 .dateCreated(LocalDateTime.now())
                 .author(author)
-                .status(Comment.Status.ACTIVE)
+                .status(Status.ACTIVE)
                 .commentSectionStatus(CommentSectionStatus.OPEN)
+                .mentions(new HashSet<>())
+                .likes(new HashSet<>())
+                .comments(new ArrayList<>())
                 .build();
 
-        log.debug("Post with body of {} saved successfully!", post.getBody());
+        log.debug("Post with id of {} saved successfully!", post.getId());
         return postRepository.save(post);
     }
 
@@ -70,7 +76,7 @@ public class PostService {
 
         return postRepository.findAll()
                 .stream()
-                .filter(post -> post.getStatus() == Comment.Status.ACTIVE)
+                .filter(post -> post.getStatus() == Status.ACTIVE)
                 .filter(post -> !blockService.isBlockedBy(currentUserId, post.getAuthor().getId()))
                 .filter(post -> !blockService.isYouBeenBlockedBy(currentUserId, post.getAuthor().getId()))
                 .sorted(Comparator.comparing(Post::getDateCreated).reversed())
@@ -81,7 +87,7 @@ public class PostService {
         if (!userService.existsById(authorId)) throw new ResourceNotFoundException("User with id of " + authorId + " does not exists");
         return postRepository.fetchAllByAuthorId(authorId)
                 .stream()
-                .filter(post -> post.getStatus() == Comment.Status.ACTIVE)
+                .filter(post -> post.getStatus() == Status.ACTIVE)
                 .sorted(Comparator.comparing(Post::getDateCreated).reversed())
                 .toList();
     }
@@ -93,11 +99,11 @@ public class PostService {
 
     boolean isDeleted(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
-        return post.getStatus() == Comment.Status.INACTIVE;
+        return post.getStatus() == Status.INACTIVE;
     }
 
     public boolean isDeleted(Post post) throws ResourceNotFoundException {
-        return post.getStatus() == Comment.Status.INACTIVE;
+        return post.getStatus() == Status.INACTIVE;
     }
 
     public String getCommentSectionStatus(int postId) throws ResourceNotFoundException {
@@ -109,7 +115,7 @@ public class PostService {
         int currentUserId = userService.getCurrentUser().getId();
         int commentCount = (int) post.getComments()
                 .stream()
-                .filter(comment -> comment.getStatus() == Comment.Status.ACTIVE)
+                .filter(comment -> comment.getStatus() == Status.ACTIVE)
                 .filter(comment -> !blockService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .filter(comment -> !blockService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .count();
@@ -118,7 +124,7 @@ public class PostService {
                 .stream()
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
-                        .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
                         .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
                         .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId())))
                 .count();
@@ -128,7 +134,7 @@ public class PostService {
 
     private void setStatus(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + postId + " does not exists!"));
-        post.setStatus(Comment.Status.INACTIVE);
+        post.setStatus(Status.INACTIVE);
         post.getComments().forEach(commentService::setStatus);
     }
 

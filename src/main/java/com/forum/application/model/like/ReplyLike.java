@@ -22,7 +22,7 @@ public final class ReplyLike extends Like {
             name = "reply_id",
             referencedColumnName = "reply_id"
     )
-    @Getter @Setter
+    @Getter
     private Reply reply;
 
     @Builder(builderMethodName = "replyLikeBuilder")

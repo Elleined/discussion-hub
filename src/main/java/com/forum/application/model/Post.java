@@ -12,8 +12,8 @@ import java.util.Set;
 @Entity
 @Table(name = "tbl_forum_post")
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class Post {
@@ -31,7 +31,7 @@ public class Post {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private Comment.Status status;
+    private Status status;
 
     @Column(name = "comment_section_status")
     @Enumerated(EnumType.STRING)

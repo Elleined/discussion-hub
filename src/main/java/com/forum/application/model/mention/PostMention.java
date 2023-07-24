@@ -24,7 +24,7 @@ public final class PostMention extends Mention {
             name = "post_id",
             referencedColumnName = "post_id"
     )
-    @Getter @Setter
+    @Getter
     private Post post;
 
     @Builder(builderMethodName = "postMentionBuilder")

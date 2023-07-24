@@ -22,7 +22,7 @@ public final class CommentLike extends Like {
             name = "comment_id",
             referencedColumnName = "comment_id"
     )
-    @Getter @Setter
+    @Getter
     private Comment comment;
 
     @Builder(builderMethodName = "commentLikeBuilder")

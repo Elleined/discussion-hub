@@ -25,7 +25,7 @@ public class MentionService {
     private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
 
-    Post addPostMention(User currentUser, int mentionedUserId, Post post) {
+    void addPostMention(User currentUser, int mentionedUserId, Post post) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, post.getId(), ModalTracker.Type.POST)
                 ? NotificationStatus.READ
@@ -44,10 +44,9 @@ public class MentionService {
         post.getMentions().add(postMention);
         mentionRepository.save(postMention);
         log.debug("User with id of {} mentioned user with id of {} in post with id of {}", currentUser.getId(), mentionedUserId, post.getId());
-        return post;
     }
 
-    Comment addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
+    void addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, comment.getId(), ModalTracker.Type.COMMENT)
                 ? NotificationStatus.READ
@@ -66,10 +65,9 @@ public class MentionService {
         comment.getMentions().add(commentMention);
         mentionRepository.save(commentMention);
         log.debug("User with id of {} mentioned user with id of {} in comment with id of {}", currentUser.getId(), mentionedUserId, comment.getId());
-        return comment;
     }
 
-    Reply addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
+    void addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, reply.getId(), ModalTracker.Type.POST)
                 ? NotificationStatus.READ
@@ -77,7 +75,7 @@ public class MentionService {
 
         ReplyMention replyMention = ReplyMention.replyMentionBuilder()
                 .mentioningUser(currentUser)
-                .mentioningUser(mentionedUser)
+                .mentionedUser(mentionedUser)
                 .notificationStatus(notificationStatus)
                 .createdAt(LocalDateTime.now())
                 .reply(reply)
@@ -86,8 +84,8 @@ public class MentionService {
         currentUser.getSentReplyMentions().add(replyMention);
         mentionedUser.getReceiveReplyMentions().add(replyMention);
         reply.getMentions().add(replyMention);
+        mentionRepository.save(replyMention);
         log.debug("User with id of {} mentioned user with id of {} in reply with id of {}", currentUser.getId(), mentionedUserId, reply.getId());
-        return reply;
     }
 
     public List<User> getSuggestedMentions(String name) {

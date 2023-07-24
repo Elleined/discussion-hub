@@ -329,7 +329,7 @@ public class ForumService {
     public ReplyDTO addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
         if (replyService.isDeleted(reply)) throw new ResourceNotFoundException("Cannot mention! The reply with id of " + reply.getId() + " you are trying to mention might already be deleted or does not exists!");
         if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
-        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned userwith id of " + mentionedUserId + " already blocked you");
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! Mentioned userwith id of " + mentionedUserId + " already blocked you");
 
         mentionService.addReplyMention(currentUser, mentionedUserId, reply);
         return replyMapper.toDTO(reply);

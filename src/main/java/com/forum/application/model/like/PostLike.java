@@ -22,7 +22,7 @@ public final class PostLike extends Like {
             name = "post_id",
             referencedColumnName = "post_id"
     )
-    @Getter @Setter
+    @Getter
     private Post post;
 
     @Builder(builderMethodName = "postLikeBuilder")

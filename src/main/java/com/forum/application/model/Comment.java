@@ -76,9 +76,4 @@ public class Comment {
 
     @ManyToMany(mappedBy = "upvotedComments")
     private Set<User> upvotingUsers;
-
-    public enum Status {
-        ACTIVE,
-        INACTIVE
-    }
 }

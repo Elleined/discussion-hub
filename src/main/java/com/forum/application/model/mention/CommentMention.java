@@ -24,7 +24,7 @@ public final class CommentMention extends Mention {
             name = "comment_id",
             referencedColumnName = "comment_id"
     )
-    @Getter @Setter
+    @Getter
     private Comment comment;
 
     @Builder(builderMethodName = "commentMentionBuilder")

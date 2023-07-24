@@ -24,7 +24,7 @@ public final class ReplyMention extends Mention {
             name = "reply_id",
             referencedColumnName = "reply_id"
     )
-    @Getter @Setter
+    @Getter
     private Reply reply;
 
     @Builder(builderMethodName = "replyMentionBuilder")

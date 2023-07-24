@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,11 +43,13 @@ public class ReplyService {
                 .replier(replier)
                 .comment(comment)
                 .attachedPicture(attachedPicture)
-                .status(Comment.Status.ACTIVE)
+                .status(Status.ACTIVE)
                 .notificationStatus(status)
+                .mentions(new HashSet<>())
+                .likes(new HashSet<>())
                 .build();
 
-        log.debug("Reply with body of {} saved successfully!", reply.getBody());
+        log.debug("Reply with id of {} saved successfully!", reply.getId());
         return replyRepository.save(reply);
     }
 
@@ -82,7 +85,7 @@ public class ReplyService {
         log.trace("Will mark all as read because the current user with id of {} is the commenter of the comment {}", currentUserId, comment.getCommenter().getId());
         comment.getReplies()
                 .stream()
-                .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
                 .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .map(Reply::getId)
@@ -95,7 +98,7 @@ public class ReplyService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         return comment.getReplies()
                 .stream()
-                .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
                 .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
@@ -114,7 +117,7 @@ public class ReplyService {
         return comments.stream()
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
-                        .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
+                        .filter(reply -> reply.getStatus() == Status.ACTIVE)
                         .filter(reply -> !blockService.isBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> !blockService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
@@ -131,7 +134,7 @@ public class ReplyService {
 
         return comment.getReplies()
                 .stream()
-                .filter(reply -> reply.getStatus() == Comment.Status.ACTIVE)
+                .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
                 .filter(reply -> !blockService.isBlockedBy(commenterId, reply.getReplier().getId()))
                 .filter(reply -> !blockService.isYouBeenBlockedBy(commenterId, reply.getReplier().getId()))
@@ -151,16 +154,16 @@ public class ReplyService {
     }
 
     Reply setStatus(Reply reply) throws ResourceNotFoundException {
-        reply.setStatus(Comment.Status.INACTIVE);
+        reply.setStatus(Status.INACTIVE);
         return replyRepository.save(reply);
     }
 
     boolean isDeleted(int replyId) throws ResourceNotFoundException {
         Reply reply = getById(replyId);
-        return reply.getStatus() == Comment.Status.INACTIVE;
+        return reply.getStatus() == Status.INACTIVE;
     }
 
     boolean isDeleted(Reply reply) throws  ResourceNotFoundException {
-        return reply.getStatus() == Comment.Status.INACTIVE;
+        return reply.getStatus() == Status.INACTIVE;
     }
 }
