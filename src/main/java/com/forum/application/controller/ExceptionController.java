@@ -22,7 +22,7 @@ public class ExceptionController {
         return new ResponseEntity<>(responseMessage, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler({EmptyBodyException.class, ClosedCommentSectionException.class, UpvoteException.class})
+    @ExceptionHandler({EmptyBodyException.class, ClosedCommentSectionException.class, UpvoteException.class, MentionException.class})
     public ResponseEntity<ResponseMessage> handleEmptyBodyException(RuntimeException ex) {
         var responseMessage = new ResponseMessage(HttpStatus.BAD_REQUEST, ex.getMessage());
         return new ResponseEntity<>(responseMessage, HttpStatus.BAD_REQUEST);

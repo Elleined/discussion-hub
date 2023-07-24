@@ -253,7 +253,7 @@ public class ForumService {
         modalTrackerService.deleteTrackerOfUserById(userId, ModalTracker.Type.valueOf(type));
     }
 
-    public PostDTO likePost(int respondentId, int postId) {
+    public PostDTO likePost(int respondentId, int postId) throws ResourceNotFoundException, BlockedException {
         Post post = postService.getById(postId);
         if (postService.isDeleted(postId)) throw new ResourceNotFoundException("Cannot like/unlike! The post with id of " + postId + " you are trying to like/unlike might already been deleted or does not exists!");
         if (blockService.isBlockedBy(respondentId, post.getAuthor().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this post with id of !" + post.getAuthor().getId());
@@ -267,7 +267,7 @@ public class ForumService {
         return postMapper.toDTO(post);
     }
 
-    public CommentDTO likeComment(int respondentId, int commentId) {
+    public CommentDTO likeComment(int respondentId, int commentId) throws ResourceNotFoundException, BlockedException {
         Comment comment = commentService.getById(commentId);
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("Cannot like/unlike! The comment with id of " + commentId + " you are trying to like/unlike might already been deleted or does not exists!");
         if (blockService.isBlockedBy(respondentId, comment.getCommenter().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this comment with id of !" + comment.getCommenter().getId());
@@ -282,7 +282,7 @@ public class ForumService {
         return commentMapper.toDTO(comment);
     }
 
-    public ReplyDTO likeReply(int respondentId, int replyId) {
+    public ReplyDTO likeReply(int respondentId, int replyId) throws ResourceNotFoundException, BlockedException {
         Reply reply = replyService.getById(replyId);
         if (replyService.isDeleted(replyId)) throw new ResourceNotFoundException("Cannot like/unlike! The reply with id of " + replyId + " you are trying to like/unlike might already be deleted or does not exists!");
         if (blockService.isBlockedBy(respondentId, reply.getReplier().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this reply with id of !" + reply.getReplier().getId());
@@ -296,11 +296,11 @@ public class ForumService {
         return replyMapper.toDTO(reply);
     }
 
-    public PostDTO addPostMention(User currentUser, int mentionedUserId, Post post) {
+    public PostDTO addPostMention(User currentUser, int mentionedUserId, Post post) throws ResourceNotFoundException, BlockedException {
         if (postService.isDeleted(post)) throw new ResourceNotFoundException("Cannot mention! The post with id of " + post.getId() + " you are trying to mention might already been deleted or does not exists!");
         if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
         if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned user with id of " + mentionedUserId + " already blocked you");
-
+        if (currentUser.getId() == mentionedUserId) throw new MentionException("Cannot mention! You are trying to mention yourself which is not possible!");
         mentionService.addPostMention(currentUser, mentionedUserId, post);
         return postMapper.toDTO(post);
     }
@@ -311,10 +311,11 @@ public class ForumService {
                 .toList();
     }
 
-    public CommentDTO addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
+    public CommentDTO addCommentMention(User currentUser, int mentionedUserId, Comment comment) throws ResourceNotFoundException, BlockedException {
         if (commentService.isDeleted(comment)) throw new ResourceNotFoundException("Cannot mention! The comment with id of " + comment.getId() + " you are trying to mention might already been deleted or does not exists!");
         if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
         if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned user with id of " + mentionedUserId + " already blocked you");
+        if (currentUser.getId() == mentionedUserId) throw new MentionException("Cannot mention! You are trying to mention yourself which is not possible!");
 
         mentionService.addCommentMention(currentUser, mentionedUserId, comment);
         return commentMapper.toDTO(comment);
@@ -326,10 +327,11 @@ public class ForumService {
                 .toList();
     }
 
-    public ReplyDTO addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
+    public ReplyDTO addReplyMention(User currentUser, int mentionedUserId, Reply reply) throws ResourceNotFoundException, BlockedException {
         if (replyService.isDeleted(reply)) throw new ResourceNotFoundException("Cannot mention! The reply with id of " + reply.getId() + " you are trying to mention might already be deleted or does not exists!");
         if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
         if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! Mentioned userwith id of " + mentionedUserId + " already blocked you");
+        if (currentUser.getId() == mentionedUserId) throw new MentionException("Cannot mention! You are trying to mention yourself which is not possible!");
 
         mentionService.addReplyMention(currentUser, mentionedUserId, reply);
         return replyMapper.toDTO(reply);
