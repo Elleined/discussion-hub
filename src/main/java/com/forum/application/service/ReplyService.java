@@ -159,4 +159,8 @@ public class ReplyService {
         Reply reply = getById(replyId);
         return reply.getStatus() == Status.INACTIVE;
     }
+
+    boolean isDeleted(Reply reply) throws  ResourceNotFoundException {
+        return reply.getStatus() == Status.INACTIVE;
+    }
 }

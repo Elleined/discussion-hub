@@ -34,12 +34,12 @@ public class BlockService {
         log.debug("User {} unblocked user {} successfully", userId, userToBeUnblockedId);
     }
 
-    boolean isBlockedBy(int userId, int userToCheckId) throws ResourceNotFoundException {
+    public boolean isBlockedBy(int userId, int userToCheckId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId + " does not exists!"));
         return user.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userToCheckId);
     }
 
-    boolean isYouBeenBlockedBy(int userId, int suspectedUserId) throws ResourceNotFoundException {
+    public boolean isYouBeenBlockedBy(int userId, int suspectedUserId) throws ResourceNotFoundException {
         User suspected = userRepository.findById(suspectedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + suspectedUserId + " does not exists!"));
         return suspected.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userId);
     }

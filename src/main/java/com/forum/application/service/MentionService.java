@@ -48,12 +48,6 @@ public class MentionService {
         return post;
     }
 
-    List<Post> addAllPostMention(User currentUser, Set<Integer> mentionedUserIds, Post post) {
-        return mentionedUserIds.stream()
-                .map(mentionedUserId -> addPostMention(currentUser, mentionedUserId, post))
-                .toList();
-    }
-
     Comment addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, comment.getId(), ModalTracker.Type.COMMENT)
@@ -76,12 +70,6 @@ public class MentionService {
         return comment;
     }
 
-    List<Comment> addAllCommentMention(User currentUser, Set<Integer> mentionedUserIds, Comment comment) {
-        return mentionedUserIds.stream()
-                .map(mentionedUserId -> addCommentMention(currentUser, mentionedUserId, comment))
-                .toList();
-    }
-
     Reply addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, reply.getId(), ModalTracker.Type.POST)
@@ -101,12 +89,6 @@ public class MentionService {
         reply.getMentions().add(replyMention);
         log.debug("User with id of {} mentioned user with id of {} in reply with id of {}", currentUser.getId(), mentionedUserId, reply.getId());
         return reply;
-    }
-
-    List<Reply> addAllReplyMention(User currentUser, Set<Integer> mentionedUserIds, Reply reply) {
-        return mentionedUserIds.stream()
-                .map(mentionedUserId -> addReplyMention(currentUser, mentionedUserId, reply))
-                .toList();
     }
 
     public List<User> getSuggestedMentions(String name) {

@@ -97,6 +97,10 @@ public class PostService {
         return post.getStatus() == Status.INACTIVE;
     }
 
+    public boolean isDeleted(Post post) throws ResourceNotFoundException {
+        return post.getStatus() == Status.INACTIVE;
+    }
+
     public String getCommentSectionStatus(int postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         return post.getCommentSectionStatus().name();

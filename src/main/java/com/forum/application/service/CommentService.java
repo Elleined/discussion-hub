@@ -62,6 +62,10 @@ public class CommentService {
         return comment.getStatus() == Status.INACTIVE;
     }
 
+    public boolean isDeleted(Comment comment) throws ResourceNotFoundException {
+        return comment.getStatus() == Status.INACTIVE;
+    }
+
     List<CommentDTO> getAllCommentsOf(int postId) throws ResourceNotFoundException, NoLoggedInUserException {
         int currentUserId = userService.getCurrentUser().getId();
 

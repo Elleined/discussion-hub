@@ -50,7 +50,7 @@ public class ForumService {
         Post post = postService.save(currentUser.getId(), body);
 
         if (mentionedUserIds != null) {
-            mentionService.addAllPostMention(currentUser, mentionedUserIds, post);
+            addAllPostMention(currentUser, mentionedUserIds, post);
             // broadcast mention notification here
         }
         return postMapper.toDTO(post);
@@ -73,7 +73,7 @@ public class ForumService {
         Comment comment = commentService.save(currentUser.getId(), postId, body, attachedPicture);
 
         if (mentionedUserIds != null) {
-            mentionService.addAllCommentMention(currentUser, mentionedUserIds, comment);
+            addAllCommentMention(currentUser, mentionedUserIds, comment);
             // broadcast comment mention here
         }
 
@@ -99,7 +99,7 @@ public class ForumService {
         Reply reply = replyService.save(currentUser.getId(), commentId, body, attachedPicture);
 
         if (mentionedUserIds != null) {
-            mentionService.addAllReplyMention(currentUser, mentionedUserIds, reply);
+            addAllReplyMention(currentUser, mentionedUserIds, reply);
             // broadcast reply mention here
         }
 
@@ -292,8 +292,52 @@ public class ForumService {
             likeService.unlikeReply(respondentId, reply);
             return replyMapper.toDTO(reply);
         }
-
         likeService.likeReply(respondentId, reply);
         return replyMapper.toDTO(reply);
+    }
+
+    public PostDTO addPostMention(User currentUser, int mentionedUserId, Post post) {
+        if (postService.isDeleted(post)) throw new ResourceNotFoundException("Cannot mention! The post with id of " + post.getId() + " you are trying to mention might already been deleted or does not exists!");
+        if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned user with id of " + mentionedUserId + " already blocked you");
+
+        mentionService.addPostMention(currentUser, mentionedUserId, post);
+        return postMapper.toDTO(post);
+    }
+
+    public List<PostDTO> addAllPostMention(User currentUser, Set<Integer> mentionedUserIds, Post post) {
+        return mentionedUserIds.stream()
+                .map(mentionedUserId -> addPostMention(currentUser, mentionedUserId, post))
+                .toList();
+    }
+
+    public CommentDTO addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
+        if (commentService.isDeleted(comment)) throw new ResourceNotFoundException("Cannot mention! The comment with id of " + comment.getId() + " you are trying to mention might already been deleted or does not exists!");
+        if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned user with id of " + mentionedUserId + " already blocked you");
+
+        mentionService.addCommentMention(currentUser, mentionedUserId, comment);
+        return commentMapper.toDTO(comment);
+    }
+
+    public List<CommentDTO> addAllCommentMention(User currentUser, Set<Integer> mentionedUserIds, Comment comment) {
+        return mentionedUserIds.stream()
+                .map(mentionedUserId -> addCommentMention(currentUser, mentionedUserId, comment))
+                .toList();
+    }
+
+    public ReplyDTO addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
+        if (replyService.isDeleted(reply)) throw new ResourceNotFoundException("Cannot mention! The reply with id of " + reply.getId() + " you are trying to mention might already be deleted or does not exists!");
+        if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned userwith id of " + mentionedUserId + " already blocked you");
+
+        mentionService.addReplyMention(currentUser, mentionedUserId, reply);
+        return replyMapper.toDTO(reply);
+    }
+
+    List<ReplyDTO> addAllReplyMention(User currentUser, Set<Integer> mentionedUserIds, Reply reply) {
+        return mentionedUserIds.stream()
+                .map(mentionedUserId -> addReplyMention(currentUser, mentionedUserId, reply))
+                .toList();
     }
 }
