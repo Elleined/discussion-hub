@@ -5,6 +5,7 @@ import com.forum.application.model.like.PostLike;
 import com.forum.application.model.like.ReplyLike;
 import com.forum.application.model.mention.CommentMention;
 import com.forum.application.model.mention.PostMention;
+import com.forum.application.model.mention.ReplyMention;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -121,4 +122,13 @@ public class User {
     @Setter(AccessLevel.NONE)
     private Set<CommentMention> receiveCommentMentions;
 
+    // user id reference is in tbl mention reply
+    @OneToMany(mappedBy = "mentioningUser")
+    @Setter(AccessLevel.NONE)
+    private Set<ReplyMention> sentReplyMentions;
+
+    // user id reference is in tbl mention reply
+    @OneToMany(mappedBy = "mentionedUser")
+    @Setter(AccessLevel.NONE)
+    private Set<ReplyMention> receiveReplyMentions;
 }
