@@ -21,4 +21,5 @@ public class PostDTO {
     private String status;
     private String commentSectionStatus;
     private Set<UserDTO> likers;
+    private Set<UserDTO> mentionedUsers;
 }

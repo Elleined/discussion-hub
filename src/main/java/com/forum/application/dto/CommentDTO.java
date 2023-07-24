@@ -26,4 +26,5 @@ public class CommentDTO {
     private String postBody;
     private String attachedPicture;
     private Set<UserDTO> likers;
+    private Set<UserDTO> mentionedUsers;
 }

@@ -23,4 +23,5 @@ public class ReplyDTO {
     private String notificationStatus;
     private String attachedPicture;
     private Set<UserDTO> likers;
+    private Set<UserDTO> mentionedUsers;
 }
