@@ -124,4 +124,5 @@ public class UserController {
                                               @RequestParam("name") String name) {
         return forumService.getSuggestedMentions(userId, name);
     }
+    
 }

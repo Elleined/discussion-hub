@@ -52,13 +52,13 @@ public class CommentService {
     }
 
     Comment delete(int commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        Comment comment = getById(commentId);
         log.debug("Comment with id of {} are now inactive!", commentId);
         return this.setStatus(comment);
     }
 
     public boolean isDeleted(int commentId) throws ResourceNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        Comment comment = getById(commentId);
         return comment.getStatus() == Status.INACTIVE;
     }
 
@@ -125,7 +125,7 @@ public class CommentService {
     }
 
     Comment updateCommentBody(int commentId, String newBody) throws ResourceNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        Comment comment = getById(commentId);
         if (comment.getBody().equals(newBody)) return comment;
         comment.setBody(newBody);
         commentRepository.save(comment);
@@ -134,7 +134,7 @@ public class CommentService {
     }
 
     private void readComment(int commentId) throws ResourceNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        Comment comment = getById(commentId);
         comment.setNotificationStatus(NotificationStatus.READ);
         commentRepository.save(comment);
         log.debug("Comment with id of {} notification status updated to {}", commentId, NotificationStatus.READ);
@@ -167,7 +167,7 @@ public class CommentService {
     }
 
     boolean isCommentSectionClosed(int commentId) throws ResourceNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        Comment comment = getById(commentId);
         Post post = comment.getPost();
         return post.getCommentSectionStatus() == Post.CommentSectionStatus.CLOSED;
     }
@@ -181,7 +181,7 @@ public class CommentService {
     }
 
     private void setUpvote(int respondentId, int commentId) throws ResourceNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+        Comment comment = getById(commentId);
         comment.setUpvote(comment.getUpvote() + 1);
         commentRepository.save(comment);
 

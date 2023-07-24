@@ -201,7 +201,7 @@ public class ForumService {
     }
 
     public List<UserDTO> getSuggestedMentions(int userId, String name) {
-        return mentionService.getSuggestedMentions(userId, name)
+        return mentionService.getSuggestedMentions(name)
                 .stream()
                 .filter(user -> user.getId() != userId)
                 .filter(user -> !blockService.isBlockedBy(userId, user.getId()))
@@ -250,7 +250,7 @@ public class ForumService {
         if (postService.isDeleted(postId)) throw new ResourceNotFoundException("Cannot like/unlike! The post with id of " + postId + " you are trying to like/unlike might already been deleted or does not exists!");
         if (blockService.isBlockedBy(respondentId, post.getAuthor().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this post with id of !" + post.getAuthor().getId());
         if (blockService.isYouBeenBlockedBy(respondentId, post.getAuthor().getId())) throw  new BlockedException("Cannot like/unlike! The author of this post with id of " + post.getAuthor().getId() + " already blocked you");
-        
+
         if (likeService.isUserAlreadyLikedPost(respondentId, post)) {
             likeService.unlikePost(respondentId, post);
             return postMapper.toDTO(post);
