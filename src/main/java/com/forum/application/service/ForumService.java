@@ -247,6 +247,10 @@ public class ForumService {
 
     public PostDTO likePost(int respondentId, int postId) {
         Post post = postService.getById(postId);
+        if (postService.isDeleted(postId)) throw new ResourceNotFoundException("Cannot like/unlike! The post with id of " + postId + " you are trying to like/unlike might already been deleted or does not exists!");
+        if (blockService.isBlockedBy(respondentId, post.getAuthor().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this post with id of !" + post.getAuthor().getId());
+        if (blockService.isYouBeenBlockedBy(respondentId, post.getAuthor().getId())) throw  new BlockedException("Cannot like/unlike! The author of this post with id of " + post.getAuthor().getId() + " already blocked you");
+        
         if (likeService.isUserAlreadyLikedPost(respondentId, post)) {
             likeService.unlikePost(respondentId, post);
             return postMapper.toDTO(post);
@@ -257,20 +261,30 @@ public class ForumService {
 
     public CommentDTO likeComment(int respondentId, int commentId) {
         Comment comment = commentService.getById(commentId);
+        if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("Cannot like/unlike! The comment with id of " + commentId + " you are trying to like/unlike might already been deleted or does not exists!");
+        if (blockService.isBlockedBy(respondentId, comment.getCommenter().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this comment with id of !" + comment.getCommenter().getId());
+        if (blockService.isYouBeenBlockedBy(respondentId, comment.getCommenter().getId())) throw  new BlockedException("Cannot like/unlike! The author of this comment with id of " + comment.getCommenter().getId() + " already blocked you");
+
         if (likeService.isUserAlreadyLikedComment(respondentId, comment)) {
             likeService.unlikeComment(respondentId, comment);
             return commentMapper.toDTO(comment);
         }
+
         likeService.likeComment(respondentId, comment);
         return commentMapper.toDTO(comment);
     }
 
     public ReplyDTO likeReply(int respondentId, int replyId) {
         Reply reply = replyService.getById(replyId);
+        if (replyService.isDeleted(replyId)) throw new ResourceNotFoundException("Cannot like/unlike! The reply with id of " + replyId + " you are trying to like/unlike might already be deleted or does not exists!");
+        if (blockService.isBlockedBy(respondentId, reply.getReplier().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this reply with id of !" + reply.getReplier().getId());
+        if (blockService.isYouBeenBlockedBy(respondentId, reply.getReplier().getId())) throw  new BlockedException("Cannot like/unlike! The author of this reply with id of " + reply.getReplier().getId() + " already blocked you");
+
         if (likeService.isUserAlreadyLikeReply(respondentId, reply)) {
             likeService.unlikeReply(respondentId, reply);
             return replyMapper.toDTO(reply);
         }
+
         likeService.likeReply(respondentId, reply);
         return replyMapper.toDTO(reply);
     }

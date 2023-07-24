@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tbl_mention_post")
 @NoArgsConstructor
-public final class PostMention extends Mentions {
+public final class PostMention extends Mention {
 
     @ManyToOne
     @JoinColumn(

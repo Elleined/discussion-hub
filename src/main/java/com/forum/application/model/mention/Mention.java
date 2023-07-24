@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class Mentions {
+public abstract class Mention {
 
     @Id
     @GeneratedValue(

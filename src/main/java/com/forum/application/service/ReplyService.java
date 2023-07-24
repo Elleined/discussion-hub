@@ -51,13 +51,13 @@ public class ReplyService {
     }
 
     Reply delete(int replyId) {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        Reply reply = getById(replyId);
         log.debug("Reply with id of {} are now inactive!", replyId);
         return this.setStatus(reply);
     }
 
     Reply updateReplyBody(int replyId, String newReplyBody) throws ResourceNotFoundException {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        Reply reply = getById(replyId);
         if (reply.getBody().equals(newReplyBody)) return reply;
         reply.setBody(newReplyBody);
         log.debug("Reply with id of {} updated with the new body of {}", replyId, newReplyBody);
@@ -65,7 +65,7 @@ public class ReplyService {
     }
 
     private void readReply(int replyId) throws ResourceNotFoundException {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+        Reply reply = getById(replyId);
         reply.setNotificationStatus(NotificationStatus.READ);
         replyRepository.save(reply);
         log.debug("Reply with id of {} notification status updated successfully to {}", reply, NotificationStatus.READ);
@@ -123,7 +123,12 @@ public class ReplyService {
 
     public List<ReplyDTO> getAllUnreadReplies(int commenterId, int commentId) throws ResourceNotFoundException {
         User commenter = userService.getById(commenterId);
-        Comment comment = commenter.getComments().stream().filter(userComment -> userComment.getId() == commentId).findFirst().orElseThrow(() -> new ResourceNotFoundException("Commenter with id of " + commenterId + " does not have a comment with id of " + commentId));
+        Comment comment = commenter.getComments()
+                .stream()
+                .filter(userComment -> userComment.getId() == commentId)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Commenter with id of " + commenterId + " does not have a comment with id of " + commentId));
+
         return comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
@@ -148,5 +153,10 @@ public class ReplyService {
     Reply setStatus(Reply reply) throws ResourceNotFoundException {
         reply.setStatus(Status.INACTIVE);
         return replyRepository.save(reply);
+    }
+
+    boolean isDeleted(int replyId) throws ResourceNotFoundException {
+        Reply reply = getById(replyId);
+        return reply.getStatus() == Status.INACTIVE;
     }
 }
