@@ -256,12 +256,22 @@ public class ForumService {
     }
 
     public CommentDTO likeComment(int respondentId, int commentId) {
-        Comment comment = likeService.likeComment(respondentId, commentId);
+        Comment comment = commentService.getById(commentId);
+        if (likeService.isUserAlreadyLikedComment(respondentId, comment)) {
+            likeService.unlikeComment(respondentId, comment);
+            return commentMapper.toDTO(comment);
+        }
+        likeService.likeComment(respondentId, comment);
         return commentMapper.toDTO(comment);
     }
 
     public ReplyDTO likeReply(int respondentId, int replyId) {
-        Reply reply = likeService.likeReply(respondentId, replyId);
+        Reply reply = replyService.getById(replyId);
+        if (likeService.isUserAlreadyLikeReply(respondentId, reply)) {
+            likeService.unlikeReply(respondentId, reply);
+            return replyMapper.toDTO(reply);
+        }
+        likeService.likeReply(respondentId, reply);
         return replyMapper.toDTO(reply);
     }
 }

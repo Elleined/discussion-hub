@@ -5,7 +5,8 @@ import com.forum.application.model.*;
 import com.forum.application.model.like.CommentLike;
 import com.forum.application.model.like.PostLike;
 import com.forum.application.model.like.ReplyLike;
-import com.forum.application.repository.*;
+import com.forum.application.repository.LikeRepository;
+import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 class LikeService {
-    private final CommentRepository commentRepository;
-    private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
@@ -51,7 +50,7 @@ class LikeService {
                 .stream()
                 .filter(like -> like.getPost() == post)
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("User does not like post with id of " + post.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not like post with id of " + post.getId()));
 
         post.getLikes().remove(postLike);
         respondent.getLikedPosts().remove(postLike);
@@ -60,8 +59,7 @@ class LikeService {
     }
 
 
-    Comment likeComment(int respondentId, int commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
+    void likeComment(int respondentId, Comment comment) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, comment.getId(), ModalTracker.Type.POST)
@@ -77,13 +75,29 @@ class LikeService {
         comment.getLikes().add(commentLike);
         respondent.getLikedComments().add(commentLike);
         likeRepository.save(commentLike);
-
-        log.debug("User with id of {} liked comment with id of {}", respondent, commentId);
-        return comment;
+        log.debug("User with id of {} liked comment with id of {}", respondent, comment.getId());
     }
 
-    Reply likeReply(int respondentId, int replyId) {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
+    boolean isUserAlreadyLikedComment(int respondentId, Comment comment) {
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
+        return respondent.getLikedComments().stream().anyMatch(like -> like.getComment() == comment);
+    }
+
+    void unlikeComment(int respondentId, Comment comment) {
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
+        CommentLike commentLike = respondent.getLikedComments()
+                .stream()
+                .filter(like -> like.getComment() == comment)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not liked comment with id of " + comment.getId()));
+
+        comment.getLikes().remove(commentLike);
+        respondent.getLikedComments().remove(commentLike);
+        likeRepository.delete(commentLike);
+        log.debug("User with id of {} unlike comment with id of {}", respondentId, comment.getId());
+    }
+
+    void likeReply(int respondentId, Reply reply) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, reply.getId(), ModalTracker.Type.POST)
@@ -99,7 +113,25 @@ class LikeService {
         reply.getLikes().add(replyLike);
         respondent.getLikedReplies().add(replyLike);
         likeRepository.save(replyLike);
-        log.debug("User with id of {} liked reply with id of {}", respondentId, replyId);
-        return reply;
+        log.debug("User with id of {} liked reply with id of {}", respondentId, reply.getId());
+    }
+
+    boolean isUserAlreadyLikeReply(int respondentId, Reply reply) {
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not exists"));
+        return respondent.getLikedReplies().stream().anyMatch(like -> like.getReply() == reply);
+    }
+
+    void unlikeReply(int respondentId, Reply reply) {
+        User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not exists"));
+        ReplyLike replyLike = respondent.getLikedReplies()
+                .stream()
+                .filter(like -> like.getReply() == reply)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not liked reply with id of " + reply.getId()));
+
+        reply.getLikes().remove(replyLike);
+        respondent.getLikedReplies().remove(replyLike);
+        likeRepository.delete(replyLike);
+        log.debug("User with id of {} unliked reply with id of {}", respondentId, reply.getId());
     }
 }
