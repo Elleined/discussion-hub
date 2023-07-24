@@ -27,7 +27,6 @@ public class CommentService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final ReplyService replyService;
-    private final LikeService likeService;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
@@ -130,10 +129,6 @@ public class CommentService {
         commentRepository.save(comment);
         log.debug("Comment with id of {} updated with the new body of {}", commentId, newBody);
         return comment;
-    }
-
-    int likeComment(int respondentId, int commentId) {
-        return likeService.addCommentLike(respondentId, commentId);
     }
 
     private void readComment(int commentId) throws ResourceNotFoundException {

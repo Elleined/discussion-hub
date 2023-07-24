@@ -29,6 +29,7 @@ public class ForumService {
     private final PostService postService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final LikeService likeService;
     private final WSService wsService;
     private final NotificationService notificationService;
 
@@ -177,7 +178,7 @@ public class ForumService {
     }
 
     public PostDTO likePost(int respondentId, int postId) {
-        int updatedPostId = postService.likePost(respondentId, postId);
+        int updatedPostId = likeService.likePost(respondentId, postId);
         return postService.getById(updatedPostId);
     }
     public CommentDTO updateCommentBody(int commentId, String newBody) {
@@ -187,7 +188,7 @@ public class ForumService {
     }
 
     public CommentDTO likeComment(int respondentId, int commentId) {
-        int updatedCommentId = commentService.likeComment(respondentId, commentId);
+        int updatedCommentId = likeService.likeComment(respondentId, commentId);
         return commentMapper.toDTO( commentService.getById( updatedCommentId ) );
     }
 
@@ -199,7 +200,7 @@ public class ForumService {
     }
 
     public ReplyDTO likeReply(int respondentId, int replyId) {
-        int updatedReplyId = replyService.likeReply(respondentId, replyId);
+        int updatedReplyId = likeService.likeReply(respondentId, replyId);
         return replyMapper.toDTO( replyService.getById( updatedReplyId ) );
     }
 

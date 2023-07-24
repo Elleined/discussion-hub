@@ -23,7 +23,7 @@ class LikeService {
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
 
-    int addPostLike(int respondentId, int postId) {
+    int likePost(int respondentId, int postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -49,7 +49,7 @@ class LikeService {
     }
 
 
-    int addCommentLike(int respondentId, int commentId) {
+    int likeComment(int respondentId, int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
@@ -73,7 +73,7 @@ class LikeService {
         return commentId;
     }
 
-    int addReplyLike(int respondentId, int replyId) {
+    int likeReply(int respondentId, int replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 

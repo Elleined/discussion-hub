@@ -4,7 +4,6 @@ import com.forum.application.dto.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.Comment;
-import com.forum.application.model.Mention;
 import com.forum.application.model.Reply;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

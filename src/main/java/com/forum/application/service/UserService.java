@@ -7,7 +7,6 @@ import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.mapper.UserMapper;
-import com.forum.application.model.Mention;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Type;
 import com.forum.application.model.User;

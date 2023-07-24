@@ -26,7 +26,6 @@ public class ReplyService {
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
-    private final LikeService likeService;
 
     private final ReplyMapper replyMapper;
 
@@ -63,9 +62,6 @@ public class ReplyService {
         return replyRepository.save(reply);
     }
 
-    int  likeReply(int respondentId, int replyId) {
-        return likeService.addReplyLike(respondentId, replyId);
-    }
     private void readReply(int replyId) throws ResourceNotFoundException {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         reply.setNotificationStatus(NotificationStatus.READ);

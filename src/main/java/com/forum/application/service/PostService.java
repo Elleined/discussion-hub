@@ -29,7 +29,6 @@ public class PostService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final CommentService commentService;
-    private final LikeService likeService;
     private final PostMapper postMapper;
 
     int save(int authorId, String body) throws ResourceNotFoundException {
@@ -60,10 +59,7 @@ public class PostService {
         postRepository.save(post);
         log.debug("Post with id of {} updated with the new body of {}", postId, newBody);
     }
-    int likePost(int respondentId, int postId) {
-        // validation here
-        return likeService.addPostLike(respondentId, postId);
-    }
+
     void updateCommentSectionStatus(int postId, CommentSectionStatus status) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         post.setCommentSectionStatus(status);
