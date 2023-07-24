@@ -1,6 +1,6 @@
 package com.forum.application.service;
 
-import com.forum.application.model.Type;
+import com.forum.application.model.ModalTracker;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ class UserServiceTest {
     void isModalOpen() {
         int userId = 1;
         int associatedTypeId = 5; // Post or Comment id
-        Type type = Type.COMMENT;
+        ModalTracker.Type type = ModalTracker.Type.COMMENT;
         assertTrue(userService.isModalOpen(userId, associatedTypeId, type), "This user does not have an open modal!");
     }
 

@@ -1,7 +1,6 @@
 package com.forum.application.service;
 
 import com.forum.application.model.ModalTracker;
-import com.forum.application.model.Type;
 import com.forum.application.repository.ModalTrackerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,7 +23,7 @@ public class ModalTrackerService {
         ModalTracker modalTracker = ModalTracker.builder()
                 .receiverId(receiverId)
                 .associatedTypeIdOpened(associateTypeIdOpened)
-                .type(Type.valueOf(type))
+                .type(ModalTracker.Type.valueOf(type))
                 .build();
 
         var saveModalTracker = modalTrackerRepository.save(modalTracker);
@@ -37,7 +35,7 @@ public class ModalTrackerService {
         return modalTrackerRepository.findById(userId).orElse(null);
     }
     
-    void deleteTrackerOfUserById(int userId, Type type) {
+    void deleteTrackerOfUserById(int userId, ModalTracker.Type type) {
         ModalTracker modalTracker = getTrackerOfUserById(userId);
         if (modalTracker.getType() == type) {
             modalTrackerRepository.deleteById(userId);
@@ -45,7 +43,7 @@ public class ModalTrackerService {
         }
     }
 
-    public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
+    public boolean isModalOpen(int userId, int associatedTypeId, ModalTracker.Type type) {
         ModalTracker modalTracker = this.getTrackerOfUserById(userId);
         if (modalTracker == null) return false;
         return modalTracker.getType() == type &&

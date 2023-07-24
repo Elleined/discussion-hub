@@ -283,13 +283,13 @@ function onConnected() {
       generateNotification(json, notificationContainer);
    });
 
-   stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
-      const json = JSON.parse(notificationResponse.body);
-      if (json.notificationStatus === "READ") return;
-
-      updateTotalNotificationCount();
-      generateMention(json, notificationContainer);
-   });
+//   stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
+//      const json = JSON.parse(notificationResponse.body);
+//      if (json.notificationStatus === "READ") return;
+//
+//      updateTotalNotificationCount();
+//      generateMention(json, notificationContainer);
+//   });
 }
 
 async function getAllCommentsOf(postId) {

@@ -3,14 +3,14 @@ package com.forum.application.service;
 import com.forum.application.dto.CommentDTO;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
+import com.forum.application.dto.UserDTO;
 import com.forum.application.exception.*;
 import com.forum.application.mapper.CommentMapper;
-import com.forum.application.mapper.PostMapper;
 import com.forum.application.mapper.ReplyMapper;
+import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Reply;
-import com.forum.application.model.Type;
 import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,11 +31,14 @@ public class ForumService {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final LikeService likeService;
+    private final BlockService blockService;
     private final WSService wsService;
     private final NotificationService notificationService;
+    private final MentionService mentionService;
 
     private final CommentMapper commentMapper;
     private final ReplyMapper replyMapper;
+    private final UserMapper userMapper;
 
     public PostDTO savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             BlockedException,
@@ -45,10 +49,8 @@ public class ForumService {
 
         int currentUserId = userService.getCurrentUser().getId();
         int postId = postService.save(currentUserId, body);
-        if (mentionedUserIds != null) {
-            userService.mentionUsers(currentUserId, mentionedUserIds, Type.POST, postId)
-                    .forEach(notificationService::broadcastMentionNotification);
-        }
+        // mention here if (mentionedUserIds != null)
+
         return postService.getById(postId);
     }
 
@@ -64,14 +66,11 @@ public class ForumService {
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Comment body cannot be empty! Please provide text for your comment");
         if (postService.isCommentSectionClosed(postId)) throw new ClosedCommentSectionException("Cannot comment because author already closed the comment section for this post!");
         if (postService.isDeleted(postId)) throw new ResourceNotFoundException("The post you trying to comment is either be deleted or does not exists anymore!");
-        if (userService.isYouBeenBlockedBy(currentUserId, authorId)) throw new BlockedException("Cannot comment because this user block you already!");
+        if (blockService.isYouBeenBlockedBy(currentUserId, authorId)) throw new BlockedException("Cannot comment because this user block you already!");
 
         Comment comment = commentService.save(currentUserId, postId, body, attachedPicture);
 
-        if (mentionedUserIds != null) {
-            userService.mentionUsers(currentUserId, mentionedUserIds, Type.COMMENT, comment.getId())
-                    .forEach(notificationService::broadcastMentionNotification);
-        }
+        // mention here if (mentionedUserIds != null)
 
         wsService.broadcastComment(comment);
         notificationService.broadcastCommentNotification(comment);
@@ -90,13 +89,10 @@ public class ForumService {
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Reply body cannot be empty!");
         if (commentService.isCommentSectionClosed(commentId)) throw new ClosedCommentSectionException("Cannot reply to this comment because author already closed the comment section for this post!");
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("The comment you trying to reply is either be deleted or does not exists anymore!");
-        if (userService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
+        if (blockService.isYouBeenBlockedBy(currentUserId, commenterId)) throw new BlockedException("Cannot reply because this user block you already!");
 
         Reply reply = replyService.save(currentUserId, commentId, body, attachedPicture);
-        if (mentionedUserIds != null){
-            userService.mentionUsers(currentUserId, mentionedUserIds, Type.REPLY, reply.getId())
-                    .forEach(notificationService::broadcastMentionNotification);
-        }
+        // mention here if (mentionedUserIds != null)
 
         wsService.broadcastReply(reply);
         notificationService.broadcastReplyNotification(reply);
@@ -140,13 +136,11 @@ public class ForumService {
 
     public List<CommentDTO> getAllCommentsOf(int postId) {
         commentService.readAllComments(postId);
-        userService.readAllCommentsMention(postId);
         return commentService.getAllCommentsOf(postId);
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         replyService.readAllReplies(commentId);
-        userService.readAllRepliesMention(commentId);
         return replyService.getAllRepliesOf(commentId);
     }
 
@@ -208,4 +202,20 @@ public class ForumService {
         return postService.getCommentSectionStatus(postId);
     }
 
+    public List<UserDTO> getSuggestedMentions(int userId, String name) {
+        return mentionService.getSuggestedMentions(userId, name)
+                .stream()
+                .filter(user -> user.getId() != userId)
+                .filter(user -> !blockService.isBlockedBy(userId, user.getId()))
+                .filter(user -> !blockService.isYouBeenBlockedBy(userId, user.getId()))
+                .map(userMapper::toDTO)
+                .toList();
+    }
+
+    public Set<UserDTO> getAllBlockedUsers(int currentUserId) {
+        return blockService.getAllBlockedUsers(currentUserId)
+                .stream()
+                .map(userMapper::toDTO)
+                .collect(Collectors.toSet());
+    }
 }

@@ -3,7 +3,10 @@ package com.forum.application.model.like;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table

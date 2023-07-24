@@ -1,14 +1,7 @@
 package com.forum.application.service;
 
-import com.forum.application.dto.NotificationResponse;
-import com.forum.application.dto.UserDTO;
-import com.forum.application.exception.BlockedException;
 import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
-import com.forum.application.mapper.NotificationMapper;
-import com.forum.application.mapper.UserMapper;
-import com.forum.application.model.ModalTracker;
-import com.forum.application.model.Type;
 import com.forum.application.model.User;
 import com.forum.application.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
@@ -17,23 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
-
-    private final BlockService blockService;
-    private final ModalTrackerService modalTrackerService;
-    private final MentionService mentionService;
-
-    private final UserMapper userMapper;
-    private final NotificationMapper notificationMapper;
     private final HttpSession session;
 
     public int save(User user) {
@@ -63,90 +45,5 @@ public class UserService {
 
     public User getById(int userId) throws ResourceNotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + userId +  " does not exists"));
-    }
-
-    public List<UserDTO> getSuggestedMentions(int userId, String name) {
-        return userRepository.fetchAllByProperty(name)
-                .stream()
-                .filter(user -> user.getId() != userId)
-                .filter(user -> !blockService.isBlockedBy(userId, user.getId()))
-                .filter(user -> !blockService.isYouBeenBlockedBy(userId, user.getId()))
-                .map(userMapper::toDTO)
-                .toList();
-    }
-
-    public boolean isModalOpen(int userId, int associatedTypeId, Type type) {
-        return modalTrackerService.isModalOpen(userId, associatedTypeId, type);
-    }
-
-    public ModalTracker saveTrackerOfUserById(int receiverId, int associateTypeIdOpened, String type) {
-        return modalTrackerService.saveTrackerOfUserById(receiverId, associateTypeIdOpened, type);
-    }
-
-    public ModalTracker getTrackerOfUserById(int userId) {
-        return modalTrackerService.getTrackerOfUserById(userId);
-    }
-
-    public void deleteTrackerOfUserById(int userId, String type) {
-        modalTrackerService.deleteTrackerOfUserById(userId, Type.valueOf(type));
-    }
-
-
-    public Set<UserDTO> getAllBlockedUsers(int userId) {
-        return userRepository.fetchAllBlockedUserOf(userId)
-                .stream()
-                .map(userMapper::toDTO)
-                .collect(Collectors.toSet());
-    }
-
-    public void blockUser(int userId, int userToBeBlockedId) {
-        blockService.blockUser(userId, userToBeBlockedId);
-    }
-
-    public void unBlockUser(int userId, int userToBeUnblockedId) {
-        blockService.unBlockUser(userId, userToBeUnblockedId);
-    }
-
-    public boolean isBlockedBy(int userId, int userToCheckId) {
-        return blockService.isBlockedBy(userId, userToCheckId);
-    }
-
-    public boolean isYouBeenBlockedBy(int userId, int suspectedUserId) {
-        return blockService.isYouBeenBlockedBy(userId, suspectedUserId);
-    }
-
-    public Integer mentionUser(int mentioningUserId, int mentionedUserId, Type type, int typeId) throws BlockedException {
-        boolean isBlockedBy = isBlockedBy(mentioningUserId, mentionedUserId);
-        boolean isYouBeenBlockedBy = isYouBeenBlockedBy(mentioningUserId, mentionedUserId);
-        if (isBlockedBy || isYouBeenBlockedBy) throw new BlockedException("Cannot mention user! One of the mentioned user blocked you!");
-        return mentionService.save(mentioningUserId, mentionedUserId, type, typeId);
-    }
-
-    public List<Integer> mentionUsers(int mentioningUserId, Set<Integer> usersToBeMentionIds, Type type, int typeId) throws BlockedException {
-        return usersToBeMentionIds.stream()
-                .map(mentionedUserId -> this.mentionUser(mentioningUserId, mentionedUserId, type, typeId))
-                .toList();
-    }
-
-    public NotificationResponse getMentionById(int mentionId) {
-        Mention mention = mentionService.getById(mentionId);
-        return notificationMapper.toMentionNotification(mention);
-    }
-
-    public List<NotificationResponse> getAllUnreadReceiveMentions(int userId) {
-        return mentionService.getAllUnreadReceiveMentions(userId)
-                .stream()
-                .map(notificationMapper::toMentionNotification)
-                .toList();
-    }
-
-    public void readAllCommentsMention(int postId) throws ResourceNotFoundException, NoLoggedInUserException {
-        int currentUserId = this.getCurrentUser().getId();
-        mentionService.readAllComments(currentUserId, postId);
-    }
-
-    public void readAllRepliesMention(int commentId) throws ResourceNotFoundException, NoLoggedInUserException {
-        int currentUserId = this.getCurrentUser().getId();
-        mentionService.readAllReplies(currentUserId, commentId);
     }
 }

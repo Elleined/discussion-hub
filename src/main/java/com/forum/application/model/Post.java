@@ -1,7 +1,6 @@
 package com.forum.application.model;
 
 import com.forum.application.model.like.PostLike;
-import com.forum.application.model.mention.Mentions;
 import com.forum.application.model.mention.PostMention;
 import jakarta.persistence.*;
 import lombok.*;

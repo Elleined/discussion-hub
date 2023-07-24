@@ -24,7 +24,6 @@ public class NotificationService {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final NotificationMapper notificationMapper;
-    private final MentionService mentionService;
 
     void broadcastCommentNotification(Comment comment) throws ResourceNotFoundException {
         var commentNotificationResponse = notificationMapper.toCommentNotification(comment);
@@ -46,17 +45,9 @@ public class NotificationService {
         log.debug("Reply notification successfully sent to commenter with id of {}", subscriberId);
     }
 
-    void broadcastMentionNotification(int mentionId) throws ResourceNotFoundException {
-        Mention mention = mentionService.getById(mentionId);
-        var mentionResponse = notificationMapper.toMentionNotification(mention);
-        final String subscriberId = String.valueOf(mention.getMentionedUser().getId());
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/mentions", mentionResponse);
-    }
-
     long getAllUnreadNotificationCount(int userId) throws ResourceNotFoundException {
         return commentService.getUnreadCommentsOfAllPost(userId).size() +
-                replyService.getUnreadRepliesOfAllComments(userId).size() +
-                mentionService.getAllUnreadReceiveMentions(userId).size();
+                replyService.getUnreadRepliesOfAllComments(userId).size();
     }
 
     public Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {

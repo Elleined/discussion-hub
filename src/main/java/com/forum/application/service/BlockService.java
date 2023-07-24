@@ -8,10 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional class BlockService {
+@Transactional
+public class BlockService {
 
     private final UserRepository userRepository;
 
@@ -39,5 +42,9 @@ import org.springframework.transaction.annotation.Transactional;
     boolean isYouBeenBlockedBy(int userId, int suspectedUserId) throws ResourceNotFoundException {
         User suspected = userRepository.findById(suspectedUserId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + suspectedUserId + " does not exists!"));
         return suspected.getBlockedUsers().stream().anyMatch(blockedUser -> blockedUser.getId() == userId);
+    }
+
+    public Set<User> getAllBlockedUsers(int userId) {
+        return userRepository.fetchAllBlockedUserOf(userId);
     }
 }

@@ -27,6 +27,8 @@ public class CommentService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final ReplyService replyService;
+    private final BlockService blockService;
+    private final ModalTrackerService modalTrackerService;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
@@ -34,7 +36,7 @@ public class CommentService {
         User commenter = userService.getById(currentUserId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
-        NotificationStatus status = userService.isModalOpen(post.getAuthor().getId(), postId, Type.COMMENT) ? NotificationStatus.READ : NotificationStatus.UNREAD;
+        NotificationStatus status = modalTrackerService.isModalOpen(post.getAuthor().getId(), postId, ModalTracker.Type.COMMENT) ? NotificationStatus.READ : NotificationStatus.UNREAD;
         Comment comment = Comment.builder()
                 .body(body)
                 .dateCreated(LocalDateTime.now())
@@ -67,8 +69,8 @@ public class CommentService {
         return post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .sorted(Comparator.comparingInt(Comment::getUpvote).reversed())
                 .map(commentMapper::toDTO)
                 .toList();
@@ -85,8 +87,8 @@ public class CommentService {
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
                 .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
-                .filter(comment -> !userService.isBlockedBy(authorId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(authorId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isBlockedBy(authorId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isYouBeenBlockedBy(authorId, comment.getCommenter().getId()))
                 .map(commentMapper::toDTO)
                 .toList();
     }
@@ -110,8 +112,8 @@ public class CommentService {
                 .map(Post::getComments)
                 .flatMap(comments -> comments.stream()
                         .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                        .filter(comment -> !userService.isBlockedBy(userId, comment.getCommenter().getId()))
-                        .filter(comment -> !userService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
+                        .filter(comment -> !blockService.isBlockedBy(userId, comment.getCommenter().getId()))
+                        .filter(comment -> !blockService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
                         .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
                 .collect(Collectors.toSet());
     }
@@ -150,8 +152,8 @@ public class CommentService {
         post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .map(Comment::getId)
                 .forEach(this::readComment);
     }

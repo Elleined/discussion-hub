@@ -20,7 +20,12 @@ public class ModalTracker {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-
     @Column(name = "associated_id_opened")
     private int associatedTypeIdOpened;
+
+    public enum Type {
+        POST,
+        COMMENT,
+        REPLY
+    }
 }

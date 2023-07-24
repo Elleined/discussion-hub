@@ -92,16 +92,6 @@ public class User {
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
 
-    // user id reference is in mention user
-    @OneToMany(mappedBy = "mentioningUser")
-    @Setter(AccessLevel.NONE)
-    private List<Mention> sentMentions;
-
-    // user id reference is in mention user
-    @OneToMany(mappedBy = "mentionedUser")
-    @Setter(AccessLevel.NONE)
-    private List<Mention> receiveMentions;
-
     // user id reference is in tbl mention post
     @OneToMany(mappedBy = "mentioningUser")
     @Setter(AccessLevel.NONE)

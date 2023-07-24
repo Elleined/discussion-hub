@@ -27,13 +27,15 @@ public class ReplyService {
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
 
+    private final ModalTrackerService modalTrackerService;
+    private final BlockService blockService;
     private final ReplyMapper replyMapper;
 
     Reply save(int currentUserId, int commentId, String body,String attachedPicture) throws ResourceNotFoundException {
         User replier = userService.getById(currentUserId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
 
-        NotificationStatus status = userService.isModalOpen(comment.getCommenter().getId(), commentId, Type.REPLY) ? NotificationStatus.READ : NotificationStatus.UNREAD;
+        NotificationStatus status = modalTrackerService.isModalOpen(comment.getCommenter().getId(), commentId, ModalTracker.Type.REPLY) ? NotificationStatus.READ : NotificationStatus.UNREAD;
         Reply reply = Reply.builder()
                 .body(body)
                 .dateCreated(LocalDateTime.now())
@@ -81,8 +83,8 @@ public class ReplyService {
         comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                .filter(reply -> !userService.isBlockedBy(currentUserId, reply.getReplier().getId()))
-                .filter(reply -> !userService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
+                .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
+                .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .map(Reply::getId)
                 .forEach(this::readReply);
     }
@@ -94,8 +96,8 @@ public class ReplyService {
         return comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                .filter(reply -> !userService.isBlockedBy(currentUserId, reply.getReplier().getId()))
-                .filter(reply -> !userService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
+                .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
+                .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId()))
                 .sorted(Comparator.comparing(Reply::getDateCreated))
                 .map(replyMapper::toDTO)
                 .toList();
@@ -113,8 +115,8 @@ public class ReplyService {
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                        .filter(reply -> !userService.isBlockedBy(userId, reply.getReplier().getId()))
-                        .filter(reply -> !userService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
+                        .filter(reply -> !blockService.isBlockedBy(userId, reply.getReplier().getId()))
+                        .filter(reply -> !blockService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
                         .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
                 .collect(Collectors.toSet());
     }
@@ -126,8 +128,8 @@ public class ReplyService {
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
-                .filter(reply -> !userService.isBlockedBy(commenterId, reply.getReplier().getId()))
-                .filter(reply -> !userService.isYouBeenBlockedBy(commenterId, reply.getReplier().getId()))
+                .filter(reply -> !blockService.isBlockedBy(commenterId, reply.getReplier().getId()))
+                .filter(reply -> !blockService.isYouBeenBlockedBy(commenterId, reply.getReplier().getId()))
                 .map(replyMapper::toDTO)
                 .toList();
     }

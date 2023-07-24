@@ -8,7 +8,6 @@ import com.forum.application.model.Post;
 import com.forum.application.model.Post.CommentSectionStatus;
 import com.forum.application.model.Status;
 import com.forum.application.model.User;
-import com.forum.application.model.like.PostLike;
 import com.forum.application.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,6 +25,7 @@ import java.util.Set;
 public class PostService {
 
     private final UserService userService;
+    private final BlockService blockService;
     private final PostRepository postRepository;
     private final CommentService commentService;
     private final PostMapper postMapper;
@@ -78,8 +77,8 @@ public class PostService {
         return postRepository.findAll()
                 .stream()
                 .filter(post -> post.getStatus() == Status.ACTIVE)
-                .filter(post -> !userService.isBlockedBy(currentUserId, post.getAuthor().getId()))
-                .filter(post -> !userService.isYouBeenBlockedBy(currentUserId, post.getAuthor().getId()))
+                .filter(post -> !blockService.isBlockedBy(currentUserId, post.getAuthor().getId()))
+                .filter(post -> !blockService.isYouBeenBlockedBy(currentUserId, post.getAuthor().getId()))
                 .sorted(Comparator.comparing(Post::getDateCreated).reversed())
                 .map(postMapper::toDTO)
                 .toList();
@@ -115,8 +114,8 @@ public class PostService {
         int commentCount = (int) post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                .filter(comment -> !userService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
-                .filter(comment -> !userService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isBlockedBy(currentUserId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isYouBeenBlockedBy(currentUserId, comment.getCommenter().getId()))
                 .count();
 
         int commentRepliesCount = (int) post.getComments()
@@ -124,8 +123,8 @@ public class PostService {
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                        .filter(reply -> !userService.isBlockedBy(currentUserId, reply.getReplier().getId()))
-                        .filter(reply -> !userService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId())))
+                        .filter(reply -> !blockService.isBlockedBy(currentUserId, reply.getReplier().getId()))
+                        .filter(reply -> !blockService.isYouBeenBlockedBy(currentUserId, reply.getReplier().getId())))
                 .count();
 
         return commentCount + commentRepliesCount;

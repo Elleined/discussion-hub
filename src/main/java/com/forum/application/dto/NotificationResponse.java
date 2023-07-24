@@ -1,6 +1,6 @@
 package com.forum.application.dto;
 
-import com.forum.application.model.Type;
+import com.forum.application.model.ModalTracker;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ public class NotificationResponse {
     private String message;
     private String respondentPicture;
     private int respondentId;
-    private Type type;
+    private ModalTracker.Type type;
     private String notificationStatus;
     private int count;
     private String formattedDate;

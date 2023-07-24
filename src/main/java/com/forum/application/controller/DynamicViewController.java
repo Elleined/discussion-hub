@@ -39,10 +39,4 @@ public class DynamicViewController {
         return new ModelAndView("/fragments/notification-body")
                 .addObject("notification", notification);
     }
-
-    @PostMapping("/getMentionBlock")
-    public ModelAndView getMentionBlock(@RequestBody NotificationResponse mentionResponse) {
-        return new ModelAndView("/fragments/mention-notification")
-                .addObject("mention", mentionResponse);
-    }
 }

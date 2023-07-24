@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.UserDTO;
+import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class BlockedController {
 
+    private final ForumService forumService;
     private final UserService userService;
     @GetMapping
     public String goToBlockUsersPage(HttpSession session,
@@ -25,7 +27,7 @@ public class BlockedController {
         if (email == null) return "redirect:/";
 
         int currentUserId = userService.getCurrentUser().getId();
-        Set<UserDTO> blockedUsers = userService.getAllBlockedUsers(currentUserId);
+        Set<UserDTO> blockedUsers = forumService.getAllBlockedUsers(currentUserId);
         model.addAttribute("blockedUsers", blockedUsers);
         model.addAttribute("currentUserId", currentUserId);
         return "blocked-users";

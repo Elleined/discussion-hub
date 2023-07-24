@@ -27,7 +27,7 @@ class LikeService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, post.getId(), Type.POST)
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, post.getId(), ModalTracker.Type.POST)
                 ? NotificationStatus.READ
                 : NotificationStatus.UNREAD;
 
@@ -53,7 +53,7 @@ class LikeService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, comment.getId(), Type.POST)
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, comment.getId(), ModalTracker.Type.POST)
                 ? NotificationStatus.READ
                 : NotificationStatus.UNREAD;
 
@@ -77,7 +77,7 @@ class LikeService {
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, reply.getId(), Type.POST)
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(respondentId, reply.getId(), ModalTracker.Type.POST)
                 ? NotificationStatus.READ
                 : NotificationStatus.UNREAD;
 
