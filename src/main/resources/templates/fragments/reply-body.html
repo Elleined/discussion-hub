@@ -20,13 +20,13 @@
       <div class="row">
         <div class="col-md-10">
           <p class="mt-2" th:text="${replyDto.body}" th:id="${'replyBody' + replyDto.id}"></p>
-          <div style="height: 100px; width: 100px" class="mb-4" th:if="${!replyDto.attachedPicture.isEmpty()}">
           <img
+                  th:if="${!replyDto.attachedPicture.isEmpty()}"
+                  style="height: 100px; width: 100px"
                   th:src="${'/img/' + replyDto.attachedPicture}"
                   class="mb-4 img-fluid rounded"
                   alt="Townhouses and Skyscrapers"
           />
-          </div>
         </div>
         <div class="col-md-2" th:if="${currentUserId == replyDto.replierId}">
           <button type="button" th:id="${'editReplySaveBtn' + replyDto.id}" class="btn btn-primary" href="#">Save</button>
@@ -34,7 +34,12 @@
       </div>
       <div class="row">
         <div class="md-col">
-          <span th:text="${' at ' + replyDto.formattedTime + ' on ' + replyDto.formattedDate}"></span>
+          <a class="me-2" style="color: #3b5998;" href="#" role="button" th:id="${'likeBtn' + replyDto.id}">
+            <i th:if="${isCurrentUserLikedThisReply}" class="fas fa-thumbs-up"></i> <!--shade like-->
+            <i th:unless="${isCurrentUserLikedThisReply}" class="far fa-thumbs-up"></i> <!--unshade like-->
+          </a>
+          <div class="vr vr-blurry" style="height: 30px;"></div>
+          <span class="ms-2" th:text="${' at ' + replyDto.formattedTime + ' on ' + replyDto.formattedDate}"></span>
         </div>
       </div>
     </div>
