@@ -9,6 +9,7 @@ const generateComment = (commentDto, container) => {
     getCommentBlock(commentDto)
         .then(res => {
             container.append(res);
+            // highlightMention(commentDto);
             bindUpvoteAndDownVoteBtn(commentDto.id);
             bindCommentHeaderBtn(commentDto.id);
             $("#replyBtn" + commentDto.id).on("click", function (event) {
@@ -22,6 +23,13 @@ const generateComment = (commentDto, container) => {
             });
         }).catch(error => alert("Generating the comment failed! " + error));
 };
+
+// <p class="fst-italic fw-bold text-decoration-underline">Italic text.</p>
+//function highlightMention(commentDto) {
+//    const body = commentDto.body;
+//    const mentionedUsers = commentDto.mentionedUsers;
+//    mentionedUsers.forEach(mentionedUser => console.table(mentionedUser));
+//}
 
 async function like(commentId, likeBtn) {
     try {
