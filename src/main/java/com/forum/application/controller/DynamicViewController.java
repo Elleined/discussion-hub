@@ -7,7 +7,10 @@ import com.forum.application.model.User;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 @RestController
@@ -45,10 +48,16 @@ public class DynamicViewController {
     }
 
     @PostMapping("/getCommentLikeIcon")
-    public ModelAndView getLikeIcon(@RequestBody CommentDTO commentDto) {
+    public ModelAndView getCommentLikeIcon(@RequestBody CommentDTO commentDto) {
         User currentUser = userService.getCurrentUser();
         boolean isUserAlreadyLikedComment = forumService.isUserAlreadyLikedComment(currentUser, commentDto.getId());
-        return new ModelAndView("/fragments/like-icon")
-                .addObject("isLiked", isUserAlreadyLikedComment);
+        return new ModelAndView("/fragments/like-icon").addObject("isLiked", isUserAlreadyLikedComment);
+    }
+
+    @PostMapping("/getReplyLikeIcon")
+    public ModelAndView getReplyLikeIcon(@RequestBody ReplyDTO replyDTO) {
+        User currentUser = userService.getCurrentUser();
+        boolean isUserAlreadyLikeReply = forumService.isUserAlreadyLikeReply(currentUser, replyDTO.getId());
+        return new ModelAndView("/fragments/like-icon").addObject("isLiked", isUserAlreadyLikeReply);
     }
 }
