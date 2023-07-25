@@ -5,6 +5,8 @@ import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
 import com.forum.application.model.Reply;
 import com.forum.application.model.User;
+import com.forum.application.repository.CommentRepository;
+import com.forum.application.repository.PostRepository;
 import com.forum.application.repository.ReplyRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +19,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 class LikeService {
-    private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
-
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final ReplyRepository replyRepository;
     void likePost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedPosts().add(post);
+        post.getLikes().add(respondent);
+
+        postRepository.save(post);
         userRepository.save(respondent);
         log.debug("User with id of {} liked post with id of {}", respondentId, post.getId());
     }
@@ -35,6 +41,9 @@ class LikeService {
     void unlikePost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedPosts().remove(post);
+        post.getLikes().remove(respondent);
+
+        postRepository.save(post);
         userRepository.save(respondent);
         log.debug("User with id of {} unlike post with id of {}", respondentId, post.getId());
     }
@@ -43,6 +52,9 @@ class LikeService {
     void likeComment(int respondentId, Comment comment) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedComments().add(comment);
+        comment.getLikes().add(respondent);
+
+        commentRepository.save(comment);
         userRepository.save(respondent);
         log.debug("User with id of {} liked comment with id of {}", respondent, comment.getId());
     }
@@ -55,6 +67,9 @@ class LikeService {
     void unlikeComment(int respondentId, Comment comment) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedComments().remove(comment);
+        comment.getLikes().remove(respondent);
+
+        commentRepository.save(comment);
         userRepository.save(respondent);
         log.debug("User with id of {} unlike comment with id of {}", respondentId, comment.getId());
     }
@@ -62,6 +77,9 @@ class LikeService {
     void likeReply(int respondentId, Reply reply) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedReplies().add(reply);
+        reply.getLikes().add(respondent);
+
+        replyRepository.save(reply);
         userRepository.save(respondent);
         log.debug("User with id of {} liked reply with id of {}", respondentId, reply.getId());
     }
@@ -74,6 +92,9 @@ class LikeService {
     void unlikeReply(int respondentId, Reply reply) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not exists"));
         respondent.getLikedReplies().remove(reply);
+        reply.getLikes().remove(respondent);
+
+        replyRepository.save(reply);
         userRepository.save(respondent);
         log.debug("User with id of {} unliked reply with id of {}", respondentId, reply.getId());
     }

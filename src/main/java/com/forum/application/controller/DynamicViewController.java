@@ -21,7 +21,9 @@ public class DynamicViewController {
     @PostMapping("/getCommentBlock")
     public ModelAndView getCommentBlock(@RequestBody CommentDTO commentDto) {
         int currentUserId = userService.getCurrentUser().getId();
+        boolean isCurrentUserLikedThisComment = commentDto.getLikers().stream().anyMatch(liker -> liker.id() == currentUserId);
         return new ModelAndView("/fragments/comment-body")
+                .addObject("isCurrentUserLikedThisComment", isCurrentUserLikedThisComment)
                 .addObject("currentUserId", currentUserId)
                 .addObject("commentDto", commentDto);
     }
@@ -29,7 +31,9 @@ public class DynamicViewController {
     @PostMapping("/getReplyBlock")
     public ModelAndView getReplyBlock(@RequestBody ReplyDTO replyDto) {
         int currentUserId = userService.getCurrentUser().getId();
+        boolean isCurrentUserLikedThisReply = replyDto.getLikers().stream().anyMatch(liker -> liker.id() == currentUserId);
         return new ModelAndView("/fragments/reply-body")
+                .addObject("isCurrentUserLikedThisReply", isCurrentUserLikedThisReply)
                 .addObject("currentUserId", currentUserId)
                 .addObject("replyDto", replyDto);
     }
