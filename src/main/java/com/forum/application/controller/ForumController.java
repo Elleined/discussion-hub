@@ -1,6 +1,7 @@
 package com.forum.application.controller;
 
 import com.forum.application.dto.PostDTO;
+import com.forum.application.model.User;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -29,11 +30,11 @@ public class ForumController {
         String email = (String) session.getAttribute("email");
         if (email == null) return "redirect:/";
 
-        int currentUserId = userService.getCurrentUser().getId();
+        User currentUser = userService.getCurrentUser();
         List<PostDTO> posts = forumService.getAllPost();
-        long totalNotifCount = forumService.getAllUnreadNotificationCount(currentUserId);
+        long totalNotifCount = forumService.getAllUnreadNotificationCount(currentUser.getId());
 
-        model.addAttribute("userId", currentUserId);
+        model.addAttribute("userId", currentUser.getId());
         model.addAttribute("posts", posts);
         model.addAttribute("totalNotifCount", totalNotifCount);
         return "forum";

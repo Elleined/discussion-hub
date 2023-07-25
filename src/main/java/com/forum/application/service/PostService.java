@@ -53,7 +53,7 @@ public class PostService {
     }
 
     Post updatePostBody(int postId, String newBody) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        Post post = getById(postId);
         if (post.getBody().equals(newBody)) return post; // Returning if user doesn't change the post body
         post.setBody(newBody);
         log.debug("Post with id of {} updated with the new body of {}", postId, newBody);
@@ -61,7 +61,7 @@ public class PostService {
     }
 
     Post updateCommentSectionStatus(int postId, CommentSectionStatus status) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        Post post = getById(postId);
         post.setCommentSectionStatus(status);
         log.debug("Comment section of Post with id of {} are now {}", postId, post.getCommentSectionStatus().name());
         return postRepository.save(post);
@@ -93,12 +93,12 @@ public class PostService {
     }
 
     boolean isCommentSectionClosed(int postId) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        Post post = getById(postId);
         return post.getCommentSectionStatus() == CommentSectionStatus.CLOSED;
     }
 
     boolean isDeleted(int postId) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        Post post = getById(postId);
         return post.getStatus() == Status.INACTIVE;
     }
 
@@ -107,7 +107,7 @@ public class PostService {
     }
 
     public String getCommentSectionStatus(int postId) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
+        Post post = getById(postId);
         return post.getCommentSectionStatus().name();
     }
 

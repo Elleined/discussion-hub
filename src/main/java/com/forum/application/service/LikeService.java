@@ -38,6 +38,10 @@ class LikeService {
         return respondent.getLikedPosts().stream().anyMatch(post::equals);
     }
 
+    boolean isUserAlreadyLikedPost(User respondent, int postId) {
+        return respondent.getLikedPosts().stream().anyMatch(likedPost -> likedPost.getId() == postId);
+    }
+
     void unlikePost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedPosts().remove(post);
@@ -64,6 +68,10 @@ class LikeService {
         return respondent.getLikedComments().stream().anyMatch(comment::equals);
     }
 
+    boolean isUserAlreadyLikedComment(User respondent, int commentId) {
+        return respondent.getLikedComments().stream().anyMatch(likedComment -> likedComment.getId() == commentId);
+    }
+
     void unlikeComment(int respondentId, Comment comment) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedComments().remove(comment);
@@ -87,6 +95,10 @@ class LikeService {
     boolean isUserAlreadyLikeReply(int respondentId, Reply reply) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not exists"));
         return respondent.getLikedReplies().stream().anyMatch(reply::equals);
+    }
+
+    boolean isUserAlreadyLikeReply(User respondent, int replyId) {
+        return respondent.getLikedReplies().stream().anyMatch(likedReply -> likedReply.getId() == replyId);
     }
 
     void unlikeReply(int respondentId, Reply reply) {
