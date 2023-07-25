@@ -47,7 +47,7 @@
       </div>
       <div class="row">
         <div class="md-col">
-          <a class="me-2" style="color: #3b5998;" href="#" role="button" th:id="${'likeBtn' + commentDto.id}">
+          <a class="me-2" style="color: #3b5998;" role="button" th:id="${'likeBtn' + commentDto.id}">
             <i th:if="${isUserAlreadyLikedComment}" class="fas fa-thumbs-up"></i> <!--shade like-->
             <i th:unless="${isUserAlreadyLikedComment}" class="far fa-thumbs-up"></i> <!--unshade like-->
           </a>
@@ -62,4 +62,5 @@
     </div>
   </div>
   <hr>
+  <input type="hidden" id="currentUserId" name="currentUserId" th:value="${currentUserId}" />
 </div>

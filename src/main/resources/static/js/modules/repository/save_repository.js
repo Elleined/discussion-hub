@@ -58,6 +58,27 @@ const saveReply = (body, commentId, attachedPicture, mentionedUserIds) => {
     }).promise();
 };
 
+const likePost = (postId, currentUserId) => {
+    return $.ajax({
+        type: "PATCH",
+        url: `/forum/api/posts/${postId}/like/${currentUserId}`
+    }).promise();
+};
+
+const likeComment = (commentId, currentUserId) => {
+    return $.ajax({
+        type: "PATCH",
+        url: `/forum/api/posts/0/comments/${commentId}/like/${currentUserId}`
+    }).promise();
+};
+
+const likeReply = (replyId, currentUserId) => {
+    return $.ajax({
+        type: "PATCH",
+        url: `/forum/api/posts/comments/0/replies/${replyId}/like/${currentUserId}`
+    }).promise();
+};
+
 const blockUser = href => {
     $.ajax({
         type: "PATCH",
@@ -82,13 +103,14 @@ const unblockUser = href => {
     .catch(error => alert("Unblocking this user failed!" + error));
 }
 
-
-
 export {
     saveTracker,
     savePost,
     saveComment,
     saveReply,
     blockUser,
-    unblockUser
+    unblockUser,
+    likePost,
+    likeComment,
+    likeReply
 };

@@ -34,7 +34,7 @@
       </div>
       <div class="row">
         <div class="md-col">
-          <a class="me-2" style="color: #3b5998;" href="#" role="button" th:id="${'likeBtn' + replyDto.id}">
+          <a class="me-2" style="color: #3b5998;" href="#" type="button" th:id="${'likeBtn' + replyDto.id}">
             <i th:if="${isUserAlreadyLikeReply}" class="fas fa-thumbs-up"></i> <!--shade like-->
             <i th:unless="${isUserAlreadyLikeReply}" class="far fa-thumbs-up"></i> <!--unshade like-->
           </a>

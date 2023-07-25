@@ -2,8 +2,7 @@ import { updateCommentUpvote, updateCommentBody } from '../repository/update_rep
 import { deleteComment } from '../repository/delete_repository.js';
 import { getCommentBlock } from '../repository/get_repository.js';
 import { bindReplyBtn } from '../../forum.js';
-import { saveTracker } from '../repository/save_repository.js';
-
+import { saveTracker, likeComment } from '../repository/save_repository.js';
 let previousCommentBody = null;
 
 const generateComment = (commentDto, container) => {
@@ -16,8 +15,23 @@ const generateComment = (commentDto, container) => {
                 bindReplyBtn(commentDto.id, commentDto.postId);
                 event.preventDefault();
             });
+
+            $("#likeBtn" + commentDto.id).on("click", function(event) {
+                like(commentDto.id);
+                event.preventDefault();
+            });
         }).catch(error => alert("Generating the comment failed! " + error));
 };
+
+async function like(commentId) {
+    try {
+        const currentUserId = $("#currentUserId").val();
+        const comment = await likeComment(commentId, currentUserId);
+        console.log("User with id of " + currentUserId + " like/unlike comment with id of " + commentId);
+    } catch (error) {
+        alert("Error Occurred! Cannot like/unlike comment " + error);
+    }
+}
 
 function bindCommentHeaderBtn(commentId) {
     $("#commentDeleteBtn" + commentId).on("click", function(event) {

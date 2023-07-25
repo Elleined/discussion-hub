@@ -51,8 +51,6 @@ class LikeService {
         userRepository.save(respondent);
         log.debug("User with id of {} unlike post with id of {}", respondentId, post.getId());
     }
-
-
     void likeComment(int respondentId, Comment comment) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         respondent.getLikedComments().add(comment);
@@ -60,7 +58,7 @@ class LikeService {
 
         commentRepository.save(comment);
         userRepository.save(respondent);
-        log.debug("User with id of {} liked comment with id of {}", respondent, comment.getId());
+        log.debug("User with id of {} liked comment with id of {}", respondentId, comment.getId());
     }
 
     boolean isUserAlreadyLikedComment(int respondentId, Comment comment) {
