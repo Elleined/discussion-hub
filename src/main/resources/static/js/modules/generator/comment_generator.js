@@ -1,6 +1,6 @@
 import { updateCommentUpvote, updateCommentBody } from '../repository/update_repository.js';
 import { deleteComment } from '../repository/delete_repository.js';
-import { getCommentBlock } from '../repository/get_repository.js';
+import { getCommentBlock, getCommentLikeIcon } from '../repository/get_repository.js';
 import { bindReplyBtn } from '../../forum.js';
 import { saveTracker, likeComment } from '../repository/save_repository.js';
 let previousCommentBody = null;
@@ -17,16 +17,19 @@ const generateComment = (commentDto, container) => {
             });
 
             $("#likeBtn" + commentDto.id).on("click", function(event) {
-                like(commentDto.id);
+                like(commentDto.id, $(this));
                 event.preventDefault();
             });
         }).catch(error => alert("Generating the comment failed! " + error));
 };
 
-async function like(commentId) {
+async function like(commentId, likeBtn) {
     try {
         const currentUserId = $("#currentUserId").val();
         const comment = await likeComment(commentId, currentUserId);
+        const likeIcon = await getCommentLikeIcon(comment);
+        likeBtn.empty(); // deletes the old like icon
+        likeBtn.append(likeIcon); // add the new like icon
         console.log("User with id of " + currentUserId + " like/unlike comment with id of " + commentId);
     } catch (error) {
         alert("Error Occurred! Cannot like/unlike comment " + error);

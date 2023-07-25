@@ -43,4 +43,12 @@ public class DynamicViewController {
         return new ModelAndView("/fragments/notification-body")
                 .addObject("notification", notification);
     }
+
+    @PostMapping("/getCommentLikeIcon")
+    public ModelAndView getLikeIcon(@RequestBody CommentDTO commentDto) {
+        User currentUser = userService.getCurrentUser();
+        boolean isUserAlreadyLikedComment = forumService.isUserAlreadyLikedComment(currentUser, commentDto.getId());
+        return new ModelAndView("/fragments/like-icon")
+                .addObject("isLiked", isUserAlreadyLikedComment);
+    }
 }

@@ -138,6 +138,14 @@ const getAllNotification = currentUserId => {
     }).promise();
 };
 
+const getCommentLikeIcon = commentDto => {
+    return $.ajax({
+        type: "POST",
+        url: "forum/api/views/getCommentLikeIcon",
+        contentType: "application/json",
+        data: JSON.stringify(commentDto)
+    }).promise();
+};
 // Use isUserBlocked method instead
 const isBlockedBy = (userId, userToCheckId) => {
     return $.ajax({
@@ -180,5 +188,6 @@ export {
     getCommentSectionStatus,
     getSuggestedMentions,
     isUserBlocked,
-    getAllNotification
+    getAllNotification,
+    getCommentLikeIcon
 };
