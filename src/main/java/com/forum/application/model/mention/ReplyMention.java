@@ -28,8 +28,9 @@ public final class ReplyMention extends Mention {
     private Reply reply;
 
     @Builder(builderMethodName = "replyMentionBuilder")
-    public ReplyMention(int id, LocalDateTime createdAt, NotificationStatus notificationStatus, User mentionedUser, User mentioningUser, Reply reply) {
-        super(id, createdAt, notificationStatus, mentionedUser, mentioningUser);
+
+    public ReplyMention(int id, LocalDateTime createdAt, User mentionedUser, User mentioningUser, Reply reply) {
+        super(id, createdAt, mentionedUser, mentioningUser);
         this.reply = reply;
     }
 }

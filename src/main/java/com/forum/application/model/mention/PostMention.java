@@ -28,8 +28,8 @@ public final class PostMention extends Mention {
     private Post post;
 
     @Builder(builderMethodName = "postMentionBuilder")
-    public PostMention(int id, LocalDateTime createdAt, NotificationStatus notificationStatus, User mentionedUser, User mentioningUser, Post post) {
-        super(id, createdAt, notificationStatus, mentionedUser, mentioningUser);
+    public PostMention(int id, LocalDateTime createdAt, User mentionedUser, User mentioningUser, Post post) {
+        super(id, createdAt, mentionedUser, mentioningUser);
         this.post = post;
     }
 }

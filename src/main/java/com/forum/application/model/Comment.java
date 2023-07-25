@@ -1,6 +1,5 @@
 package com.forum.application.model;
 
-import com.forum.application.model.like.CommentLike;
 import com.forum.application.model.mention.CommentMention;
 import jakarta.persistence.*;
 import lombok.*;
@@ -64,11 +63,6 @@ public class Comment {
     @Setter(AccessLevel.NONE)
     private List<Reply> replies;
 
-    // comment id refernce is in tbl like comment
-    @OneToMany(mappedBy = "comment")
-    @Setter(AccessLevel.NONE)
-    private Set<CommentLike> likes;
-
     // comment id refernce is in tbl mention comment
     @OneToMany(mappedBy = "comment")
     @Setter(AccessLevel.NONE)
@@ -76,4 +70,7 @@ public class Comment {
 
     @ManyToMany(mappedBy = "upvotedComments")
     private Set<User> upvotingUsers;
+
+    @ManyToMany(mappedBy = "likedComments")
+    private Set<User> likes;
 }

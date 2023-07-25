@@ -23,18 +23,13 @@ public class MentionService {
 
     private final UserRepository userRepository;
     private final MentionRepository mentionRepository;
-    private final ModalTrackerService modalTrackerService;
 
     void addPostMention(User currentUser, int mentionedUserId, Post post) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, post.getId(), ModalTracker.Type.POST)
-                ? NotificationStatus.READ
-                : NotificationStatus.UNREAD;
 
         PostMention postMention = PostMention.postMentionBuilder()
                 .mentioningUser(currentUser)
                 .mentionedUser(mentionedUser)
-                .notificationStatus(notificationStatus)
                 .createdAt(LocalDateTime.now())
                 .post(post)
                 .build();
@@ -48,14 +43,10 @@ public class MentionService {
 
     void addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, comment.getId(), ModalTracker.Type.COMMENT)
-                ? NotificationStatus.READ
-                : NotificationStatus.UNREAD;
 
         CommentMention commentMention = CommentMention.commentMentionBuilder()
                 .mentioningUser(currentUser)
                 .mentionedUser(mentionedUser)
-                .notificationStatus(notificationStatus)
                 .createdAt(LocalDateTime.now())
                 .comment(comment)
                 .build();
@@ -69,14 +60,10 @@ public class MentionService {
 
     void addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, reply.getId(), ModalTracker.Type.POST)
-                ? NotificationStatus.READ
-                : NotificationStatus.UNREAD;
 
         ReplyMention replyMention = ReplyMention.replyMentionBuilder()
                 .mentioningUser(currentUser)
                 .mentionedUser(mentionedUser)
-                .notificationStatus(notificationStatus)
                 .createdAt(LocalDateTime.now())
                 .reply(reply)
                 .build();

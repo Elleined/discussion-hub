@@ -35,10 +35,6 @@ public abstract class Mention {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "notification_status")
-    @Enumerated(EnumType.STRING)
-    private NotificationStatus notificationStatus;
-
     @ManyToOne
     @JoinColumn(
             name = "mentioned_user",
