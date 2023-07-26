@@ -2,6 +2,7 @@ import { getReplyBlock } from '../repository/get_repository.js';
 import { deleteReply } from '../repository/delete_repository.js';
 import { updateReplyBody } from '../repository/update_repository.js';
 import { replyLike } from '../like.js';
+import highlightMention from '../highlight_mention.js';
 
 export let previousReplyBody = null;
 
@@ -9,14 +10,19 @@ const generateReply = (replyDto, container) => {
         getReplyBlock(replyDto)
             .then(res => {
                 container.append(res);
+                bindLikeBtn(replyDto.id);
                 bindReplyHeaderBtn(replyDto.id);
-                $("#likeBtn" + replyDto.id).on("click", function(event) {
-                    const currentUserId = $("#currentUserId").val();
-                    replyLike(replyDto.id, currentUserId, $(this));
-                    event.preventDefault();
-                });
+                highlightMention(replyDto.body, replyDto.mentionedUsers, $("#replyBody" + replyDto.id));
         }).catch(error => alert("Generating reply failed! " + error.responseText));
 };
+
+function bindLikeBtn(replyId) {
+                $("#replyLikeBtn" + replyId).on("click", function(event) {
+                    const currentUserId = $("#currentUserId").val();
+                    replyLike(replyId, currentUserId, $(this));
+                    event.preventDefault();
+                });
+}
 
 function bindReplyHeaderBtn(replyId) {
    const editReplySaveBtn = $("#editReplySaveBtn" + replyId);
