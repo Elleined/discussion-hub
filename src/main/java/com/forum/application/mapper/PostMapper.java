@@ -9,6 +9,7 @@ import com.forum.application.service.Formatter;
 import com.forum.application.service.LikeService;
 import com.forum.application.service.PostService;
 import com.forum.application.service.UserService;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -43,5 +44,4 @@ public abstract class PostMapper {
             @Mapping(target = "isCurrentUserLikedPost", expression = "java(likeService.isUserAlreadyLikedPost(userService.getCurrentUser().getId(), post))")
     })
     public abstract PostDTO toDTO(Post post) throws NoLoggedInUserException, ResourceNotFoundException;
-
 }

@@ -13,6 +13,15 @@ const getAllCommentsOf = postId => {
     return deferred.promise();
 };
 
+const getPostBlock = postDto => {
+    return $.ajax({
+        type: "POST",
+        url: "/forum/api/views/getPostBlock",
+        contentType: "application/json",
+        data: JSON.stringify(postDto)
+    });
+};
+
 const getCommentBlock = commentDto => {
     return $.ajax({
         type: "POST",

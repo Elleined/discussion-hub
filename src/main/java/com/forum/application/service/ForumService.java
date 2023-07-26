@@ -267,10 +267,6 @@ public class ForumService {
         return postMapper.toDTO(post);
     }
 
-    public boolean isUserAlreadyLikedPost(User currentUser, int postId) {
-        return likeService.isUserAlreadyLikedPost(currentUser, postId);
-    }
-
     public CommentDTO likeComment(int respondentId, int commentId) throws ResourceNotFoundException, BlockedException {
         Comment comment = commentService.getById(commentId);
         if (commentService.isDeleted(commentId)) throw new ResourceNotFoundException("Cannot like/unlike! The comment with id of " + commentId + " you are trying to like/unlike might already been deleted or does not exists!");
@@ -286,10 +282,6 @@ public class ForumService {
         return commentMapper.toDTO(comment);
     }
 
-    public boolean isUserAlreadyLikedComment(User currentUser, int commentId) {
-        return likeService.isUserAlreadyLikedComment(currentUser, commentId);
-    }
-
     public ReplyDTO likeReply(int respondentId, int replyId) throws ResourceNotFoundException, BlockedException {
         Reply reply = replyService.getById(replyId);
         if (replyService.isDeleted(replyId)) throw new ResourceNotFoundException("Cannot like/unlike! The reply with id of " + replyId + " you are trying to like/unlike might already be deleted or does not exists!");
@@ -302,10 +294,6 @@ public class ForumService {
         }
         likeService.likeReply(respondentId, reply);
         return replyMapper.toDTO(reply);
-    }
-
-    public boolean isUserAlreadyLikeReply(User currentUser, int replyId) {
-        return likeService.isUserAlreadyLikeReply(currentUser, replyId);
     }
 
     public PostDTO addPostMention(User currentUser, int mentionedUserId, Post post) throws ResourceNotFoundException, BlockedException {

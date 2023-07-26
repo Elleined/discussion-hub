@@ -4,6 +4,7 @@ import * as GetRepository from './modules/repository/get_repository.js';
 import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
 import { postLike } from './modules/like.js';
+import highlightMention from './modules/highlight_mention.js';
 import uploadPhoto, {
    getAttachedPicture,
    clearAttachedPicture

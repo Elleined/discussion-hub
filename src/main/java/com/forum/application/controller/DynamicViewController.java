@@ -5,7 +5,6 @@ import com.forum.application.dto.NotificationResponse;
 import com.forum.application.dto.PostDTO;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.model.User;
-import com.forum.application.service.ForumService;
 import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,14 @@ import org.springframework.web.servlet.ModelAndView;
 public class DynamicViewController {
 
     private final UserService userService;
-    private final ForumService forumService;
+
+    @PostMapping("/getPostBlock")
+    public ModelAndView getPostBlock(@RequestBody PostDTO postDto) {
+        User currentUser = userService.getCurrentUser();
+        return new ModelAndView("/fragments/post-body")
+                .addObject("currentUserId", currentUser.getId())
+                .addObject("postDto", postDto);
+    }
 
     @PostMapping("/getCommentBlock")
     public ModelAndView getCommentBlock(@RequestBody CommentDTO commentDto) {

@@ -35,6 +35,7 @@ public class ForumController {
         long totalNotifCount = forumService.getAllUnreadNotificationCount(currentUser.getId());
 
         model.addAttribute("userId", currentUser.getId());
+        model.addAttribute("currentUserId", currentUser.getId());
         model.addAttribute("posts", posts);
         model.addAttribute("totalNotifCount", totalNotifCount);
         return "forum";
