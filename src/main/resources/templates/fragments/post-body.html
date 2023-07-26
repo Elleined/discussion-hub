@@ -41,8 +41,8 @@
 
               <a class="btn btn-primary"
                  role="button"
-                 th:href="@{/posts/body/{postId} (postId=${post.id}) }"
-                 id="editPostBtn">
+                 href="#"
+                 th:id="${'editPostBtn' + post.id}">
                 <i class="fas fa-pencil"></i>
                 Edit
               </a>

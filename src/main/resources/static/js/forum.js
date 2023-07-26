@@ -74,24 +74,6 @@ $(document).ready(function () {
       DeleteRepository.deletePost(href);
    });
 
-   $(".card-title #editPostBtn").on("click", function (event) {
-      event.preventDefault();
-
-      const href = $(this).attr("href");
-      const postId = href.split("/")[3];
-
-      const postContent = $("#postBody" + postId);
-      postContent.attr("contenteditable", "true");
-      postContent.focus();
-
-      const editPostBtnSave = $("#editPostBtnSave" + postId);
-      editPostBtnSave.removeClass("d-none");
-
-      editPostBtnSave.on("click", function (event) {
-         updatePostBody(href, postContent.text());
-      });
-   });
-
    $(".card-title #commentSectionStatusToggle").on("change", function () {
       const postId = $(this).attr("value");
       if ($(this).is(':checked')) {
@@ -373,18 +355,6 @@ async function getCommentSectionStatus(postId) {
       $(".commentModal #commentForm").show();
    } catch (error) {
       alert("Getting the comment section status failed! " + error);
-   }
-}
-
-async function updatePostBody(href, newPostBody) {
-   try {
-      await UpdateRepository.updatePostBody(href, newPostBody);
-
-      const postId = href.split("/")[3];
-      $("#postBody" + postId).attr("contenteditable", "false");
-      $("#editPostBtnSave" + postId).addClass("d-none");
-   } catch (error) {
-      alert("Updating the post body failed! " + error);
    }
 }
 

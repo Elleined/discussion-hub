@@ -25,21 +25,12 @@ const updateCommentUpvote = (commentId) => {
     }).promise();
 };
 
-const updatePostBody = (href, newPostBody) => {
-    const deferred = $.Deferred();
-    $.ajax({
+const updatePostBody = (postId, newPostBody) => {
+    return $.ajax({
         type: "PATCH",
-        url: `/forum/api${href}`,
-        data: { newPostBody: newPostBody },
-        success: function(response) {
-            deferred.resolve(response);
-            console.log("Post updated successfully with new body of " + newPostBody);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
-        }
-    });
-    return deferred.promise();
+        url: `/forum/api/posts/body/${postId}`,
+        data: { newPostBody: newPostBody }
+    }).promise();
 };
 
 const updateCommentBody = (commentId, newCommentBody) => {
