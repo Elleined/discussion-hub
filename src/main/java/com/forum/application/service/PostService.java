@@ -10,6 +10,7 @@ import com.forum.application.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -111,6 +112,7 @@ public class PostService {
         return post.getCommentSectionStatus().name();
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public int getTotalCommentsAndReplies(Post post) {
         int currentUserId = userService.getCurrentUser().getId();
         int commentCount = (int) post.getComments()

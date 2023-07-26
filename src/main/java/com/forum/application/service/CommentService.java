@@ -10,6 +10,7 @@ import com.forum.application.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -194,6 +195,7 @@ public class CommentService {
         userService.save(respondent);
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public int getTotalReplies(Comment comment) {
         return (int) comment.getReplies().stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
