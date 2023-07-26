@@ -1,5 +1,5 @@
 <div th:fragment="post-body-fragment">
-  <div class="card w-75 mb-3">
+  <div class="card w-75 mb-3" th:id="${'postContainer' + post.id}">
     <div class="card-body">
       <div class="container card-title">
         <div class="row">
@@ -31,8 +31,8 @@
             <div class="d-grid gap-2 d-md-flex justify-content-md-end" th:if="${post.authorId} == ${currentUserId}">
               <a class="btn btn-danger me-1"
                  role="button"
-                 th:href="@{/posts/{postId} (postId=${post.id}) }"
-                 id="postDeleteBtn">
+                 href="#"
+                 th:id="${'postDeleteBtn' + post.id}">
                 <i class="fas fa-trash"></i>
                 Delete
               </a>

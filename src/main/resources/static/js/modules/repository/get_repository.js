@@ -1,3 +1,19 @@
+const getAllPost = () => {
+    return $.ajax({
+        type: "GET",
+        url: "/forum/api/posts"
+    }).promise();
+};
+
+const getPostBlock = postDto => {
+    return $.ajax({
+        type: "POST",
+        url: "/forum/api/views/getPostBlock",
+        contentType: "application/json",
+        data: JSON.stringify(postDto)
+    });
+};
+
 const getAllCommentsOf = postId => {
     const deferred = $.Deferred();
     $.ajax({
@@ -11,15 +27,6 @@ const getAllCommentsOf = postId => {
         }
     });
     return deferred.promise();
-};
-
-const getPostBlock = postDto => {
-    return $.ajax({
-        type: "POST",
-        url: "/forum/api/views/getPostBlock",
-        contentType: "application/json",
-        data: JSON.stringify(postDto)
-    });
 };
 
 const getCommentBlock = commentDto => {
@@ -198,5 +205,7 @@ export {
     getSuggestedMentions,
     isUserBlocked,
     getAllNotification,
-    getLikeIcon
+    getLikeIcon,
+    getAllPost,
+    getPostBlock
 };

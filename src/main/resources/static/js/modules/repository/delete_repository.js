@@ -1,15 +1,8 @@
-const deletePost = href => {
-    $.ajax({
+const deletePost = postId => {
+    return $.ajax({
         type: "DELETE",
-        url: "/forum/api" + href,
-        success: function(response) {
-
-            window.location.href = "/forum";
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Deletion of post failed!" + xhr.responseText);
-        }
-    });
+        url: `/forum/api/posts/${postId}`
+    }).promise();
 };
 
 const deleteComment = commentId => {

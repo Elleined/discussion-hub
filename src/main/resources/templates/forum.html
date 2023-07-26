@@ -73,11 +73,9 @@
 </div>
 <hr />
 
+<div id="postSection">
 
-<div th:if="${posts.isEmpty()}">No Post Yet</div>
-<th:block th:each="post : ${posts}">
- <div th:insert="~{fragments/post-body :: post-body-fragment}"></div>
-</th:block>
+</div>
 
 <input type="hidden" id="userId" name="userId" th:value="${userId}"/>
 <div th:insert="~{fragments/comment-modal :: comment-modal-fragment}"></div>

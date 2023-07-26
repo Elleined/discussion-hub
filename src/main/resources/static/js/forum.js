@@ -5,6 +5,7 @@ import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
 import { postLike } from './modules/like.js';
 import highlightMention from './modules/highlight_mention.js';
+import generatePost from './modules/generator/post_generator.js';
 import uploadPhoto, {
    getAttachedPicture,
    clearAttachedPicture
@@ -41,16 +42,22 @@ let globalCommentId; // Sets when user clicked replies
 $(document).ready(function () {
    bindGenerateAllNotification();
    bindUploadPhoto();
+   getAllPost();
+
+
 
    $("#postForm").on("submit", function (event) {
       event.preventDefault();
+      const postSection = $("#postSection");
       const body = $("#postBody").val();
 
       if ($.trim(body) === '') return;
       const mentionedUsers = getMentionedUsers();
       SaveRepository.savePost(body, mentionedUsers)
-         .then(res => window.location.href = "/forum")
-         .catch((xhr, status, error) => alert(xhr.responseText));
+         .then(postDto => {
+            generatePost(postDto, postSection);
+            console.table(postDto);
+         }).catch((xhr, status, error) => alert(xhr.responseText));
 
       $("#postBody").val("");
       clearMentionedUsers();
@@ -402,6 +409,19 @@ function bindUploadPhoto() {
    const replyFileInput = $("#replyFileInput");
    const replyImagePreview = $("#replyImagePreview");
    uploadPhoto(replyUploadBtn, replyFileInput, replyImagePreview);
+}
+
+async function getAllPost() {
+    try {
+        const postSection = $("#postSection");
+        const postDtos = await GetRepository.getAllPost();
+        $.each(postDtos, function(index, postDto) {
+            generatePost(postDto, postSection);
+        });
+    } catch(error) {
+        alert("Error Occurred! Generating all post failed! " + error);
+    }
+
 }
 
 function bindGenerateAllNotification() {

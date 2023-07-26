@@ -22,7 +22,7 @@ public class DynamicViewController {
         User currentUser = userService.getCurrentUser();
         return new ModelAndView("/fragments/post-body")
                 .addObject("currentUserId", currentUser.getId())
-                .addObject("postDto", postDto);
+                .addObject("post", postDto);
     }
 
     @PostMapping("/getCommentBlock")
