@@ -12,19 +12,8 @@
           <div class="col-md-6">
             <div th:if="${post.authorId} != ${currentUserId}">
               <div class="row ">
-                <div class="col-md-9">
+                <div class="col-md-12">
                   <div class="note note-primary mb-3" th:text="${'Comment section status: ' + post.commentSectionStatus}"></div>
-                </div>
-                <div class="col-md-3">
-                  <a class="btn btn-outline-danger btn-rounded mt-1"
-                     data-mdb-ripple-color="dark"
-                     data-mdb-toggle="modal"
-                     data-mdb-target="#blockModal"
-                     role="button"
-                     th:href="@{/forum/api/users/{userId}/blockUser/{userToBeBlockedId} (userId=${currentUserId}, userToBeBlockedId=${post.authorId}) }"
-                     id="blockBtn">
-                    Block
-                  </a>
                 </div>
               </div>
             </div>
@@ -94,7 +83,7 @@
          role="button"
          data-bs-toggle="modal"
          data-bs-target="#commentModal"
-         id="commentBtn">
+         th:id="${'commentBtn' + post.id}">
         <i class="fas fa-message"></i>
         <span th:text="${'Comments  ·  ' + post.totalCommentAndReplies}"
               th:id="${'totalCommentsOfPost' + post.id}"

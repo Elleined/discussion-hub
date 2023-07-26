@@ -2,17 +2,28 @@ import { getPostBlock } from '../repository/get_repository.js';
 import { deletePost } from '../repository/delete_repository.js';
 import { postLike } from '../like.js';
 import { updatePostBody, updateCommentSectionStatus } from '../repository/update_repository.js';
+import highlightMention from '../highlight_mention.js';
+import { bindCommentBtn } from '../../forum.js';
 
 const generatePost = (postDto, postContainer) => {
     getPostBlock(postDto)
         .then(res => {
             postContainer.append(res);
+            bindCommentButton(postDto.id);
             bindDeleteBtn(postDto.id);
             bindLikeBtn(postDto.id);
             bindEditPostBtn(postDto.id);
             bindCommentSectionToggle(postDto.id);
+            highlightMention(postDto.body, postDto.mentionedUsers, $("#postBody" + postDto.id));
         }).catch((xhr, status, error) => alert("Error Occurred! Cannot generate post! " + xhr.responseText));
 };
+
+function bindCommentButton(postId) {
+   $("#commentBtn" + postId).on("click", function (event) {
+      bindCommentBtn(postId);
+      event.preventDefault();
+   });
+}
 
 function bindCommentSectionToggle(postId) {
    $("#commentSectionStatusToggle" + postId).on("change", function () {

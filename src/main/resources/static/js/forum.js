@@ -67,21 +67,6 @@ $(document).ready(function () {
       mention(userId, $(this), mentionList);
    });
 
-   $(".card-body #commentBtn").on("click", function (event) {
-      globalPostId = $(this).attr("href").split("/")[2];
-      bindCommentBtn(globalPostId);
-      event.preventDefault();
-   });
-
-   $(".row #blockBtn").on("click", function (event) {
-      event.preventDefault();
-      const href = $(this).attr("href");
-
-      $("#blockModalBtn").on("click", function () {
-         SaveRepository.blockUser(href);
-      });
-   });
-
    $(".commentModal #commentForm").on("submit", function (event) {
       event.preventDefault();
       const body = $("#commentBody").val();
