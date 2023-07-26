@@ -1,20 +1,9 @@
 const updateCommentSectionStatus = (postId, newStatus) => {
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "PATCH",
         url: `/forum/api/posts/commentSectionStatus/${postId}`,
-        data: {
-            newStatus: newStatus
-        },
-        success: function(response) {
-            deferred.resolve(response);
-            console.log("Comment section status updated successfully to " + newStatus);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
-        }
-    });
-    return deferred.promise();
+        data: { newStatus: newStatus }
+    }).promise();
 };
 
 const updateCommentUpvote = (commentId) => {

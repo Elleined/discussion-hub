@@ -67,24 +67,6 @@ $(document).ready(function () {
       mention(userId, $(this), mentionList);
    });
 
-   $(".card-title #postDeleteBtn").on("click", function (event) {
-      event.preventDefault();
-
-      const href = $(this).attr("href");
-      DeleteRepository.deletePost(href);
-   });
-
-   $(".card-title #commentSectionStatusToggle").on("change", function () {
-      const postId = $(this).attr("value");
-      if ($(this).is(':checked')) {
-         $(".card-title #commentSectionStatusText").text("Close comment section");
-         UpdateRepository.updateCommentSectionStatus(postId, "OPEN");
-         return;
-      }
-      $(".card-title #commentSectionStatusText").text("Open comment section");
-      UpdateRepository.updateCommentSectionStatus(postId, "CLOSED");
-   });
-
    $(".card-body #commentBtn").on("click", function (event) {
       globalPostId = $(this).attr("href").split("/")[2];
       bindCommentBtn(globalPostId);
@@ -271,14 +253,18 @@ function onConnected() {
       }
       generateNotification(json, notificationContainer);
    });
+}
 
-//   stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
-//      const json = JSON.parse(notificationResponse.body);
-//      if (json.notificationStatus === "READ") return;
-//
-//      updateTotalNotificationCount();
-//      generateMention(json, notificationContainer);
-//   });
+async function getAllPost() {
+    try {
+        const postSection = $("#postSection");
+        const postDtos = await GetRepository.getAllPost();
+        $.each(postDtos, function(index, postDto) {
+            generatePost(postDto, postSection);
+        });
+    } catch(error) {
+        alert("Error Occurred! Generating all post failed! " + error);
+    }
 }
 
 async function getAllCommentsOf(postId) {
@@ -370,19 +356,6 @@ function bindUploadPhoto() {
    const replyFileInput = $("#replyFileInput");
    const replyImagePreview = $("#replyImagePreview");
    uploadPhoto(replyUploadBtn, replyFileInput, replyImagePreview);
-}
-
-async function getAllPost() {
-    try {
-        const postSection = $("#postSection");
-        const postDtos = await GetRepository.getAllPost();
-        $.each(postDtos, function(index, postDto) {
-            generatePost(postDto, postSection);
-        });
-    } catch(error) {
-        alert("Error Occurred! Generating all post failed! " + error);
-    }
-
 }
 
 function bindGenerateAllNotification() {
