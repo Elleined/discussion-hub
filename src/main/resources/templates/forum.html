@@ -154,12 +154,12 @@
         </div>
       </div>
 
-<!--      <a class="me-2" style="color: #3b5998;" href="#" role="button" th:id="${'likeBtn' + post.id}">-->
-<!--        <i th:if="${isUserAlreadyLikedPost}" class="fas fa-thumbs-up"></i> &lt;!&ndash;shade like&ndash;&gt;-->
-<!--        <i th:unless="${isUserAlreadyLikedPost}" class="far fa-thumbs-up"></i> &lt;!&ndash;unshade like&ndash;&gt;-->
-<!--      </a>-->
+      <a class="me-2" style="color: #3b5998;" href="#" role="button" id="likeBtn" th:aria-valuetext="${post.id}">
+        <i th:if="${post.isCurrentUserLikedPost}" class="fas fa-thumbs-up"></i> <!--shade like-->
+        <i th:unless="${post.isCurrentUserLikedPost}" class="far fa-thumbs-up"></i> <!--unshade like-->
+      </a>
       <div class="vr vr-blurry" style="height: 30px;"></div>
-      <a class="btn btn-primary"
+      <a class="ms-2 btn btn-primary"
          th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
          role="button"
          data-bs-toggle="modal"

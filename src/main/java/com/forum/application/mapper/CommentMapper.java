@@ -4,6 +4,8 @@ import com.forum.application.dto.CommentDTO;
 import com.forum.application.model.Comment;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.Formatter;
+import com.forum.application.service.LikeService;
+import com.forum.application.service.UserService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -14,6 +16,12 @@ public abstract class CommentMapper {
 
     @Autowired @Lazy
     protected CommentService commentService;
+
+    @Autowired @Lazy
+    protected LikeService likeService;
+
+    @Autowired @Lazy
+    protected UserService userService;
 
     @Mappings({
             @Mapping(target = "commenterName", source = "comment.commenter.name"),
@@ -29,7 +37,8 @@ public abstract class CommentMapper {
             @Mapping(target = "postBody", source = "comment.post.body"),
             @Mapping(target = "likers", source = "comment.likes"),
             @Mapping(target = "mentionedUsers", source = "comment.mentions"),
-            @Mapping(target = "totalLikes", expression = "java(comment.getLikes().size())")
+            @Mapping(target = "totalLikes", expression = "java(comment.getLikes().size())"),
+            @Mapping(target = "isCurrentUserLikedComment", expression = "java(likeService.isUserAlreadyLikedComment(userService.getCurrentUser().getId(), comment))")
     })
     public abstract CommentDTO toDTO(Comment comment);
 }

@@ -2,9 +2,13 @@ package com.forum.application.mapper;
 
 
 import com.forum.application.dto.PostDTO;
+import com.forum.application.exception.NoLoggedInUserException;
+import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Post;
 import com.forum.application.service.Formatter;
+import com.forum.application.service.LikeService;
 import com.forum.application.service.PostService;
+import com.forum.application.service.UserService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -16,6 +20,13 @@ public abstract class PostMapper {
 
     @Autowired @Lazy
     protected PostService postService;
+    @Autowired @Lazy
+    protected LikeService likeService;
+
+    @Autowired @Lazy
+    protected UserService userService;
+
+
 
     @Mappings({
             @Mapping(target = "formattedDateCreated", expression = "java(Formatter.formatDateWithoutYear(post.getDateCreated()))"),
@@ -28,8 +39,9 @@ public abstract class PostMapper {
             @Mapping(target = "commentSectionStatus", source = "post.commentSectionStatus"),
             @Mapping(target = "likers", source = "post.likes"),
             @Mapping(target = "mentionedUsers", source = "post.mentions"),
-            @Mapping(target = "totalLikes", expression = "java(post.getLikes().size())")
+            @Mapping(target = "totalLikes", expression = "java(post.getLikes().size())"),
+            @Mapping(target = "isCurrentUserLikedPost", expression = "java(likeService.isUserAlreadyLikedPost(userService.getCurrentUser().getId(), post))")
     })
-    public abstract PostDTO toDTO(Post post);
+    public abstract PostDTO toDTO(Post post) throws NoLoggedInUserException, ResourceNotFoundException;
 
 }

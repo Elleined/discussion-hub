@@ -25,6 +25,7 @@ public class CommentDTO {
     private String notificationStatus;
     private String postBody;
     private String attachedPicture;
+    private boolean isCurrentUserLikedComment;
     private int totalLikes;
     private Set<UserDTO> likers;
     private Set<UserDTO> mentionedUsers;

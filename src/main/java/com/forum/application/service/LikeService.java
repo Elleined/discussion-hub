@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-class LikeService {
+public class LikeService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
@@ -33,7 +33,7 @@ class LikeService {
         log.debug("User with id of {} liked post with id of {}", respondentId, post.getId());
     }
 
-    boolean isUserAlreadyLikedPost(int respondentId, Post post) {
+    public boolean isUserAlreadyLikedPost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         return respondent.getLikedPosts().stream().anyMatch(post::equals);
     }
@@ -61,7 +61,7 @@ class LikeService {
         log.debug("User with id of {} liked comment with id of {}", respondentId, comment.getId());
     }
 
-    boolean isUserAlreadyLikedComment(int respondentId, Comment comment) {
+    public boolean isUserAlreadyLikedComment(int respondentId, Comment comment) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         return respondent.getLikedComments().stream().anyMatch(comment::equals);
     }
@@ -90,7 +90,7 @@ class LikeService {
         log.debug("User with id of {} liked reply with id of {}", respondentId, reply.getId());
     }
 
-    boolean isUserAlreadyLikeReply(int respondentId, Reply reply) {
+    public boolean isUserAlreadyLikeReply(int respondentId, Reply reply) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId + " does not exists"));
         return respondent.getLikedReplies().stream().anyMatch(reply::equals);
     }

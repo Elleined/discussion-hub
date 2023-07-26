@@ -3,6 +3,7 @@ import * as SaveRepository from './modules/repository/save_repository.js';
 import * as GetRepository from './modules/repository/get_repository.js';
 import * as UpdateRepository from './modules/repository/update_repository.js';
 import * as DeleteRepository from './modules/repository/delete_repository.js';
+import { postLike } from './modules/like.js';
 import uploadPhoto, {
    getAttachedPicture,
    clearAttachedPicture
@@ -94,6 +95,13 @@ $(document).ready(function () {
       }
       $(".card-title #commentSectionStatusText").text("Open comment section");
       UpdateRepository.updateCommentSectionStatus(postId, "CLOSED");
+   });
+
+   $(".card-body #likeBtn").on("click", function(event) {
+        event.preventDefault();
+        const postId = $(this).attr("aria-valuetext");
+        const currentUserId = $("#userId").val();
+        postLike(postId, currentUserId, $(this));
    });
 
    $(".card-body #commentBtn").on("click", function (event) {

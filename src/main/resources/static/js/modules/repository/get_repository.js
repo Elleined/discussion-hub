@@ -138,21 +138,11 @@ const getAllNotification = currentUserId => {
     }).promise();
 };
 
-const getCommentLikeIcon = commentDto => {
+const getLikeIcon = isLiked => {
     return $.ajax({
         type: "POST",
-        url: "forum/api/views/getCommentLikeIcon",
-        contentType: "application/json",
-        data: JSON.stringify(commentDto)
-    }).promise();
-};
-
-const getReplyLikeIcon = replyDto => {
-    return $.ajax({
-        type: "POST",
-        url: "forum/api/views/getReplyLikeIcon",
-        contentType: "application/json",
-        data: JSON.stringify(replyDto)
+        url: "/forum/api/views/getLikeIcon",
+        data: { isLiked: isLiked }
     }).promise();
 };
 
@@ -199,6 +189,5 @@ export {
     getSuggestedMentions,
     isUserBlocked,
     getAllNotification,
-    getCommentLikeIcon,
-    getReplyLikeIcon
+    getLikeIcon
 };
