@@ -44,8 +44,6 @@ $(document).ready(function () {
    bindUploadPhoto();
    getAllPost();
 
-
-
    $("#postForm").on("submit", function (event) {
       event.preventDefault();
       const postSection = $("#postSection");
@@ -103,13 +101,6 @@ $(document).ready(function () {
       }
       $(".card-title #commentSectionStatusText").text("Open comment section");
       UpdateRepository.updateCommentSectionStatus(postId, "CLOSED");
-   });
-
-   $(".card-body #likeBtn").on("click", function(event) {
-        event.preventDefault();
-        const postId = $(this).attr("aria-valuetext");
-        const currentUserId = $("#userId").val();
-        postLike(postId, currentUserId, $(this));
    });
 
    $(".card-body #commentBtn").on("click", function (event) {

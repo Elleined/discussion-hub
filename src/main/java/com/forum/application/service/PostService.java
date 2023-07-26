@@ -44,8 +44,9 @@ public class PostService {
                 .comments(new ArrayList<>())
                 .build();
 
+        postRepository.save(post);
         log.debug("Post with id of {} saved successfully!", post.getId());
-        return postRepository.save(post);
+        return post;
     }
 
     void delete(int postId) {
