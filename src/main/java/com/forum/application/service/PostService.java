@@ -30,7 +30,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentService commentService;
 
-    Post save(int authorId, String body) throws ResourceNotFoundException {
+    Post save(int authorId, String body, String attachedPicture) throws ResourceNotFoundException {
         User author = userService.getById(authorId);
 
         Post post = Post.builder()
@@ -42,6 +42,7 @@ public class PostService {
                 .mentions(new HashSet<>())
                 .likes(new HashSet<>())
                 .comments(new ArrayList<>())
+                .attachedPicture(attachedPicture)
                 .build();
 
         postRepository.save(post);

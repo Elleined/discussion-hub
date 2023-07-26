@@ -39,7 +39,7 @@ public class ForumService {
     private final UserMapper userMapper;
 
 
-    public PostDTO savePost(String body, Set<Integer> mentionedUserIds) throws EmptyBodyException,
+    public PostDTO savePost(String body, String attachedPicture, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             BlockedException,
             ResourceNotFoundException,
             NoLoggedInUserException {
@@ -47,7 +47,7 @@ public class ForumService {
         if (Validator.isValidBody(body)) throw new EmptyBodyException("Body cannot be empty! Please provide text for your post to be posted!");
 
         User currentUser = userService.getCurrentUser();
-        Post post = postService.save(currentUser.getId(), body);
+        Post post = postService.save(currentUser.getId(), body, attachedPicture);
 
         if (mentionedUserIds != null) {
             addAllPostMention(currentUser, mentionedUserIds, post);

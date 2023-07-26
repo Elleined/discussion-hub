@@ -8,7 +8,7 @@ import { bindCommentBtn } from '../../forum.js';
 const generatePost = (postDto, postContainer) => {
     getPostBlock(postDto)
         .then(res => {
-            postContainer.append(res);
+            postContainer.prepend(res);
             bindCommentButton(postDto.id);
             bindDeleteBtn(postDto.id);
             bindLikeBtn(postDto.id);

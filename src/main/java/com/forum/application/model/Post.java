@@ -32,6 +32,9 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "attached_picture")
+    private String attachedPicture;
+
     @Column(name = "comment_section_status")
     @Enumerated(EnumType.STRING)
     private CommentSectionStatus commentSectionStatus;

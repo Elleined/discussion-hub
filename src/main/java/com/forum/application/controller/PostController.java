@@ -40,9 +40,10 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostDTO> savePost(@RequestParam("body") String body,
+                                            @RequestParam(required = false, name = "attachedPicture") String attachedPicture,
                                             @RequestParam(required = false, name = "mentionedUserIds") Set<Integer> mentionedUserIds) {
 
-        PostDTO postDTO = forumService.savePost(body, mentionedUserIds);
+        PostDTO postDTO = forumService.savePost(body, attachedPicture, mentionedUserIds);
         return ResponseEntity.ok( postDTO );
     }
 

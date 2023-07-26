@@ -5,6 +5,7 @@ import { bindReplyBtn } from '../../forum.js';
 import { saveTracker } from '../repository/save_repository.js';
 import { commentLike } from '../like.js';
 import highlightMention from '../highlight_mention.js';
+
 let previousCommentBody = null;
 
 const generateComment = (commentDto, container) => {

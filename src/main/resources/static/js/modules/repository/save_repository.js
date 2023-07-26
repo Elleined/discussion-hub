@@ -20,13 +20,14 @@ const saveTracker = (userId, associatedTypeId, type) => {
     return deferred.promise();
 }
 
-const savePost = (body, mentionedUserIds) => {
+const savePost = (body, attachedPicture, mentionedUserIds) => {
     const dataArray = Array.from(mentionedUserIds);
     return $.ajax({
         type: "POST",
         url: "/forum/api/posts",
         data: {
             body: body,
+            attachedPicture: attachedPicture,
             mentionedUserIds: dataArray.join(",")
         }
     }).promise();

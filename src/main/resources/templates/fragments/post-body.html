@@ -61,25 +61,29 @@
         <div class="row ">
           <div class="col-md-6">
             <p class="card-text mt-3" th:text="${post.body}" th:id="${'postBody' + post.id}" ></p>
+            <img
+                    th:if="${!post.attachedPicture.isEmpty()}"
+                    style="height: 100px; width: 100px"
+                    th:src="${'/img/' + post.attachedPicture}"
+                    class="mb-4 img-fluid rounded"
+                    alt="attached picture"
+                    src="" />
           </div>
-
           <div class="col-md-6 mt-2">
             <button type="button"
                     th:if="${post.authorId} == ${currentUserId}"
                     th:id="${'editPostBtnSave' + post.id}"
                     class="btn btn-primary ms-3 d-none">Save</button>
           </div>
-
         </div>
       </div>
-
       <a class="me-2" style="color: #3b5998;" href="#" role="button" th:id="${'likeBtn' + post.id}">
         <i th:if="${post.isCurrentUserLikedPost}" class="fas fa-thumbs-up"></i> <!--shade like-->
         <i th:unless="${post.isCurrentUserLikedPost}" class="far fa-thumbs-up"></i> <!--unshade like-->
       </a>
       <div class="vr vr-blurry" style="height: 30px;"></div>
       <a class="ms-2 btn btn-primary"
-         th:href="@{/posts/{postId}/comments (postId=${post.id}) }"
+         href="#"
          role="button"
          data-bs-toggle="modal"
          data-bs-target="#commentModal"

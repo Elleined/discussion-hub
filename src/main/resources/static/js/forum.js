@@ -50,8 +50,9 @@ $(document).ready(function () {
       const body = $("#postBody").val();
 
       if ($.trim(body) === '') return;
+      const attachedPicture = getAttachedPicture();
       const mentionedUsers = getMentionedUsers();
-      SaveRepository.savePost(body, mentionedUsers)
+      SaveRepository.savePost(body, attachedPicture, mentionedUsers)
          .then(postDto => {
             generatePost(postDto, postSection);
             console.table(postDto);
@@ -59,6 +60,8 @@ $(document).ready(function () {
 
       $("#postBody").val("");
       clearMentionedUsers();
+      $("#postImagePreview").addClass("d-none");
+      clearAttachedPicture();
    });
 
    $("#postBody").on("input", function (event) {
@@ -330,6 +333,11 @@ async function getCommentSectionStatus(postId) {
 }
 
 function bindUploadPhoto() {
+    // post
+    const postUploadBtn = $("#postUploadBtn");
+    const postFileInput = $("#postFileInput");
+    const postImagePreview = $("#postImagePreview");
+    uploadPhoto(postUploadBtn, postFileInput, postImagePreview);
    // comment
    const commentUploadBtn = $("#commentUploadBtn");
    const commentFileInput = $("#commentFileInput");
