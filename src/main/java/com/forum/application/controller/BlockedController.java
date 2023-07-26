@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -28,6 +29,9 @@ public class BlockedController {
 
         int currentUserId = userService.getCurrentUser().getId();
         Set<UserDTO> blockedUsers = forumService.getAllBlockedUsers(currentUserId);
+        List<UserDTO> users = forumService.getAllUser(currentUserId);
+
+        model.addAttribute("users", users);
         model.addAttribute("blockedUsers", blockedUsers);
         model.addAttribute("currentUserId", currentUserId);
         return "blocked-users";

@@ -208,12 +208,22 @@ public class ForumService {
         return postService.getCommentSectionStatus(postId);
     }
 
-    public List<UserDTO> getSuggestedMentions(int userId, String name) {
-        return mentionService.getSuggestedMentions(name)
+    public List<UserDTO> getAllUser(int currentUserId) {
+        return userService.getAllUser()
                 .stream()
-                .filter(user -> user.getId() != userId)
-                .filter(user -> !blockService.isBlockedBy(userId, user.getId()))
-                .filter(user -> !blockService.isYouBeenBlockedBy(userId, user.getId()))
+                .filter(user -> user.getId() != currentUserId)
+                .filter(user -> !blockService.isBlockedBy(currentUserId, user.getId()))
+                .filter(user -> !blockService.isYouBeenBlockedBy(currentUserId, user.getId()))
+                .map(userMapper::toDTO)
+                .toList();
+    }
+
+    public List<UserDTO> getSuggestedMentions(int currentUserId, String name) {
+        return userService.getSuggestedMentions(name)
+                .stream()
+                .filter(user -> user.getId() != currentUserId)
+                .filter(user -> !blockService.isBlockedBy(currentUserId, user.getId()))
+                .filter(user -> !blockService.isYouBeenBlockedBy(currentUserId, user.getId()))
                 .map(userMapper::toDTO)
                 .toList();
     }

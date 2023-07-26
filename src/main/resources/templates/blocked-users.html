@@ -7,33 +7,100 @@
     <script th:src="@{/js/blocked_user.js}" type="module"></script>
 </head>
 <body>
-<h1 class="display-1 text-primary-emphasis" align="center">Blocked Users</h1>
+<h1 class="display-1 text-primary-emphasis" align="center">Block/Unblock</h1>
 <hr>
 
-<h2 th:if="${blockedUsers.isEmpty()}">No Blocked Users Yet :)</h2>
-<th:block th:each="blockedUser : ${blockedUsers}">
-    <div class="blockedUserSelector d-flex align-items-center ms-5">
-        <div class="flex-shrink-0">
-            <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;" th:src="${'/img/' + blockedUser.picture}">
-        </div>
-        <div class="flex-grow-1 ms-3">
-            <p class="lead mt-2 ms-2 me-2" th:text="${blockedUser.name}"></p>
-        </div>
-        <div class="d-md-flex justify-content-md-end me-5">
-            <a class="btn btn-outline-danger btn-rounded mt-1"
-               data-mdb-ripple-color="dark"
-               data-mdb-toggle="modal"
-               data-mdb-target="#unblockModal"
-               role="button"
-               th:href="@{/forum/api/users/{userId}/unblockUser/{userToBeUnblockedId} (userId=${currentUserId}, userToBeUnblockedId=${blockedUser.id}) }"
-               id="blockBtn">
-                Unblock
-            </a>
-        </div>
+<ul class="nav nav-tabs mb-3 d-flex justify-content-center " id="myTab0" role="tablist">
+    <li class="nav-item" role="presentation">
+
+        <button
+                class="nav-link active"
+                id="blockUser"
+                data-mdb-toggle="tab"
+                data-mdb-target="#blockedUser"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true"
+        >
+            Block User
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button
+                class="nav-link"
+                id="unblock"
+                data-mdb-toggle="tab"
+                data-mdb-target="#unblockedUser"
+                type="button"
+                role="tab"
+                aria-controls="profile"
+                aria-selected="false"
+        >
+            Unblock User
+        </button>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent0">
+    <div
+            class="tab-pane fade show active"
+            id="blockedUser"
+            role="tabpanel"
+            aria-labelledby="blockUser">
+        <th:block th:each="user : ${users}">
+            <div class="blockedUserSelector d-flex align-items-center ms-5">
+                <div class="flex-shrink-0">
+                    <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;" th:src="${'/img/' + user.picture}">
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <p class="lead mt-2 ms-2 me-2" th:text="${user.name}"></p>
+                </div>
+                <div class="d-md-flex justify-content-md-end me-5">
+                    <a class="btn btn-outline-danger btn-rounded mt-1"
+                       data-mdb-ripple-color="dark"
+                       data-mdb-toggle="modal"
+                       data-mdb-target="#blockModal"
+                       role="button"
+                       th:href="@{/forum/api/users/{userId}/blockUser/{userToBeBlockedId} (userId=${currentUserId}, userToBeBlockedId=${user.id}) }"
+                       id="blockBtn">
+                        Block
+                    </a>
+                </div>
+            </div>
+            <hr>
+        </th:block>
     </div>
-    <hr>
-</th:block>
+    <div class="tab-pane fade"
+         id="unblockedUser"
+         role="tabpanel"
+         aria-labelledby="unblock">
+        <h6 th:if="${blockedUsers.isEmpty()}">No Blocked Users Yet :)</h6>
+        <th:block th:each="blockedUser : ${blockedUsers}">
+            <div class="unblockedUserSelector d-flex align-items-center ms-5">
+                <div class="flex-shrink-0">
+                    <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;" th:src="${'/img/' + blockedUser.picture}">
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <p class="lead mt-2 ms-2 me-2" th:text="${blockedUser.name}"></p>
+                </div>
+                <div class="d-md-flex justify-content-md-end me-5">
+                    <a class="btn btn-outline-danger btn-rounded mt-1"
+                       data-mdb-ripple-color="dark"
+                       data-mdb-toggle="modal"
+                       data-mdb-target="#unblockModal"
+                       role="button"
+                       th:href="@{/forum/api/users/{userId}/unblockUser/{userToBeUnblockedId} (userId=${currentUserId}, userToBeUnblockedId=${blockedUser.id}) }"
+                       id="unblockBtn">
+                        Unblock
+                    </a>
+                </div>
+                <hr>
+            </div>
+        </th:block>
+    </div>
+</div>
 
 <div th:insert="~{/fragments/block-modal :: unblock-modal-fragment}"></div>
+<div th:insert="~{/fragments/block-modal :: block-modal-fragment}"></div>
 </body>
 </html>

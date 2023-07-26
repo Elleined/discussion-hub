@@ -83,15 +83,11 @@ const likeReply = (replyId, currentUserId) => {
 const blockUser = href => {
     $.ajax({
         type: "PATCH",
-        url: href,
-        success: function(response) {
-            console.log("Successfully blocked this user with href of " + href);
-            location.reload();
-        },
-        error: function(xhr, status, error) {
-            alert("Error Occurred! Blocking this user failed!" + xhr.responseText);
-        }
-    });
+        url: href
+    })
+    .promise()
+        .then(res => location.reload())
+        .catch(error => alert("Blocking this user failed!" + error));
 };
 
 const unblockUser = href => {

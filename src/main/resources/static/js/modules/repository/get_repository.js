@@ -96,21 +96,11 @@ const getCommentSectionStatus = postId => {
 };
 
 const getSuggestedMentions = (userId, name) => {
-    const deferred = $.Deferred();
-    $.ajax({
+    return $.ajax({
         type: "GET",
         url: `/forum/api/users/${userId}/getSuggestedMentions`,
-        data: {
-            name: name
-        },
-        success: function(response) {
-            deferred.resolve(response);
-        },
-        error: function(xhr, status, error) {
-            deferred.reject(xhr.responseText);
-        }
-    });
-    return deferred.promise();
+        data: { name: name }
+    }).promise();
 };
 
 const isUserBlocked = (userId, userToCheckId) => {

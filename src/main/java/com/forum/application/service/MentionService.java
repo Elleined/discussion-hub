@@ -74,8 +74,4 @@ public class MentionService {
         mentionRepository.save(replyMention);
         log.debug("User with id of {} mentioned user with id of {} in reply with id of {}", currentUser.getId(), mentionedUserId, reply.getId());
     }
-
-    public List<User> getSuggestedMentions(String name) {
-        return userRepository.fetchAllByProperty(name);
-    }
 }

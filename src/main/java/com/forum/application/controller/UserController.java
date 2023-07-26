@@ -23,6 +23,17 @@ public class UserController {
     private final CommentService commentService;
     private final ReplyService replyService;
 
+    @GetMapping
+    public List<UserDTO> getAllUser(@PathVariable("userId") int currentUserId) {
+        return forumService.getAllUser(currentUserId);
+    }
+
+    @GetMapping("/getSuggestedMentions")
+    public List<UserDTO> getSuggestedMentions(@PathVariable("userId") int userId,
+                                              @RequestParam("name") String name) {
+        return forumService.getSuggestedMentions(userId, name);
+    }
+
     @GetMapping("/getAllNotification")
     public Set<NotificationResponse> getAllNotification(@PathVariable("userId") int userId) {
         return forumService.getAllNotification(userId);
@@ -118,12 +129,4 @@ public class UserController {
         forumService.deleteTrackerOfUserById(userId, type);
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping("/getSuggestedMentions")
-    public List<UserDTO> getSuggestedMentions(@PathVariable("userId") int userId,
-                                              @RequestParam("name") String name) {
-        return forumService.getSuggestedMentions(userId, name);
-    }
-
-
 }
