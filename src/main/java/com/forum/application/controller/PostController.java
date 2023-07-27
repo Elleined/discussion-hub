@@ -17,7 +17,6 @@ import java.util.Set;
 @RequestMapping("/forum/api/posts")
 public class PostController {
     private final ForumService forumService;
-
     @GetMapping
     public List<PostDTO> getAllPost() {
         return forumService.getAllPost();

@@ -48,8 +48,11 @@ public class CommentService {
                 .mentions(new HashSet<>())
                 .build();
 
+        commenter.getComments().add(comment);
+        post.getComments().add(comment);
+        commentRepository.save(comment);
         log.debug("Comment with id of {} saved successfully", comment.getId());
-        return commentRepository.save(comment);
+        return comment;
     }
 
     Comment delete(int commentId) {
@@ -85,41 +88,43 @@ public class CommentService {
         return commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment with id of " + commentId + " does not exists!"));
     }
 
-    public List<CommentDTO> getAllUnreadComments(int authorId, int postId) throws ResourceNotFoundException {
-        User author = userService.getById(authorId);
-        Post post = author.getPosts().stream().filter(userPost -> userPost.getId() == postId).findFirst().orElseThrow(() -> new ResourceNotFoundException("Author with id of " + authorId + " does not have post with id of " + postId));
+    public List<CommentDTO> getAllUnreadComments(User currentUser, int postId) throws ResourceNotFoundException {
+        Post post = currentUser.getPosts().stream()
+                .filter(userPost -> userPost.getId() == postId)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Author with id of " + currentUser.getId() + " does not have post with id of " + postId));
+
         return post.getComments()
                 .stream()
                 .filter(comment -> comment.getStatus() == Status.ACTIVE)
                 .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
-                .filter(comment -> !blockService.isBlockedBy(authorId, comment.getCommenter().getId()))
-                .filter(comment -> !blockService.isYouBeenBlockedBy(authorId, comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isBlockedBy(currentUser.getId(), comment.getCommenter().getId()))
+                .filter(comment -> !blockService.isYouBeenBlockedBy(currentUser.getId(), comment.getCommenter().getId()))
                 .map(commentMapper::toDTO)
                 .toList();
     }
 
-    public int getNotificationCountForRespondent(int authorId, int postId, int respondentId) throws ResourceNotFoundException {
-        return (int) getAllUnreadComments(authorId, postId)
+    public int getNotificationCountForRespondent(User currentUser, int postId, int respondentId) throws ResourceNotFoundException {
+        return (int) getAllUnreadComments(currentUser, postId)
                 .stream()
                 .filter(comment -> comment.getCommenterId() == respondentId)
                 .count();
     }
 
-    public int getNotificationCountForSpecificPost(int authorId, int postId) throws ResourceNotFoundException {
-        return getAllUnreadComments(authorId, postId).size();
+    public int getNotificationCountForSpecificPost(User currentUser, int postId) throws ResourceNotFoundException {
+        return getAllUnreadComments(currentUser, postId).size();
     }
 
-    public Set<Comment> getUnreadCommentsOfAllPost(int userId) throws ResourceNotFoundException {
-        User user = userService.getById(userId);
-        List<Post> posts = user.getPosts();
+    public Set<Comment> getUnreadCommentsOfAllPost(User currentUser) throws ResourceNotFoundException {
+        List<Post> posts = currentUser.getPosts();
 
         return posts.stream()
                 .map(Post::getComments)
                 .flatMap(comments -> comments.stream()
                         .filter(comment -> comment.getStatus() == Status.ACTIVE)
-                        .filter(comment -> !blockService.isBlockedBy(userId, comment.getCommenter().getId()))
-                        .filter(comment -> !blockService.isYouBeenBlockedBy(userId, comment.getCommenter().getId()))
-                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD))
+                        .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
+                        .filter(comment -> !blockService.isBlockedBy(currentUser.getId(), comment.getCommenter().getId()))
+                        .filter(comment -> !blockService.isYouBeenBlockedBy(currentUser.getId(), comment.getCommenter().getId())))
                 .collect(Collectors.toSet());
     }
 

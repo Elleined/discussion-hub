@@ -3,6 +3,7 @@ package com.forum.application.service;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.model.like.CommentLike;
+import com.forum.application.model.like.Like;
 import com.forum.application.model.like.PostLike;
 import com.forum.application.model.like.ReplyLike;
 import com.forum.application.repository.LikeRepository;
@@ -25,6 +26,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
     private final LikeNotificationService likeNotificationService;
+    private final LikeNotificationReaderService likeNotificationReaderService;
 
     void likePost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
@@ -149,13 +151,32 @@ public class LikeService {
     }
 
     Set<Post> getUnreadPostLikes(User currentUser) {
-        return likeNotificationService.getUnreadPostLikes(currentUser);
+        return likeNotificationService.getUnreadPostLikes(currentUser)
+                .stream()
+                .map(PostLike::getPost)
+                .collect(Collectors.toSet());
     }
     Set<Comment> getUnreadCommentLikes(User currentUser) {
-        return likeNotificationService.getUnreadCommentLikes(currentUser);
+        return likeNotificationService.getUnreadCommentLikes(currentUser)
+                .stream()
+                .map(CommentLike::getComment)
+                .collect(Collectors.toSet());
     }
     Set<Reply> getUnreadReplyLikes(User currentUser) {
-        return likeNotificationService.getUnreadReplyLikes(currentUser);
+        return likeNotificationService.getUnreadReplyLikes(currentUser)
+                .stream()
+                .map(ReplyLike::getReply)
+                .collect(Collectors.toSet());
+    }
+
+    void readPostLikes(User currentUser) {
+        likeNotificationReaderService.readPostLikes(currentUser);
+    }
+    void readCommentLikes(User currentUser) {
+        likeNotificationReaderService.readCommentLikes(currentUser);
+    }
+    void readReplyLikes(User currentUser) {
+        likeNotificationReaderService.readReplyLikes(currentUser);
     }
 
     @Service
@@ -163,7 +184,7 @@ public class LikeService {
     private static class LikeNotificationService {
         private final BlockService blockService;
 
-        private Set<Post> getUnreadPostLikes(User currentUser) {
+        private Set<PostLike> getUnreadPostLikes(User currentUser) {
             return currentUser.getPosts()
                     .stream()
                     .map(Post::getLikes)
@@ -171,12 +192,11 @@ public class LikeService {
                             .filter(like -> like.getPost().getStatus() == Status.ACTIVE)
                             .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
                             .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
-                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId()))
-                            .map(PostLike::getPost))
+                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId())))
                     .collect(Collectors.toSet());
         }
 
-        private Set<Comment> getUnreadCommentLikes(User currentUser) {
+        private Set<CommentLike> getUnreadCommentLikes(User currentUser) {
             return currentUser.getComments()
                     .stream()
                     .map(Comment::getLikes)
@@ -184,12 +204,11 @@ public class LikeService {
                             .filter(like -> like.getComment().getStatus() == Status.ACTIVE)
                             .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
                             .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
-                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId()))
-                            .map(CommentLike::getComment))
+                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId())))
                     .collect(Collectors.toSet());
         }
 
-        private Set<Reply> getUnreadReplyLikes(User currentUser) {
+        private Set<ReplyLike> getUnreadReplyLikes(User currentUser) {
             return currentUser.getReplies()
                     .stream()
                     .map(Reply::getLikes)
@@ -197,9 +216,40 @@ public class LikeService {
                             .filter(like -> like.getReply().getStatus() == Status.ACTIVE)
                             .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
                             .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
-                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId()))
-                            .map(ReplyLike::getReply))
+                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId())))
                     .collect(Collectors.toSet());
+        }
+    }
+
+    @Service
+    @RequiredArgsConstructor
+    private static class LikeNotificationReaderService {
+        private final LikeNotificationService likeNotificationService;
+        private final LikeRepository likeRepository;
+
+        private void readPostLikes(User currentUser) {
+            Set<PostLike> postLikes = likeNotificationService.getUnreadPostLikes(currentUser);
+            postLikes.forEach(this::readLikeNotification);
+            likeRepository.saveAll(postLikes);
+            log.debug("Reading all unread post like for current user with id of {} success", currentUser.getId());
+        }
+
+        private void readCommentLikes(User currentUser) {
+            Set<CommentLike> commentLikes = likeNotificationService.getUnreadCommentLikes(currentUser);
+            commentLikes.forEach(this::readLikeNotification);
+            likeRepository.saveAll(commentLikes);
+            log.debug("Reading all unread comment like for current user with id of {} success", currentUser.getId());
+        }
+
+        private void readReplyLikes(User currentUser) {
+            Set<ReplyLike> replyLikes = likeNotificationService.getUnreadReplyLikes(currentUser);
+            replyLikes.forEach(this::readLikeNotification);
+            likeRepository.saveAll(replyLikes);
+            log.debug("Reading all unread reply like for current user with id of {} success", currentUser.getId());
+        }
+
+        private void readLikeNotification(Like like) {
+            like.setNotificationStatus(NotificationStatus.READ);
         }
     }
 }

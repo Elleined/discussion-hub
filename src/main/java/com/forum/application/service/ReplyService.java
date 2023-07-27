@@ -49,8 +49,11 @@ public class ReplyService {
                 .likes(new HashSet<>())
                 .build();
 
+        replier.getReplies().add(reply);
+        comment.getReplies().add(reply);
+        replyRepository.save(reply);
         log.debug("Reply with id of {} saved successfully!", reply.getId());
-        return replyRepository.save(reply);
+        return reply;
     }
 
     Reply delete(int replyId) {
@@ -110,47 +113,44 @@ public class ReplyService {
         return replyRepository.findById(replyId).orElseThrow(() -> new ResourceNotFoundException("Reply with id of " + replyId + " does not exists!"));
     }
 
-    Set<Reply> getUnreadRepliesOfAllComments(int userId) throws ResourceNotFoundException {
-        User user = userService.getById(userId);
-        List<Comment> comments = user.getComments();
-
+    Set<Reply> getUnreadRepliesOfAllComments(User currentUser) throws ResourceNotFoundException {
+        List<Comment> comments = currentUser.getComments();
         return comments.stream()
                 .map(Comment::getReplies)
                 .flatMap(replies -> replies.stream()
                         .filter(reply -> reply.getStatus() == Status.ACTIVE)
-                        .filter(reply -> !blockService.isBlockedBy(userId, reply.getReplier().getId()))
-                        .filter(reply -> !blockService.isYouBeenBlockedBy(userId, reply.getReplier().getId()))
+                        .filter(reply -> !blockService.isBlockedBy(currentUser.getId(), reply.getReplier().getId()))
+                        .filter(reply -> !blockService.isYouBeenBlockedBy(currentUser.getId(), reply.getReplier().getId()))
                         .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD))
                 .collect(Collectors.toSet());
     }
 
-    public List<ReplyDTO> getAllUnreadReplies(int commenterId, int commentId) throws ResourceNotFoundException {
-        User commenter = userService.getById(commenterId);
-        Comment comment = commenter.getComments()
+    public List<ReplyDTO> getAllUnreadReplies(User currentUser, int commentId) throws ResourceNotFoundException {
+        Comment comment = currentUser.getComments()
                 .stream()
                 .filter(userComment -> userComment.getId() == commentId)
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Commenter with id of " + commenterId + " does not have a comment with id of " + commentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Commenter with id of " + currentUser.getId() + " does not have a comment with id of " + commentId));
 
         return comment.getReplies()
                 .stream()
                 .filter(reply -> reply.getStatus() == Status.ACTIVE)
                 .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
-                .filter(reply -> !blockService.isBlockedBy(commenterId, reply.getReplier().getId()))
-                .filter(reply -> !blockService.isYouBeenBlockedBy(commenterId, reply.getReplier().getId()))
+                .filter(reply -> !blockService.isBlockedBy(currentUser.getId(), reply.getReplier().getId()))
+                .filter(reply -> !blockService.isYouBeenBlockedBy(currentUser.getId(), reply.getReplier().getId()))
                 .map(replyMapper::toDTO)
                 .toList();
     }
 
-    public int getNotificationCountForRespondent(int commenterId, int commentId, int respondentId) throws ResourceNotFoundException {
-        return (int) getAllUnreadReplies(commenterId, commentId)
+    public int getNotificationCountForRespondent(User currentUser, int commentId, int respondentId) throws ResourceNotFoundException {
+        return (int) getAllUnreadReplies(currentUser, commentId)
                 .stream()
                 .filter(reply -> reply.getReplierId() == respondentId)
                 .count();
     }
 
-    public int getReplyNotificationCountForSpecificComment(int commenterId, int commentId) throws ResourceNotFoundException {
-        return getAllUnreadReplies(commenterId, commentId).size();
+    public int getReplyNotificationCountForSpecificComment(User currentUser, int commentId) throws ResourceNotFoundException {
+        return getAllUnreadReplies(currentUser, commentId).size();
     }
 
     Reply setStatus(Reply reply) throws ResourceNotFoundException {

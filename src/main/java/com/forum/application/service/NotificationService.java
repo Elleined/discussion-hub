@@ -3,68 +3,84 @@ package com.forum.application.service;
 import com.forum.application.dto.NotificationResponse;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.mapper.NotificationMapper;
-import com.forum.application.model.Comment;
-import com.forum.application.model.Reply;
+import com.forum.application.model.User;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class NotificationService {
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final MentionService mentionService;
+    private final LikeService likeService;
     private final CommentService commentService;
     private final ReplyService replyService;
-
     private final NotificationMapper notificationMapper;
 
-    void broadcastCommentNotification(Comment comment) throws ResourceNotFoundException {
-        var commentNotificationResponse = notificationMapper.toCommentNotification(comment);
-
-        int authorId = comment.getPost().getAuthor().getId();
-        final String subscriberId = String.valueOf(authorId);
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/comments", commentNotificationResponse);
-
-        log.debug("Comment notification successfully sent to author with id of {}", subscriberId);
-    }
-
-    void broadcastReplyNotification(Reply reply) throws ResourceNotFoundException {
-        var replyNotificationResponse = notificationMapper.toReplyNotification(reply);
-
-        int commenterId = reply.getComment().getCommenter().getId();
-        final String subscriberId = String.valueOf(commenterId);
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
-
-        log.debug("Reply notification successfully sent to commenter with id of {}", subscriberId);
-    }
-
-    long getAllUnreadNotificationCount(int userId) throws ResourceNotFoundException {
-        return commentService.getUnreadCommentsOfAllPost(userId).size() +
-                replyService.getUnreadRepliesOfAllComments(userId).size();
-    }
-
-    public Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
-        List<NotificationResponse> commentNotifications = commentService.getUnreadCommentsOfAllPost(userId)
+    public Set<NotificationResponse> getAllNotification(User currentUser) throws ResourceNotFoundException {
+        Set<NotificationResponse> unreadComments = commentService.getUnreadCommentsOfAllPost(currentUser)
                 .stream()
                 .map(notificationMapper::toCommentNotification)
-                .toList();
+                .collect(Collectors.toSet());
 
-        List<NotificationResponse> replyNotifications = replyService.getUnreadRepliesOfAllComments(userId)
+        Set<NotificationResponse> unreadReplies = replyService.getUnreadRepliesOfAllComments(currentUser)
                 .stream()
                 .map(notificationMapper::toReplyNotification)
-                .toList();
+                .collect(Collectors.toSet());
 
-        return Stream.of(commentNotifications, replyNotifications)
-                .flatMap(notificationResponses -> notificationResponses.stream()
-                        .sorted(Comparator.comparing(NotificationResponse::getFormattedDate)))
+        Set<NotificationResponse> unreadPostLikes = likeService.getUnreadPostLikes(currentUser)
+                .stream()
+                .map(notificationMapper::toCommentNotification)
+                .collect(Collectors.toSet());
+
+        Set<NotificationResponse> unreadCommentLikes = likeService.getUnreadCommentLikes(currentUser)
+                .stream()
+                .map(notificationMapper::toCommentNotification)
+                .collect(Collectors.toSet());
+
+        Set<NotificationResponse> unreadReplyLikes = likeService.getUnreadReplyLikes(currentUser)
+                .stream()
+                .map(notificationMapper::toReplyNotification)
+                .collect(Collectors.toSet());
+
+        Set<NotificationResponse> unreadCommentMentions = mentionService.getUnreadCommentMentions(currentUser)
+                .stream()
+                .map(notificationMapper::toCommentNotification)
+                .collect(Collectors.toSet());
+
+        Set<NotificationResponse> unreadReplyMentions = mentionService.getUnreadReplyMentions(currentUser)
+                .stream()
+                .map(notificationMapper::toReplyNotification)
+                .collect(Collectors.toSet());
+
+//
+//        // set message here
+//        // COMMENT .message()
+//        // REPLY .message(reply.getReplier().getName() + " replied to your comment: " +  "\"" + comment.getBody() + "\"")
+        return Stream.of(
+                unreadComments,
+                unreadReplies,
+                unreadCommentLikes,
+                        unreadPostLikes,
+                unreadReplyLikes,
+                unreadCommentMentions,
+                unreadReplyMentions)
+                .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
+
+    public long getTotalNotificationCount(User currentUser) throws ResourceNotFoundException {
+        return commentService.getUnreadCommentsOfAllPost(currentUser).size() +
+                replyService.getUnreadRepliesOfAllComments(currentUser).size() +
+                likeService.getUnreadPostLikes(currentUser).size() +
+                likeService.getUnreadCommentLikes(currentUser).size() +
+                likeService.getUnreadReplyLikes(currentUser).size() +
+                mentionService.getUnreadCommentMentions(currentUser).size() +
+                mentionService.getUnreadReplyMentions(currentUser).size();
+    }
+
 }

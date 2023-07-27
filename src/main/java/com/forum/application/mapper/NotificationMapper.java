@@ -19,9 +19,7 @@ public class NotificationMapper {
     private final CommentService commentService;
     private final ReplyService replyService;
 
-    @Autowired
-    @Lazy
-
+    @Autowired @Lazy
     public NotificationMapper(CommentService commentService, ReplyService replyService) {
         this.commentService = commentService;
         this.replyService = replyService;
@@ -29,7 +27,7 @@ public class NotificationMapper {
 
     public NotificationResponse toCommentNotification(Comment comment) throws ResourceNotFoundException {
         Post post = comment.getPost();
-        int count = commentService.getNotificationCountForRespondent(post.getAuthor().getId(), post.getId(), comment.getCommenter().getId());
+        int count = commentService.getNotificationCountForRespondent(post.getAuthor(), post.getId(), comment.getCommenter().getId());
         return NotificationResponse.builder()
                 .id(post.getId())
                 .message(comment.getCommenter().getName() + " commented in your post: " + "\"" + post.getBody() + "\"")
@@ -46,7 +44,7 @@ public class NotificationMapper {
     public NotificationResponse toReplyNotification(Reply reply) throws ResourceNotFoundException {
         final Comment comment = reply.getComment();
 
-        int count = replyService.getNotificationCountForRespondent(comment.getCommenter().getId(), comment.getId(), reply.getReplier().getId());
+        int count = replyService.getNotificationCountForRespondent(comment.getCommenter(), comment.getId(), reply.getReplier().getId());
         return ReplyNotification.replyNotificationBuilder()
                 .id(comment.getId())
                 .message(reply.getReplier().getName() + " replied to your comment: " +  "\"" + comment.getBody() + "\"")

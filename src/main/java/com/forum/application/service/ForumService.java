@@ -30,14 +30,14 @@ public class ForumService {
     private final WSService wsService;
     private final LikeService likeService;
     private final ModalTrackerService modalTrackerService;
-    private final NotificationService notificationService;
+    private final WSNotificationService WSNotificationService;
     private final MentionService mentionService;
+    private final NotificationService notificationService;
 
     private final PostMapper postMapper;
     private final CommentMapper commentMapper;
     private final ReplyMapper replyMapper;
     private final UserMapper userMapper;
-
 
     public PostDTO savePost(String body, String attachedPicture, Set<Integer> mentionedUserIds) throws EmptyBodyException,
             BlockedException,
@@ -78,7 +78,7 @@ public class ForumService {
         }
 
         wsService.broadcastComment(comment);
-        notificationService.broadcastCommentNotification(comment);
+        WSNotificationService.broadcastCommentNotification(comment);
         return commentMapper.toDTO(comment);
     }
 
@@ -104,7 +104,7 @@ public class ForumService {
         }
 
         wsService.broadcastReply(reply);
-        notificationService.broadcastReplyNotification(reply);
+        WSNotificationService.broadcastReplyNotification(reply);
         return replyMapper.toDTO(reply);
     }
 
@@ -136,13 +136,6 @@ public class ForumService {
         wsService.broadcastReply(reply);
     }
 
-    public List<PostDTO> getAllPost() {
-        return postService.getAll()
-                .stream()
-                .map(postMapper::toDTO)
-                .toList();
-    }
-
     public List<PostDTO> getAllByAuthorId(int authorId) {
         return postService.getAllByAuthorId(authorId)
                 .stream()
@@ -150,22 +143,32 @@ public class ForumService {
                 .toList();
     }
 
+    public List<PostDTO> getAllPost() {
+        likeService.readPostLikes(userService.getCurrentUser());
+        return postService.getAll()
+                .stream()
+                .map(postMapper::toDTO)
+                .toList();
+    }
+
     public List<CommentDTO> getAllCommentsOf(int postId) {
         commentService.readAllComments(postId);
+        likeService.readCommentLikes(userService.getCurrentUser());
         return commentService.getAllCommentsOf(postId);
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         replyService.readAllReplies(commentId);
+        likeService.readReplyLikes(userService.getCurrentUser());
         return replyService.getAllRepliesOf(commentId);
     }
 
-    public long getAllUnreadNotificationCount(int userId) {
-        return notificationService.getAllUnreadNotificationCount(userId);
+    public long getTotalNotificationCount(User currentUser) throws ResourceNotFoundException {
+        return notificationService.getTotalNotificationCount(currentUser);
     }
 
-    public Set<NotificationResponse> getAllNotification(int userId) throws ResourceNotFoundException {
-        return notificationService.getAllNotification(userId);
+    public Set<NotificationResponse> getAllNotification(User currentUser) throws ResourceNotFoundException {
+        return notificationService.getAllNotification(currentUser);
     }
 
     public CommentDTO updateUpvote(int commentId) throws NoLoggedInUserException,

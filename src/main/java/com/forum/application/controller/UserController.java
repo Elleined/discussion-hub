@@ -5,9 +5,11 @@ import com.forum.application.dto.NotificationResponse;
 import com.forum.application.dto.ReplyDTO;
 import com.forum.application.dto.UserDTO;
 import com.forum.application.model.ModalTracker;
+import com.forum.application.model.User;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.ForumService;
 import com.forum.application.service.ReplyService;
+import com.forum.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ public class UserController {
     private final ForumService forumService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final UserService userService;
 
     @GetMapping
     public List<UserDTO> getAllUser(@PathVariable("userId") int currentUserId) {
@@ -35,46 +38,58 @@ public class UserController {
     }
 
     @GetMapping("/getAllNotification")
-    public Set<NotificationResponse> getAllNotification(@PathVariable("userId") int userId) {
-        return forumService.getAllNotification(userId);
+    public Set<NotificationResponse> getAllNotification(@PathVariable("userId") int currentUserId) {
+        User currentUser = userService.getById(currentUserId);
+        return forumService.getAllNotification(currentUser);
     }
 
     @GetMapping("/unreadComments/{postId}")
-    public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int authorId,
+    public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int currentUserId,
                                                  @PathVariable("postId") int postId) {
-        return commentService.getAllUnreadComments(authorId, postId);
+
+        User currentUser = userService.getById(currentUserId);
+        return commentService.getAllUnreadComments(currentUser, postId);
     }
 
     @GetMapping("/unreadCommentCountOfSpecificPost/{postId}")
-    public int getNotificationCountForSpecificPost(@PathVariable("userId") int authorId,
+    public int getNotificationCountForSpecificPost(@PathVariable("userId") int currentUserId,
                                                    @PathVariable("postId") int postId) {
-        return commentService.getNotificationCountForSpecificPost(authorId, postId);
+
+        User currentUser = userService.getById(currentUserId);
+        return commentService.getNotificationCountForSpecificPost(currentUser, postId);
     }
 
     @GetMapping("/unreadCommentCountForRespondent/{postId}/{respondentId}")
-    public int getCommentNotificationCountForRespondent(@PathVariable("userId") int authorId,
+    public int getCommentNotificationCountForRespondent(@PathVariable("userId") int currentUserId,
                                                         @PathVariable("postId") int postId,
                                                         @PathVariable("respondentId") int respondentId) {
-        return commentService.getNotificationCountForRespondent(authorId, postId, respondentId);
+
+        User currentUser = userService.getById(currentUserId);
+        return commentService.getNotificationCountForRespondent(currentUser, postId, respondentId);
     }
 
     @GetMapping("/unreadReplies/{commentId}")
-    public List<ReplyDTO> getAllUnreadReplies(@PathVariable("userId") int commenterId,
+    public List<ReplyDTO> getAllUnreadReplies(@PathVariable("userId") int currentUserId,
                                               @PathVariable("commentId") int commentId) {
-        return replyService.getAllUnreadReplies(commenterId, commentId);
+        User currentUser = userService.getById(currentUserId);
+        return replyService.getAllUnreadReplies(currentUser, commentId);
     }
 
     @GetMapping("/unreadReplyCountOfSpecificComment/{commentId}")
-    public int getReplyCountForSpecificComment(@PathVariable("userId") int commenterId,
+    public int getReplyCountForSpecificComment(@PathVariable("userId") int currentUserId,
                                                @PathVariable("commentId") int commentId) {
-        return replyService.getReplyNotificationCountForSpecificComment(commenterId, commentId);
+
+        User currentUser = userService.getById(currentUserId);
+        return replyService.getReplyNotificationCountForSpecificComment(currentUser, commentId);
     }
 
     @GetMapping("/unreadReplyCountForRespondent/{commentId}/{respondentId}")
-    public int getReplyNotificationCountForRespondent(@PathVariable("userId") int commenterId,
+    public int getReplyNotificationCountForRespondent(@PathVariable("userId") int currentUserId,
                                                       @PathVariable("commentId") int commentId,
                                                       @PathVariable("respondentId") int respondentId) {
-        return replyService.getNotificationCountForRespondent(commenterId, commentId, respondentId);
+
+        User currentUser = userService.getById(currentUserId);
+        return replyService.getNotificationCountForRespondent(currentUser, commentId, respondentId);
     }
 
     @GetMapping("/getAllBlockedUsers")

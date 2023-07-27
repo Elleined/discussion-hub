@@ -31,7 +31,7 @@ public class ForumController {
         if (email == null) return "redirect:/";
 
         User currentUser = userService.getCurrentUser();
-        long totalNotifCount = forumService.getAllUnreadNotificationCount(currentUser.getId());
+        long totalNotifCount = forumService.getTotalNotificationCount(currentUser);
         model.addAttribute("userId", currentUser.getId());
         model.addAttribute("totalNotifCount", totalNotifCount);
         return "forum";

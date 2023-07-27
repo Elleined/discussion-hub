@@ -1,7 +1,6 @@
 package com.forum.application.model.mention;
 
 import com.forum.application.model.Comment;
-import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -10,7 +9,6 @@ import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 

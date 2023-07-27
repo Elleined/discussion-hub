@@ -9,7 +9,6 @@ import com.forum.application.service.Formatter;
 import com.forum.application.service.LikeService;
 import com.forum.application.service.PostService;
 import com.forum.application.service.UserService;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

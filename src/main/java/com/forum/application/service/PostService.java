@@ -46,6 +46,7 @@ public class PostService {
                 .attachedPicture(attachedPicture)
                 .build();
 
+        author.getPosts().add(post);
         postRepository.save(post);
         log.debug("Post with id of {} saved successfully!", post.getId());
         return post;

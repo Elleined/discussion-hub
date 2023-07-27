@@ -93,22 +93,22 @@ public class MentionService {
         private Set<Comment> getUnreadCommentMentions(User currentUser) {
             return currentUser.getReceiveCommentMentions()
                     .stream()
+                    .filter(mention -> !blockService.isBlockedBy(currentUser.getId(), mention.getMentioningUser().getId()))
+                    .filter(mention -> !blockService.isYouBeenBlockedBy(currentUser.getId(), mention.getMentioningUser().getId()))
                     .map(CommentMention::getComment)
                     .filter(comment -> comment.getStatus() == Status.ACTIVE)
                     .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
-                    .filter(comment -> !blockService.isBlockedBy(currentUser.getId(), comment.getCommenter().getId()))
-                    .filter(comment -> !blockService.isYouBeenBlockedBy(currentUser.getId(), comment.getCommenter().getId()))
                     .collect(Collectors.toSet());
         }
 
         private Set<Reply> getUnreadReplyMentions(User currentUser) {
             return currentUser.getReceiveReplyMentions()
                     .stream()
+                    .filter(mention -> !blockService.isBlockedBy(currentUser.getId(), mention.getMentioningUser().getId()))
+                    .filter(mention -> !blockService.isYouBeenBlockedBy(currentUser.getId(), mention.getMentioningUser().getId()))
                     .map(ReplyMention::getReply)
                     .filter(reply -> reply.getStatus() == Status.ACTIVE)
                     .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
-                    .filter(reply -> !blockService.isBlockedBy(currentUser.getId(), reply.getReplier().getId()))
-                    .filter(reply -> !blockService.isYouBeenBlockedBy(currentUser.getId(), reply.getReplier().getId()))
                     .collect(Collectors.toSet());
         }
     }
