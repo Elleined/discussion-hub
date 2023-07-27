@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -23,6 +24,7 @@ public class MentionService {
 
     private final UserRepository userRepository;
     private final MentionRepository mentionRepository;
+    private final MentionNotificationService mentionNotificationService;
 
     void addPostMention(User currentUser, int mentionedUserId, Post post) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
@@ -73,5 +75,41 @@ public class MentionService {
         reply.getMentions().add(replyMention);
         mentionRepository.save(replyMention);
         log.debug("User with id of {} mentioned user with id of {} in reply with id of {}", currentUser.getId(), mentionedUserId, reply.getId());
+    }
+
+    Set<Comment> getUnreadCommentMentions(User currentUser) {
+        return mentionNotificationService.getUnreadCommentMentions(currentUser);
+    }
+    Set<Reply> getUnreadReplyMentions(User currentUser) {
+        return mentionNotificationService.getUnreadReplyMentions(currentUser);
+    }
+
+    @Service
+    @RequiredArgsConstructor
+    private static class MentionNotificationService {
+    
+        private final BlockService blockService;
+    
+        private Set<Comment> getUnreadCommentMentions(User currentUser) {
+            return currentUser.getReceiveCommentMentions()
+                    .stream()
+                    .map(CommentMention::getComment)
+                    .filter(comment -> comment.getStatus() == Status.ACTIVE)
+                    .filter(comment -> comment.getNotificationStatus() == NotificationStatus.UNREAD)
+                    .filter(comment -> !blockService.isBlockedBy(currentUser.getId(), comment.getCommenter().getId()))
+                    .filter(comment -> !blockService.isYouBeenBlockedBy(currentUser.getId(), comment.getCommenter().getId()))
+                    .collect(Collectors.toSet());
+        }
+
+        private Set<Reply> getUnreadReplyMentions(User currentUser) {
+            return currentUser.getReceiveReplyMentions()
+                    .stream()
+                    .map(ReplyMention::getReply)
+                    .filter(reply -> reply.getStatus() == Status.ACTIVE)
+                    .filter(reply -> reply.getNotificationStatus() == NotificationStatus.UNREAD)
+                    .filter(reply -> !blockService.isBlockedBy(currentUser.getId(), reply.getReplier().getId()))
+                    .filter(reply -> !blockService.isYouBeenBlockedBy(currentUser.getId(), reply.getReplier().getId()))
+                    .collect(Collectors.toSet());
+        }
     }
 }

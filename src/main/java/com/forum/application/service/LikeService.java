@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,6 +24,7 @@ public class LikeService {
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final ModalTrackerService modalTrackerService;
+    private final LikeNotificationService likeNotificationService;
 
     void likePost(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
@@ -143,5 +146,60 @@ public class LikeService {
         reply.getLikes().remove(replyLike);
         likeRepository.delete(replyLike);
         log.debug("User with id of {} unliked reply with id of {}", respondentId, reply.getId());
+    }
+
+    Set<Post> getUnreadPostLikes(User currentUser) {
+        return likeNotificationService.getUnreadPostLikes(currentUser);
+    }
+    Set<Comment> getUnreadCommentLikes(User currentUser) {
+        return likeNotificationService.getUnreadCommentLikes(currentUser);
+    }
+    Set<Reply> getUnreadReplyLikes(User currentUser) {
+        return likeNotificationService.getUnreadReplyLikes(currentUser);
+    }
+
+    @Service
+    @RequiredArgsConstructor
+    private static class LikeNotificationService {
+        private final BlockService blockService;
+
+        private Set<Post> getUnreadPostLikes(User currentUser) {
+            return currentUser.getPosts()
+                    .stream()
+                    .map(Post::getLikes)
+                    .flatMap(likes -> likes.stream()
+                            .filter(like -> like.getPost().getStatus() == Status.ACTIVE)
+                            .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
+                            .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
+                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId()))
+                            .map(PostLike::getPost))
+                    .collect(Collectors.toSet());
+        }
+
+        private Set<Comment> getUnreadCommentLikes(User currentUser) {
+            return currentUser.getComments()
+                    .stream()
+                    .map(Comment::getLikes)
+                    .flatMap(likes -> likes.stream()
+                            .filter(like -> like.getComment().getStatus() == Status.ACTIVE)
+                            .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
+                            .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
+                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId()))
+                            .map(CommentLike::getComment))
+                    .collect(Collectors.toSet());
+        }
+
+        private Set<Reply> getUnreadReplyLikes(User currentUser) {
+            return currentUser.getReplies()
+                    .stream()
+                    .map(Reply::getLikes)
+                    .flatMap(likes -> likes.stream()
+                            .filter(like -> like.getReply().getStatus() == Status.ACTIVE)
+                            .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
+                            .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
+                            .filter(like -> !blockService.isYouBeenBlockedBy(currentUser.getId(), like.getRespondent().getId()))
+                            .map(ReplyLike::getReply))
+                    .collect(Collectors.toSet());
+        }
     }
 }
