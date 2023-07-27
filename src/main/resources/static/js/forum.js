@@ -135,8 +135,12 @@ $(document).ready(function () {
       disconnect();
    });
 
-   $(window).on('beforeunload, unload', function () {
+   $(window).on('beforeunload', function () {
       disconnect();
+      const userId = $("#userId").val();
+      DeleteRepository.deleteTracker(userId, "COMMENT");
+      DeleteRepository.deleteTracker(userId, "REPLY");
+
    });
 
    $(document).on('close', function () {
