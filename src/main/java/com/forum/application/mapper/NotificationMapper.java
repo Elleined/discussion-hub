@@ -33,9 +33,9 @@ public abstract class NotificationMapper {
             @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(comment.getDateCreated()))"),
             @Mapping(target = "notificationStatus", source = "comment.notificationStatus"),
             @Mapping(target = "type", expression = "java(Type.COMMENT)"),
-            @Mapping(target = "count", expression = "java(commentService.getNotificationCountForRespondent(currentUser, comment.getPost().getId(), comment.getCommenter().getId()))"),
+            @Mapping(target = "count", expression = "java(commentService.getNotificationCountForRespondent(comment.getPost().getAuthor(), comment.getPost().getId(), comment.getCommenter().getId()))"),
     })
-    public abstract NotificationResponse toCommentNotification(Comment comment, @Context User currentUser);
+    public abstract NotificationResponse toCommentNotification(Comment comment);
 
     @Mappings(value = {
             @Mapping(target = "id", source = "reply.id"),
@@ -46,10 +46,10 @@ public abstract class NotificationMapper {
             @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(reply.getDateCreated()))"),
             @Mapping(target = "notificationStatus", source = "reply.notificationStatus"),
             @Mapping(target = "type", expression = "java(Type.REPLY)"),
-            @Mapping(target = "count", expression = "java(replyService.getNotificationCountForRespondent(currentUser, reply.getComment().getId(), reply.getReplier().getId()))"),
+            @Mapping(target = "count", expression = "java(replyService.getNotificationCountForRespondent(reply.getComment().getCommenter(), reply.getComment().getId(), reply.getReplier().getId()))"),
             @Mapping(target = "postId", source = "reply.comment.post.id")
     })
-    public abstract ReplyNotification toReplyNotification(Reply reply, @Context User currentUser);
+    public abstract ReplyNotification toReplyNotification(Reply reply);
 
     protected String getCommentMessage(Comment comment) {
         return comment.getCommenter().getName() + " commented in your post: " + "\"" + comment.getPost().getBody() + "\"";

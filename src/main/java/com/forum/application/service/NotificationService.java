@@ -23,11 +23,11 @@ public class NotificationService {
 
     public Set<NotificationResponse> getAllNotification(User currentUser) throws ResourceNotFoundException {
         Set<NotificationResponse> unreadComments = commentService.getUnreadCommentsOfAllPost(currentUser).stream()
-                .map(comment -> notificationMapper.toCommentNotification(comment, currentUser))
+                .map(notificationMapper::toCommentNotification)
                 .collect(Collectors.toSet());
 
         Set<NotificationResponse> unreadReply = replyService.getUnreadRepliesOfAllComments(currentUser).stream()
-                .map(reply -> notificationMapper.toReplyNotification(reply, currentUser))
+                .map(notificationMapper::toReplyNotification)
                 .collect(Collectors.toSet());
 
         // mention and like notification here

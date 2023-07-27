@@ -2,7 +2,10 @@ package com.forum.application.service;
 
 import com.forum.application.dto.*;
 import com.forum.application.exception.*;
-import com.forum.application.mapper.*;
+import com.forum.application.mapper.CommentMapper;
+import com.forum.application.mapper.PostMapper;
+import com.forum.application.mapper.ReplyMapper;
+import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.*;
 import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -77,7 +78,7 @@ public class ForumService {
         }
 
         wsService.broadcastComment(comment);
-        WSNotificationService.broadcastCommentNotification(comment, currentUser);
+        WSNotificationService.broadcastCommentNotification(comment);
         return commentMapper.toDTO(comment);
     }
 
@@ -103,7 +104,7 @@ public class ForumService {
         }
 
         wsService.broadcastReply(reply);
-        WSNotificationService.broadcastReplyNotification(reply, currentUser);
+        WSNotificationService.broadcastReplyNotification(reply);
         return replyMapper.toDTO(reply);
     }
 

@@ -17,8 +17,8 @@ public class WSNotificationService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final NotificationMapper notificationMapper;
 
-    void broadcastCommentNotification(Comment comment, User currentUser) throws ResourceNotFoundException {
-        var commentNotificationResponse = notificationMapper.toCommentNotification(comment, currentUser);
+    void broadcastCommentNotification(Comment comment) throws ResourceNotFoundException {
+        var commentNotificationResponse = notificationMapper.toCommentNotification(comment);
 
         int authorId = comment.getPost().getAuthor().getId();
         final String subscriberId = String.valueOf(authorId);
@@ -27,8 +27,8 @@ public class WSNotificationService {
         log.debug("Comment notification successfully sent to author with id of {}", subscriberId);
     }
 
-    void broadcastReplyNotification(Reply reply, User currentUser) throws ResourceNotFoundException {
-        var replyNotificationResponse = notificationMapper.toReplyNotification(reply, currentUser);
+    void broadcastReplyNotification(Reply reply) throws ResourceNotFoundException {
+        var replyNotificationResponse = notificationMapper.toReplyNotification(reply);
 
         int commenterId = reply.getComment().getCommenter().getId();
         final String subscriberId = String.valueOf(commenterId);
