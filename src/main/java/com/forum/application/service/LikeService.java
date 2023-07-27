@@ -150,23 +150,14 @@ public class LikeService {
         log.debug("User with id of {} unliked reply with id of {}", respondentId, reply.getId());
     }
 
-    Set<Post> getUnreadPostLikes(User currentUser) {
-        return likeNotificationService.getUnreadPostLikes(currentUser)
-                .stream()
-                .map(PostLike::getPost)
-                .collect(Collectors.toSet());
+    Set<PostLike> getUnreadPostLikes(User currentUser) {
+        return likeNotificationService.getUnreadPostLikes(currentUser);
     }
-    Set<Comment> getUnreadCommentLikes(User currentUser) {
-        return likeNotificationService.getUnreadCommentLikes(currentUser)
-                .stream()
-                .map(CommentLike::getComment)
-                .collect(Collectors.toSet());
+    Set<CommentLike> getUnreadCommentLikes(User currentUser) {
+        return likeNotificationService.getUnreadCommentLikes(currentUser);
     }
-    Set<Reply> getUnreadReplyLikes(User currentUser) {
-        return likeNotificationService.getUnreadReplyLikes(currentUser)
-                .stream()
-                .map(ReplyLike::getReply)
-                .collect(Collectors.toSet());
+    Set<ReplyLike> getUnreadReplyLikes(User currentUser) {
+        return likeNotificationService.getUnreadReplyLikes(currentUser);
     }
 
     void readPostLikes(User currentUser) {
@@ -189,6 +180,7 @@ public class LikeService {
                     .stream()
                     .map(Post::getLikes)
                     .flatMap(likes -> likes.stream()
+                            .filter(like -> like.getRespondent() != currentUser)
                             .filter(like -> like.getPost().getStatus() == Status.ACTIVE)
                             .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
                             .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
@@ -201,6 +193,7 @@ public class LikeService {
                     .stream()
                     .map(Comment::getLikes)
                     .flatMap(likes -> likes.stream()
+                            .filter(like -> like.getRespondent() != currentUser)
                             .filter(like -> like.getComment().getStatus() == Status.ACTIVE)
                             .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
                             .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))
@@ -213,6 +206,7 @@ public class LikeService {
                     .stream()
                     .map(Reply::getLikes)
                     .flatMap(likes -> likes.stream()
+                            .filter(like -> like.getRespondent() != currentUser)
                             .filter(like -> like.getReply().getStatus() == Status.ACTIVE)
                             .filter(like -> like.getNotificationStatus() == NotificationStatus.UNREAD)
                             .filter(like -> !blockService.isBlockedBy(currentUser.getId(), like.getRespondent().getId()))

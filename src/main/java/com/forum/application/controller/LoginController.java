@@ -23,6 +23,7 @@ public class LoginController {
 
         // For Test only
         session.setAttribute("email", "user1@gmail.com");
+        session.getAttributeNames().asIterator().forEachRemaining(System.out::println);
         // For test only
         String email = (String) session.getAttribute("email");
         if (email != null) return "redirect:/forum";

@@ -22,53 +22,16 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
 
     public Set<NotificationResponse> getAllNotification(User currentUser) throws ResourceNotFoundException {
-        Set<NotificationResponse> unreadComments = commentService.getUnreadCommentsOfAllPost(currentUser)
-                .stream()
-                .map(notificationMapper::toCommentNotification)
+        Set<NotificationResponse> unreadComments = commentService.getUnreadCommentsOfAllPost(currentUser).stream()
+                .map(comment -> notificationMapper.toCommentNotification(comment, currentUser))
                 .collect(Collectors.toSet());
 
-        Set<NotificationResponse> unreadReplies = replyService.getUnreadRepliesOfAllComments(currentUser)
-                .stream()
-                .map(notificationMapper::toReplyNotification)
+        Set<NotificationResponse> unreadReply = replyService.getUnreadRepliesOfAllComments(currentUser).stream()
+                .map(reply -> notificationMapper.toReplyNotification(reply, currentUser))
                 .collect(Collectors.toSet());
 
-        Set<NotificationResponse> unreadPostLikes = likeService.getUnreadPostLikes(currentUser)
-                .stream()
-                .map(notificationMapper::toCommentNotification)
-                .collect(Collectors.toSet());
-
-        Set<NotificationResponse> unreadCommentLikes = likeService.getUnreadCommentLikes(currentUser)
-                .stream()
-                .map(notificationMapper::toCommentNotification)
-                .collect(Collectors.toSet());
-
-        Set<NotificationResponse> unreadReplyLikes = likeService.getUnreadReplyLikes(currentUser)
-                .stream()
-                .map(notificationMapper::toReplyNotification)
-                .collect(Collectors.toSet());
-
-        Set<NotificationResponse> unreadCommentMentions = mentionService.getUnreadCommentMentions(currentUser)
-                .stream()
-                .map(notificationMapper::toCommentNotification)
-                .collect(Collectors.toSet());
-
-        Set<NotificationResponse> unreadReplyMentions = mentionService.getUnreadReplyMentions(currentUser)
-                .stream()
-                .map(notificationMapper::toReplyNotification)
-                .collect(Collectors.toSet());
-
-//
-//        // set message here
-//        // COMMENT .message()
-//        // REPLY .message(reply.getReplier().getName() + " replied to your comment: " +  "\"" + comment.getBody() + "\"")
-        return Stream.of(
-                unreadComments,
-                unreadReplies,
-                unreadCommentLikes,
-                        unreadPostLikes,
-                unreadReplyLikes,
-                unreadCommentMentions,
-                unreadReplyMentions)
+        // mention and like notification here
+        return Stream.of(unreadComments, unreadReply)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
