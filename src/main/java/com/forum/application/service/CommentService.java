@@ -34,7 +34,10 @@ public class CommentService {
         User commenter = userService.getById(currentUserId);
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post with id of " + postId + " does not exists!"));
 
-        NotificationStatus status = modalTrackerService.isModalOpen(post.getAuthor().getId(), postId, ModalTracker.Type.COMMENT) ? NotificationStatus.READ : NotificationStatus.UNREAD;
+        NotificationStatus status = modalTrackerService.isModalOpen(post.getAuthor().getId(), postId, ModalTracker.Type.COMMENT)
+                ? NotificationStatus.READ
+                : NotificationStatus.UNREAD;
+
         Comment comment = Comment.builder()
                 .body(body)
                 .dateCreated(LocalDateTime.now())
