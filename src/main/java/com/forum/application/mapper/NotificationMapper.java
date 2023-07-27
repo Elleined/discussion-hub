@@ -5,11 +5,12 @@ import com.forum.application.dto.ReplyNotification;
 import com.forum.application.model.Comment;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Reply;
-import com.forum.application.model.User;
+import com.forum.application.model.like.CommentLike;
+import com.forum.application.model.like.PostLike;
+import com.forum.application.model.like.ReplyLike;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.Formatter;
 import com.forum.application.service.ReplyService;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -51,12 +52,64 @@ public abstract class NotificationMapper {
     })
     public abstract ReplyNotification toReplyNotification(Reply reply);
 
+    @Mappings(value = {
+            @Mapping(target = "id", source = "postLike.id"),
+            @Mapping(target = "message", expression = "java(getPostLikeMessage(postLike))"),
+            @Mapping(target = "respondentId", source = "postLike.respondent.id"),
+            @Mapping(target = "respondentPicture", source = "postLike.respondent.picture"),
+            @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(postLike.getCreatedAt()))"),
+            @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(postLike.getCreatedAt()))"),
+            @Mapping(target = "notificationStatus", source = "postLike.notificationStatus"),
+            @Mapping(target = "type", expression = "java(Type.POST)"),
+            @Mapping(target = "count", ignore = true) // not yet implemented
+    })
+    public abstract NotificationResponse toPostLikeNotification(PostLike postLike);
+
+    @Mappings(value = {
+            @Mapping(target = "id", source = "commentLike.id"),
+            @Mapping(target = "message", expression = "java(getCommentLikeMessage(commentLike))"),
+            @Mapping(target = "respondentId", source = "commentLike.respondent.id"),
+            @Mapping(target = "respondentPicture", source = "commentLike.respondent.picture"),
+            @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(commentLike.getCreatedAt()))"),
+            @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(commentLike.getCreatedAt()))"),
+            @Mapping(target = "notificationStatus", source = "commentLike.notificationStatus"),
+            @Mapping(target = "type", expression = "java(Type.COMMENT)"),
+            @Mapping(target = "count", ignore = true) // not yet implemented
+    })
+    public abstract NotificationResponse toCommentLikeNotification(CommentLike commentLike);
+
+    @Mappings(value = {
+            @Mapping(target = "id", source = "replyLike.id"),
+            @Mapping(target = "message", expression = "java(getReplyLikeMessage(replyLike))"),
+            @Mapping(target = "respondentId", source = "replyLike.respondent.id"),
+            @Mapping(target = "respondentPicture", source = "replyLike.respondent.picture"),
+            @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(replyLike.getCreatedAt()))"),
+            @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(replyLike.getCreatedAt()))"),
+            @Mapping(target = "notificationStatus", source = "replyLike.notificationStatus"),
+            @Mapping(target = "type", expression = "java(Type.REPLY)"),
+            @Mapping(target = "count", ignore = true),
+            @Mapping(target = "postId", source = "replyLike.reply.comment.post.id")
+    })
+    public abstract ReplyNotification toReplyLikeNotification(ReplyLike replyLike);
+
     protected String getCommentMessage(Comment comment) {
         return comment.getCommenter().getName() + " commented in your post: " + "\"" + comment.getPost().getBody() + "\"";
     }
 
     protected String getReplyMessage(Reply reply) {
-        return reply.getReplier().getName() + " replied to your comment: " +  "\"" + reply.getComment().getBody() + "\"";
+        return reply.getReplier().getName() + " replied to your comment: " + "\"" + reply.getComment().getBody() + "\"";
+    }
+
+    protected String getPostLikeMessage(PostLike postLike) {
+        return postLike.getRespondent().getName() + " liked your post: " +  "\"" + postLike.getPost().getBody() + "\"";
+    }
+
+    protected String getCommentLikeMessage(CommentLike commentLike) {
+        return commentLike.getRespondent().getName() + " liked your comment: " +  "\"" + commentLike.getComment().getBody() + "\"";
+    }
+
+    protected String getReplyLikeMessage(ReplyLike replyLike) {
+        return replyLike.getRespondent().getName() + " liked your reply: " +  "\"" + replyLike.getReply().getBody() + "\"";
     }
 }
 
