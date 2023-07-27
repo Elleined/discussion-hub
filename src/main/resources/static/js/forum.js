@@ -140,7 +140,6 @@ $(document).ready(function () {
       const userId = $("#userId").val();
       DeleteRepository.deleteTracker(userId, "COMMENT");
       DeleteRepository.deleteTracker(userId, "REPLY");
-
    });
 
    $(document).on('close', function () {

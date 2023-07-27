@@ -37,6 +37,7 @@ public class ModalTrackerService {
     
     void deleteTrackerOfUserById(int userId, ModalTracker.Type type) {
         ModalTracker modalTracker = getTrackerOfUserById(userId);
+        if (modalTracker == null) return;
         if (modalTracker.getType() == type) {
             modalTrackerRepository.deleteById(userId);
             log.debug("Deleting modal tracker for receiver with id of {} success!", userId);
