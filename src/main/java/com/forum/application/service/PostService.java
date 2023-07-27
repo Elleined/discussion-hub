@@ -1,5 +1,6 @@
 package com.forum.application.service;
 
+import com.forum.application.exception.NoLoggedInUserException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.Comment;
 import com.forum.application.model.Post;
@@ -115,7 +116,7 @@ public class PostService {
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public int getTotalCommentsAndReplies(Post post) {
+    public int getTotalCommentsAndReplies(Post post) throws NoLoggedInUserException {
         int currentUserId = userService.getCurrentUser().getId();
         int commentCount = (int) post.getComments()
                 .stream()

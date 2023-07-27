@@ -1,5 +1,8 @@
 package com.forum.application.model;
 
+import com.forum.application.model.like.CommentLike;
+import com.forum.application.model.like.PostLike;
+import com.forum.application.model.like.ReplyLike;
 import com.forum.application.model.mention.CommentMention;
 import com.forum.application.model.mention.PostMention;
 import com.forum.application.model.mention.ReplyMention;
@@ -59,44 +62,20 @@ public class User {
     )
     private Set<User> blockedUsers;
 
-    @ManyToMany
-    @JoinTable(
-            name = "tbl_liked_post",
-            joinColumns = @JoinColumn(name = "respondent_id",
-                    referencedColumnName = "user_id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "post_id",
-                    referencedColumnName = "post_id"
-            )
-    )
-    private Set<Post> likedPosts;
+    // user id reference is in tbl liked post
+    @OneToMany(mappedBy = "respondent")
+    @Setter(AccessLevel.NONE)
+    private Set<PostLike> likedPosts;
 
-    @ManyToMany
-    @JoinTable(
-            name = "tbl_liked_comment",
-            joinColumns = @JoinColumn(name = "respondent_id",
-                    referencedColumnName = "user_id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "comment_id",
-                    referencedColumnName = "comment_id"
-            )
-    )
-    private Set<Comment> likedComments;
+    // user id reference is in tbl liked comment
+    @OneToMany(mappedBy = "respondent")
+    @Setter(AccessLevel.NONE)
+    private Set<CommentLike> likedComments;
 
-    @ManyToMany
-    @JoinTable(
-            name = "tbl_liked_reply",
-            joinColumns = @JoinColumn(name = "respondent_id",
-                    referencedColumnName = "user_id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "reply_id",
-                    referencedColumnName = "reply_id"
-            )
-    )
-    private Set<Reply> likedReplies;
+    // user id reference is in tbl liked reply
+    @OneToMany(mappedBy = "respondent")
+    @Setter(AccessLevel.NONE)
+    private Set<ReplyLike> likedReplies;
 
     // user id reference is in post table
     @OneToMany(mappedBy = "author")

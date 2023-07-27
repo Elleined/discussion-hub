@@ -1,5 +1,6 @@
 package com.forum.application.model;
 
+import com.forum.application.model.like.ReplyLike;
 import com.forum.application.model.mention.ReplyMention;
 import jakarta.persistence.*;
 import lombok.*;
@@ -58,6 +59,7 @@ public class Reply {
     @Setter(AccessLevel.NONE)
     private Set<ReplyMention> mentions;
 
-    @ManyToMany(mappedBy = "likedReplies")
-    private Set<User> likes;
+    @OneToMany(mappedBy = "reply")
+    @Setter(AccessLevel.NONE)
+    private Set<ReplyLike> likes;
 }
