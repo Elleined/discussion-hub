@@ -8,6 +8,8 @@ import com.forum.application.model.Reply;
 import com.forum.application.model.like.CommentLike;
 import com.forum.application.model.like.PostLike;
 import com.forum.application.model.like.ReplyLike;
+import com.forum.application.model.mention.CommentMention;
+import com.forum.application.model.mention.ReplyMention;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.Formatter;
 import com.forum.application.service.ReplyService;
@@ -92,6 +94,33 @@ public abstract class NotificationMapper {
     })
     public abstract ReplyNotification toReplyLikeNotification(ReplyLike replyLike);
 
+    @Mappings({
+            @Mapping(target = "id", source = "commentMention.id"),
+            @Mapping(target = "message", expression = "java(getCommentMentionMessage(commentMention))"),
+            @Mapping(target = "respondentId", source = "commentMention.mentioningUser.id"),
+            @Mapping(target = "respondentPicture", source = "commentMention.mentioningUser.picture"),
+            @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(commentMention.getCreatedAt()))"),
+            @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(commentMention.getCreatedAt()))"),
+            @Mapping(target = "type", expression = "java(Type.COMMENT)"),
+            @Mapping(target = "notificationStatus", ignore = true),
+            @Mapping(target = "count", ignore = true) // not yet implemented
+    })
+    public abstract NotificationResponse toCommentMentionNotification(CommentMention commentMention);
+
+    @Mappings({
+            @Mapping(target = "id", source = "replyMention.id"),
+            @Mapping(target = "message", expression = "java(getReplyMentionMessage(replyMention))"),
+            @Mapping(target = "respondentId", source = "replyMention.mentioningUser.id"),
+            @Mapping(target = "respondentPicture", source = "replyMention.mentioningUser.picture"),
+            @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(replyMention.getCreatedAt()))"),
+            @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(replyMention.getCreatedAt()))"),
+            @Mapping(target = "type", expression = "java(Type.REPLY)"),
+            @Mapping(target = "postId", source = "replyMention.reply.comment.post.id"),
+            @Mapping(target = "count", ignore = true),
+            @Mapping(target = "notificationStatus", ignore = true),
+    })
+    public abstract ReplyNotification toReplyMentionNotification(ReplyMention replyMention);
+
     protected String getCommentMessage(Comment comment) {
         return comment.getCommenter().getName() + " commented in your post: " + "\"" + comment.getPost().getBody() + "\"";
     }
@@ -110,6 +139,15 @@ public abstract class NotificationMapper {
 
     protected String getReplyLikeMessage(ReplyLike replyLike) {
         return replyLike.getRespondent().getName() + " liked your reply: " +  "\"" + replyLike.getReply().getBody() + "\"";
+    }
+
+    protected String getCommentMentionMessage(CommentMention commentMention) {
+        return commentMention.getMentioningUser().getName() + " mentioned you in a comment: " + "\"" + commentMention.getComment().getBody() + "\"";
+    }
+
+    protected String getReplyMentionMessage(ReplyMention replyMention) {
+        return replyMention.getMentioningUser().getName() + " mentioned you in a reply: " + "\"" + replyMention.getReply().getBody() + "\"";
+
     }
 }
 

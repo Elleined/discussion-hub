@@ -42,13 +42,23 @@ public class NotificationService {
                 .map(notificationMapper::toReplyLikeNotification)
                 .collect(Collectors.toSet());
 
+        Set<NotificationResponse> unreadCommentMentions = mentionService.getUnreadCommentMentions(currentUser).stream()
+                .map(notificationMapper::toCommentMentionNotification)
+                .collect(Collectors.toSet());
+
+        Set<NotificationResponse> unreadReplyMentions = mentionService.getUnreadReplyMentions(currentUser).stream()
+                .map(notificationMapper::toReplyMentionNotification)
+                .collect(Collectors.toSet());
+
         // mention notification here
         return Stream.of(unreadComments,
                         unreadReply,
                         unreadPostLikes,
                         unreadCommentLikes,
-                        unreadReplyLikes)
-                .flatMap(Collection::stream)
+                        unreadReplyLikes,
+                        unreadCommentMentions,
+                        unreadReplyMentions
+                ).flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
 
