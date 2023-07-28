@@ -235,11 +235,13 @@ function onConnected() {
    stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
         if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
+        alert(json.message);
    });
 
    stompClient.subscribe("/user/notification/likes", function (notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
         if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
+        alert(json.message);
    });
 }
 

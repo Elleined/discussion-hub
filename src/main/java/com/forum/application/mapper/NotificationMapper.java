@@ -87,7 +87,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "count", ignore = true),
             @Mapping(target = "commentId", ignore = true)
     })
-    public abstract NotificationResponse toLikeNotification(Like like);
+    public abstract NotificationResponse toLikeNotification(CommentLike commentLike);
 
     @Mappings(value = {
             @Mapping(target = "id", source = "replyLike.id"),
