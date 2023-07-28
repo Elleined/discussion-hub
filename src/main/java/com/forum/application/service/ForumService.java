@@ -145,6 +145,7 @@ public class ForumService {
 
     public List<PostDTO> getAllPost() {
         likeService.readPostLikes(userService.getCurrentUser());
+        mentionService.readPostMentions(userService.getCurrentUser());
         return postService.getAll()
                 .stream()
                 .map(postMapper::toDTO)
@@ -154,12 +155,14 @@ public class ForumService {
     public List<CommentDTO> getAllCommentsOf(int postId) {
         commentService.readAllComments(postId);
         likeService.readCommentLikes(userService.getCurrentUser());
+        mentionService.readCommentMentions(userService.getCurrentUser());
         return commentService.getAllCommentsOf(postId);
     }
 
     public List<ReplyDTO> getAllRepliesOf(int commentId) {
         replyService.readAllReplies(commentId);
         likeService.readReplyLikes(userService.getCurrentUser());
+        mentionService.readReplyMentions(userService.getCurrentUser());
         return replyService.getAllRepliesOf(commentId);
     }
 

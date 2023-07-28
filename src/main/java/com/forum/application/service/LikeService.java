@@ -214,6 +214,7 @@ public class LikeService {
 
     @Service
     @RequiredArgsConstructor
+    @Transactional
     private static class LikeNotificationReaderService {
         private final LikeNotificationService likeNotificationService;
         private final LikeRepository likeRepository;
