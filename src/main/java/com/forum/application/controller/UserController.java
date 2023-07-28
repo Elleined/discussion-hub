@@ -43,6 +43,12 @@ public class UserController {
         return forumService.getAllNotification(currentUser);
     }
 
+    @GetMapping("/getTotalNotificationCount")
+    public long getTotalNotificationCount(@PathVariable("userId") int currentUserId) {
+        User currentUser = userService.getById(currentUserId);
+        return forumService.getTotalNotificationCount(currentUser);
+    }
+
     @GetMapping("/unreadComments/{postId}")
     public List<CommentDTO> getAllUnreadComments(@PathVariable("userId") int currentUserId,
                                                  @PathVariable("postId") int postId) {

@@ -19,8 +19,8 @@ import generateReply, {
 import generateNotification, {
    updateNotification,
    updateTotalNotificationCount,
-   generateAllNotification,
-   generateMention
+   generateAllNotification
+
 } from './modules/generator/notification_generator.js';
 import mention, {
    getMentionedUsers,

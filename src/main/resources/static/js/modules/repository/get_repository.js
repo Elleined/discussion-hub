@@ -152,6 +152,13 @@ const getLikeIcon = isLiked => {
     }).promise();
 };
 
+const getTotalNotificationCount = userId => {
+    return $.ajax({
+        type: "GET",
+        url: `/forum/api/users/${userId}/getTotalNotificationCount`
+    }).promise();
+}
+
 // Use isUserBlocked method instead
 const isBlockedBy = (userId, userToCheckId) => {
     return $.ajax({
@@ -197,5 +204,6 @@ export {
     getAllNotification,
     getLikeIcon,
     getAllPost,
-    getPostBlock
+    getPostBlock,
+    getTotalNotificationCount
 };

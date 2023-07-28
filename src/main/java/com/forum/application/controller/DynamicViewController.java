@@ -43,7 +43,9 @@ public class DynamicViewController {
 
     @PostMapping("/getNotificationBlock")
     public ModelAndView getNotificationBlock(@RequestBody NotificationResponse notification) {
+        User currentUser = userService.getCurrentUser();
         return new ModelAndView("/fragments/notification-body")
+                .addObject("currentUserId", currentUser.getId())
                 .addObject("notification", notification);
     }
 

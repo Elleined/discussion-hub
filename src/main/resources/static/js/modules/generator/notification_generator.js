@@ -1,7 +1,8 @@
 import {
     getNotificationBlock,
     getMentionBlock,
-    getAllNotification
+    getAllNotification,
+    getTotalNotificationCount
 } from '../repository/get_repository.js';
 import {
     bindReplyBtn,
@@ -25,17 +26,6 @@ const generateNotification = (notificationResponse, container) => {
                 bindCommentButton(notificationResponse);
             }).catch(error => alert("Generating comment notification block failed! " + error));
     }
-};
-
-const generateMention = (notificationResponse, container) => {
-    getMentionBlock(notificationResponse)
-        .then(res => {
-            container.append(res);
-            $("#mentionNotification" + notificationResponse.id).on("click", function(event) {
-                $(this).parent().parent().parent().remove();
-                event.preventDefault();
-            });
-        }).catch(error => alert("Generating mention notification block failed" + error.responseText));
 };
 
 const generateAllNotification = (currentUserId, container) => {
@@ -76,17 +66,19 @@ const updateNotification = (notificationResponse, container) => {
         }).catch(error => alert("Updating the notification failed! " + error));
 };
 
-const updateTotalNotificationCount = () => {
-    const totalNotificationElement = $("#totalNotifCount");
-    const newTotalNotificationValue = parseInt(totalNotificationElement.attr("aria-valuetext")) + 1;
-
-    totalNotificationElement.text(newTotalNotificationValue + "+");
-    totalNotificationElement.attr("aria-valuetext", newTotalNotificationValue);
+const updateTotalNotificationCount = async () => {
+    const currentUserId = $("#currentUserId").val();
+    try {
+        const totalNotificationCount = await getTotalNotificationCount(currentUserId);
+        const totalNotificationElement = $("#totalNotificationCount");
+        totalNotificationElement.text(`${totalNotificationCount}+`);
+    } catch(err) {
+        alert("Error Occurred! Getting total notification count failed! " + err);
+    }
 };
 
 export default generateNotification;
 export {
-    generateMention,
     updateNotification,
     updateTotalNotificationCount,
     generateAllNotification
