@@ -33,7 +33,7 @@ public abstract class ReplyMapper {
             @Mapping(target = "likers", source = "reply.likes"),
             @Mapping(target = "mentionedUsers", source = "reply.mentions"),
             @Mapping(target = "totalLikes", expression = "java(reply.getLikes().size())"),
-            @Mapping(target = "isCurrentUserLikedReply", expression = "java(likeService.isUserAlreadyLikeReply(userService.getCurrentUser().getId(), reply))")
+            @Mapping(target = "isCurrentUserLikedReply", expression = "java(likeService.isUserAlreadyLiked(userService.getCurrentUser().getId(), reply))")
     })
     public abstract ReplyDTO toDTO(Reply reply);
 }

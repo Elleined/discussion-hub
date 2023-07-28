@@ -40,7 +40,7 @@ public abstract class PostMapper {
             @Mapping(target = "likers", source = "post.likes"),
             @Mapping(target = "mentionedUsers", source = "post.mentions"),
             @Mapping(target = "totalLikes", expression = "java(post.getLikes().size())"),
-            @Mapping(target = "isCurrentUserLikedPost", expression = "java(likeService.isUserAlreadyLikedPost(userService.getCurrentUser().getId(), post))"),
+            @Mapping(target = "isCurrentUserLikedPost", expression = "java(likeService.isUserAlreadyLiked(userService.getCurrentUser().getId(), post))"),
             @Mapping(target = "attachedPicture", source = "post.attachedPicture")
     })
     public abstract PostDTO toDTO(Post post) throws NoLoggedInUserException, ResourceNotFoundException;

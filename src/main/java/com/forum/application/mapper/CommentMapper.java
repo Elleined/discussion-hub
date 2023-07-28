@@ -38,7 +38,7 @@ public abstract class CommentMapper {
             @Mapping(target = "likers", source = "comment.likes"),
             @Mapping(target = "mentionedUsers", source = "comment.mentions"),
             @Mapping(target = "totalLikes", expression = "java(comment.getLikes().size())"),
-            @Mapping(target = "isCurrentUserLikedComment", expression = "java(likeService.isUserAlreadyLikedComment(userService.getCurrentUser().getId(), comment))")
+            @Mapping(target = "isCurrentUserLikedComment", expression = "java(likeService.isUserAlreadyLiked(userService.getCurrentUser().getId(), comment))")
     })
     public abstract CommentDTO toDTO(Comment comment);
 }
