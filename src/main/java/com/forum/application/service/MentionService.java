@@ -8,13 +8,9 @@ import com.forum.application.model.mention.PostMention;
 import com.forum.application.model.mention.ReplyMention;
 import com.forum.application.repository.MentionRepository;
 import com.forum.application.repository.UserRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -59,7 +55,7 @@ public class MentionService {
     void addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, comment.getId(), ModalTracker.Type.COMMENT)
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, comment.getPost().getId(), ModalTracker.Type.COMMENT)
                 ? NotificationStatus.READ
                 : NotificationStatus.UNREAD;
 
@@ -81,7 +77,7 @@ public class MentionService {
     void addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
-        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, reply.getId(), ModalTracker.Type.REPLY)
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, reply.getComment().getId(), ModalTracker.Type.REPLY)
                 ? NotificationStatus.READ
                 : NotificationStatus.UNREAD;
 
