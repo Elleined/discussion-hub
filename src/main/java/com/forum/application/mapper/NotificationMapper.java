@@ -1,7 +1,6 @@
 package com.forum.application.mapper;
 
 import com.forum.application.dto.NotificationResponse;
-import com.forum.application.dto.ReplyNotification;
 import com.forum.application.model.Comment;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Reply;
@@ -37,6 +36,8 @@ public abstract class NotificationMapper {
             @Mapping(target = "notificationStatus", source = "comment.notificationStatus"),
             @Mapping(target = "type", expression = "java(Type.COMMENT)"),
             @Mapping(target = "count", expression = "java(commentService.getNotificationCountForRespondent(comment.getPost().getAuthor(), comment.getPost().getId(), comment.getCommenter().getId()))"),
+            @Mapping(target = "postId", source = "comment.post.id"),
+            @Mapping(target = "commentId", ignore = true)
     })
     public abstract NotificationResponse toCommentNotification(Comment comment);
 
@@ -50,9 +51,10 @@ public abstract class NotificationMapper {
             @Mapping(target = "notificationStatus", source = "reply.notificationStatus"),
             @Mapping(target = "type", expression = "java(Type.REPLY)"),
             @Mapping(target = "count", expression = "java(replyService.getNotificationCountForRespondent(reply.getComment().getCommenter(), reply.getComment().getId(), reply.getReplier().getId()))"),
-            @Mapping(target = "postId", source = "reply.comment.post.id")
+            @Mapping(target = "postId", source = "reply.comment.post.id"),
+            @Mapping(target = "commentId", source = "reply.comment.id")
     })
-    public abstract ReplyNotification toReplyNotification(Reply reply);
+    public abstract NotificationResponse toReplyNotification(Reply reply);
 
     @Mappings(value = {
             @Mapping(target = "id", source = "postLike.id"),
@@ -63,7 +65,9 @@ public abstract class NotificationMapper {
             @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(postLike.getCreatedAt()))"),
             @Mapping(target = "notificationStatus", source = "postLike.notificationStatus"),
             @Mapping(target = "type", expression = "java(Type.POST)"),
-            @Mapping(target = "count", ignore = true) // not yet implemented
+            @Mapping(target = "count", ignore = true),
+            @Mapping(target = "commentId", ignore = true),
+            @Mapping(target = "postId", ignore = true)
     })
     public abstract NotificationResponse toPostLikeNotification(PostLike postLike);
 
@@ -75,8 +79,10 @@ public abstract class NotificationMapper {
             @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(commentLike.getCreatedAt()))"),
             @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(commentLike.getCreatedAt()))"),
             @Mapping(target = "notificationStatus", source = "commentLike.notificationStatus"),
+            @Mapping(target = "postId", source = "commentLike.comment.post.id"),
             @Mapping(target = "type", expression = "java(Type.COMMENT)"),
-            @Mapping(target = "count", ignore = true) // not yet implemented
+            @Mapping(target = "count", ignore = true),
+            @Mapping(target = "commentId", ignore = true)
     })
     public abstract NotificationResponse toCommentLikeNotification(CommentLike commentLike);
 
@@ -90,9 +96,10 @@ public abstract class NotificationMapper {
             @Mapping(target = "notificationStatus", source = "replyLike.notificationStatus"),
             @Mapping(target = "type", expression = "java(Type.REPLY)"),
             @Mapping(target = "count", ignore = true),
-            @Mapping(target = "postId", source = "replyLike.reply.comment.post.id")
+            @Mapping(target = "postId", source = "replyLike.reply.comment.post.id"),
+            @Mapping(target = "commentId", source = "replyLike.reply.comment.id")
     })
-    public abstract ReplyNotification toReplyLikeNotification(ReplyLike replyLike);
+    public abstract NotificationResponse toReplyLikeNotification(ReplyLike replyLike);
 
     @Mappings({
             @Mapping(target = "id", source = "commentMention.id"),
@@ -102,8 +109,10 @@ public abstract class NotificationMapper {
             @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(commentMention.getCreatedAt()))"),
             @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(commentMention.getCreatedAt()))"),
             @Mapping(target = "type", expression = "java(Type.COMMENT)"),
-            @Mapping(target = "notificationStatus", ignore = true),
-            @Mapping(target = "count", ignore = true) // not yet implemented
+            @Mapping(target = "postId", source = "commentMention.comment.post.id"),
+            @Mapping(target = "notificationStatus", source = "commentMention.notificationStatus"),
+            @Mapping(target = "commentId", ignore = true),
+            @Mapping(target = "count", ignore = true),
     })
     public abstract NotificationResponse toCommentMentionNotification(CommentMention commentMention);
 
@@ -116,10 +125,11 @@ public abstract class NotificationMapper {
             @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(replyMention.getCreatedAt()))"),
             @Mapping(target = "type", expression = "java(Type.REPLY)"),
             @Mapping(target = "postId", source = "replyMention.reply.comment.post.id"),
+            @Mapping(target = "commentId", source = "replyMention.reply.comment.id"),
+            @Mapping(target = "notificationStatus", source = "notificationStatus"),
             @Mapping(target = "count", ignore = true),
-            @Mapping(target = "notificationStatus", ignore = true),
     })
-    public abstract ReplyNotification toReplyMentionNotification(ReplyMention replyMention);
+    public abstract NotificationResponse toReplyMentionNotification(ReplyMention replyMention);
 
     protected String getCommentMessage(Comment comment) {
         return comment.getCommenter().getName() + " commented in your post: " + "\"" + comment.getPost().getBody() + "\"";

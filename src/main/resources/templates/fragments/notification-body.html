@@ -1,17 +1,14 @@
 <div th:fragment="notification-body-fragment">
     <li th:if="${#strings.containsIgnoreCase(notification.type.toString(), 'REPLY')}"
-        th:id="${'notificationReplyItem_' + notification.respondentId + '_' + notification.id}"
+        th:id="${'notificationReplyItem_' + notification.respondentId + '_' + notification.commentId}"
         class="d-inline-flex position-relative ms-2 dropdown-item">
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
-                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle"
-                      th:id="${'messageReplyCount_' + notification.respondentId + '_' + notification.id}"
-                      th:text="${notification.count + '+'}"
-                      th:aria-valuetext="${notification.count}"></span>
+                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle" th:text="${notification.count + '+'}"></span>
                 <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;" th:src="${'/img/' + notification.respondentPicture}">
             </div>
             <div class="flex-grow-1 ms-3">
-                <a th:id="${'replyNotificationButton_' + notification.respondentId + '_' + notification.id}"
+                <a th:id="${'replyNotificationButton_' + notification.respondentId + '_' + notification.commentId}"
                    role="button"
                    data-bs-toggle="modal"
                    data-bs-target="#replyModal" >
@@ -24,19 +21,16 @@
     </li>
 
     <li th:if="${#strings.containsIgnoreCase(notification.type.toString(), 'COMMENT')}"
-        th:id="${'notificationCommentItem_' + notification.respondentId + '_' + notification.id}"
+        th:id="${'notificationCommentItem_' + notification.respondentId + '_' + notification.postId}"
         class="d-inline-flex position-relative ms-2 dropdown-item">
-
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
                 <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle"
-                      th:id="${'messageCommentCount_' + notification.respondentId + '_' + notification.id}"
-                      th:text="${notification.count + '+'}"
-                      th:aria-valuetext="${notification.count}"></span>
+                      th:text="${notification.count + '+'}"></span>
                 <img class="rounded-4 shadow-4" style="width: 50px; height: 50px;" th:src="${'/img/' + notification.respondentPicture}">
             </div>
             <div class="flex-grow-1 ms-3">
-                <a  th:id="${'commentNotificationButton_' + notification.respondentId + '_' + notification.id}"
+                <a  th:id="${'commentNotificationButton_' + notification.respondentId + '_' + notification.postId}"
                     role="button"
                     data-bs-toggle="modal"
                     data-bs-target="#commentModal">

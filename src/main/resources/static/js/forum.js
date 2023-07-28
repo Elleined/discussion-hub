@@ -17,7 +17,6 @@ import generateReply, {
    getPreviousReplyBody
 } from './modules/generator/reply_generator.js';
 import generateNotification, {
-   updateNotification,
    updateTotalNotificationCount,
    generateAllNotification
 
@@ -223,11 +222,6 @@ function onConnected() {
       if (json.modalOpen) return; // If the post author modal is open this will not generate a notification block
 
       updateTotalNotificationCount();
-      const itemContainer = $("#notificationCommentItem_" + json.respondentId + "_" + json.id);
-      if (itemContainer.length) {
-         updateNotification(json, itemContainer);
-         return;
-      }
       generateNotification(json, notificationContainer);
    });
 
@@ -237,11 +231,6 @@ function onConnected() {
       if (json.notificationStatus === "READ") return; // If the comment author modal is open this will not generate a notification block
 
       updateTotalNotificationCount();
-      const itemContainer = $("#notificationReplyItem_" + json.respondentId + "_" + json.id);
-      if (itemContainer.length) {
-         updateNotification(json, itemContainer);
-         return;
-      }
       generateNotification(json, notificationContainer);
    });
 }

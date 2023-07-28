@@ -16,12 +16,14 @@ const generateNotification = (notificationResponse, container) => {
     if (notificationResponse.type === "REPLY") {
         getNotificationBlock(notificationResponse)
             .then(res => {
+                $("#notificationReplyItem_" + notificationResponse.respondentId + "_" + notificationResponse.commentId).remove();
                 container.append(res);
                 bindReplyButton(notificationResponse);
             }).catch(error => alert("Generating reply notification block failed! " + error));
     } else {
         getNotificationBlock(notificationResponse)
             .then(res => {
+                $("#notificationCommentItem_" + notificationResponse.respondentId + "_" + notificationResponse.postId).remove();
                 container.append(res);
                 bindCommentButton(notificationResponse);
             }).catch(error => alert("Generating comment notification block failed! " + error));
@@ -38,7 +40,7 @@ const generateAllNotification = (currentUserId, container) => {
 };
 
 const bindCommentButton = notificationResponse => {
-    $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
+    $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.postId).on("click", function(event) {
         bindCommentBtn(notificationResponse.id);
         $(this).parent().parent().parent().remove();
         event.preventDefault();
@@ -46,24 +48,11 @@ const bindCommentButton = notificationResponse => {
 };
 
 const bindReplyButton = notificationResponse => {
-    $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.id).on("click", function(event) {
+    $("#replyNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.commentId).on("click", function(event) {
         bindReplyBtn(notificationResponse.id, notificationResponse.postId);
         $(this).parent().parent().parent().remove();
         event.preventDefault();
     });
-};
-
-const updateNotification = (notificationResponse, container) => {
-    getNotificationBlock(notificationResponse)
-        .then(res => {
-            if (notificationResponse.type === "REPLY") {
-                container.replaceWith(res);
-                bindReplyButton(notificationResponse);
-                return;
-            }
-            container.replaceWith(res);
-            bindCommentButton(notificationResponse);
-        }).catch(error => alert("Updating the notification failed! " + error));
 };
 
 const updateTotalNotificationCount = async () => {
@@ -79,7 +68,6 @@ const updateTotalNotificationCount = async () => {
 
 export default generateNotification;
 export {
-    updateNotification,
     updateTotalNotificationCount,
     generateAllNotification
 };
