@@ -42,7 +42,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "postId", source = "comment.post.id"),
             @Mapping(target = "commentId", ignore = true)
     })
-    public abstract NotificationResponse toCommentNotification(Comment comment);
+    public abstract NotificationResponse toNotification(Comment comment);
 
     @Mappings(value = {
             @Mapping(target = "id", source = "reply.id"),
@@ -57,7 +57,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "postId", source = "reply.comment.post.id"),
             @Mapping(target = "commentId", source = "reply.comment.id")
     })
-    public abstract NotificationResponse toReplyNotification(Reply reply);
+    public abstract NotificationResponse toNotification(Reply reply);
 
     @Mappings(value = {
             @Mapping(target = "id", source = "postLike.id"),
@@ -72,7 +72,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "commentId", ignore = true),
             @Mapping(target = "postId", ignore = true)
     })
-    public abstract NotificationResponse toPostLikeNotification(PostLike postLike);
+    public abstract NotificationResponse toLikeNotification(PostLike postLike);
 
     @Mappings(value = {
             @Mapping(target = "id", source = "commentLike.id"),
@@ -87,7 +87,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "count", ignore = true),
             @Mapping(target = "commentId", ignore = true)
     })
-    public abstract NotificationResponse toCommentLikeNotification(CommentLike commentLike);
+    public abstract NotificationResponse toLikeNotification(CommentLike commentLike);
 
     @Mappings(value = {
             @Mapping(target = "id", source = "replyLike.id"),
@@ -102,7 +102,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "postId", source = "replyLike.reply.comment.post.id"),
             @Mapping(target = "commentId", source = "replyLike.reply.comment.id")
     })
-    public abstract NotificationResponse toReplyLikeNotification(ReplyLike replyLike);
+    public abstract NotificationResponse toLikeNotification(ReplyLike replyLike);
 
     @Mappings({
             @Mapping(target = "id", source = "postMention.id"),
@@ -158,21 +158,11 @@ public abstract class NotificationMapper {
     }
 
     protected String getLikeMessage(Like like) {
-        return switch (like) {
-            case PostLike postLike-> postLike.getRespondent().getName() + " liked your post: " +  "\"" + postLike.getPost().getBody() + "\"";
-            case CommentLike commentLike-> commentLike.getRespondent().getName() + " liked your comment: " +  "\"" + commentLike.getComment().getBody() + "\"";
-            case ReplyLike replyLike -> replyLike.getRespondent().getName() + " liked your reply: " +  "\"" + replyLike.getReply().getBody() + "\"";
-            default -> throw new IllegalStateException("Unexpected value: " + like);
-        };
+        return like.getMessage();
     }
 
     protected String getMentionMessage(Mention mention) {
-        return switch (mention) {
-            case PostMention postMention -> postMention.getMentioningUser().getName() + " mentioned you in a post: " + "\"" + postMention.getPost().getBody() + "\"";
-            case CommentMention commentMention -> commentMention.getMentioningUser().getName() + " mentioned you in a comment: " + "\"" + commentMention.getComment().getBody() + "\"";
-            case ReplyMention replyMention -> replyMention.getMentioningUser().getName() + " mentioned you in a reply: " + "\"" + replyMention.getReply().getBody() + "\"";
-            default -> throw new IllegalStateException("Unexpected value: " + mention);
-        };
+        return mention.getMessage();
     }
 }
 

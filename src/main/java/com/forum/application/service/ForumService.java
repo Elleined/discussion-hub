@@ -7,6 +7,7 @@ import com.forum.application.mapper.PostMapper;
 import com.forum.application.mapper.ReplyMapper;
 import com.forum.application.mapper.UserMapper;
 import com.forum.application.model.*;
+import com.forum.application.model.like.Like;
 import com.forum.application.model.mention.Mention;
 import com.forum.application.validator.Validator;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -274,19 +276,25 @@ public class ForumService {
 
     public PostDTO likePost(int respondentId, int postId) throws ResourceNotFoundException, BlockedException {
         Post post = postService.getById(postId);
-        likeService.like(post, respondentId);
+        Optional<Like> like = likeService.like(post, respondentId);
+        if (like.isEmpty()) return postMapper.toDTO(post);
+        WSNotificationService.broadcastLike(like.orElseThrow());
         return postMapper.toDTO(post);
     }
 
     public CommentDTO likeComment(int respondentId, int commentId) throws ResourceNotFoundException, BlockedException {
         Comment comment = commentService.getById(commentId);
-        likeService.like(comment, respondentId);
+        Optional<Like> like = likeService.like(comment, respondentId);
+        if (like.isEmpty()) return commentMapper.toDTO(comment);
+        WSNotificationService.broadcastLike(like.orElseThrow());
         return commentMapper.toDTO(comment);
     }
 
     public ReplyDTO likeReply(int respondentId, int replyId) throws ResourceNotFoundException, BlockedException {
         Reply reply = replyService.getById(replyId);
-        likeService.like(reply, respondentId);
+        Optional<Like> like = likeService.like(reply, respondentId);
+        if (like.isEmpty()) return replyMapper.toDTO(reply);
+        WSNotificationService.broadcastLike(like.orElseThrow());
         return replyMapper.toDTO(reply);
     }
 }

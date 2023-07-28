@@ -23,23 +23,23 @@ public class NotificationService {
 
     public Set<NotificationResponse> getAllNotification(User currentUser) throws ResourceNotFoundException {
         Set<NotificationResponse> unreadComments = commentService.getUnreadCommentsOfAllPost(currentUser).stream()
-                .map(notificationMapper::toCommentNotification)
+                .map(notificationMapper::toNotification)
                 .collect(Collectors.toSet());
 
         Set<NotificationResponse> unreadReply = replyService.getUnreadRepliesOfAllComments(currentUser).stream()
-                .map(notificationMapper::toReplyNotification)
+                .map(notificationMapper::toNotification)
                 .collect(Collectors.toSet());
 
         Set<NotificationResponse> unreadPostLikes = likeService.getUnreadPostLikes(currentUser).stream()
-                .map(notificationMapper::toPostLikeNotification)
+                .map(notificationMapper::toLikeNotification)
                 .collect(Collectors.toSet());
 
         Set<NotificationResponse> unreadCommentLikes = likeService.getUnreadCommentLikes(currentUser).stream()
-                .map(notificationMapper::toCommentLikeNotification)
+                .map(notificationMapper::toLikeNotification)
                 .collect(Collectors.toSet());
 
         Set<NotificationResponse> unreadReplyLikes = likeService.getUnreadReplyLikes(currentUser).stream()
-                .map(notificationMapper::toReplyLikeNotification)
+                .map(notificationMapper::toLikeNotification)
                 .collect(Collectors.toSet());
 
         Set<NotificationResponse> unreadPostMentions = mentionService.getUnreadPostMentions(currentUser).stream()

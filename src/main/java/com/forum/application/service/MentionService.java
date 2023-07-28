@@ -36,7 +36,7 @@ public class MentionService {
     private final ReplyService replyService;
     private final BlockService blockService;
 
-    private Mention addMention(User currentUser, int mentionedUserId, Post post) throws ResourceNotFoundException,
+    Mention addMention(User currentUser, int mentionedUserId, Post post) throws ResourceNotFoundException,
             BlockedException,
             MentionException {
         if (postService.isDeleted(post)) throw new ResourceNotFoundException("Cannot mention! The post with id of " + post.getId() + " you are trying to mention might already been deleted or does not exists!");
@@ -66,7 +66,7 @@ public class MentionService {
         return postMention;
     }
 
-    private Mention addMention(User currentUser, int mentionedUserId, Comment comment) throws ResourceNotFoundException,
+    Mention addMention(User currentUser, int mentionedUserId, Comment comment) throws ResourceNotFoundException,
             BlockedException,
             MentionException {
 
@@ -97,7 +97,7 @@ public class MentionService {
         return commentMention;
     }
 
-    private Mention addMention(User currentUser, int mentionedUserId, Reply reply) throws ResourceNotFoundException,
+    Mention addMention(User currentUser, int mentionedUserId, Reply reply) throws ResourceNotFoundException,
             BlockedException,
             MentionException {
 

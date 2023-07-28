@@ -31,4 +31,9 @@ public final class CommentLike extends Like {
         super(id, respondent, createdAt, notificationStatus);
         this.comment = comment;
     }
+
+    @Override
+    public String getMessage() {
+        return this.getRespondent().getName() + " liked your comment: " +  "\"" + this.getComment().getBody() + "\"";
+    }
 }

@@ -45,4 +45,6 @@ public abstract class Like {
     @Enumerated(EnumType.STRING)
     @Column(name = "notification_status")
     private NotificationStatus notificationStatus;
+
+    public abstract String getMessage();
 }

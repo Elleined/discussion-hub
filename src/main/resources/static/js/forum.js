@@ -232,8 +232,14 @@ function onConnected() {
       generateNotification(json, notificationContainer);
    });
 
-   stompClient.subscribe("/user/notification/mentions" function (notificationResponse) {
+   stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
         const json = JSON.parse(notificationResponse.body);
+        if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
+   });
+
+   stompClient.subscribe("/user/notification/likes", function (notificationResponse) {
+        const json = JSON.parse(notificationResponse.body);
+        if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
    });
 }
 

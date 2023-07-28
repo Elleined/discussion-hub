@@ -32,4 +32,9 @@ public final class CommentMention extends Mention {
         super(id, createdAt, mentionedUser, notificationStatus, mentioningUser);
         this.comment = comment;
     }
+
+    @Override
+    public String getMessage() {
+        return this.getMentioningUser().getName() + " mentioned you in a comment: " + "\"" + this.getComment().getBody() + "\"";
+    }
 }

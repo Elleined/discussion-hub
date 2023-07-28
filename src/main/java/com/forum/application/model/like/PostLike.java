@@ -32,4 +32,9 @@ public final class PostLike extends Like {
         super(id, respondent, createdAt, notificationStatus);
         this.post = post;
     }
+
+    @Override
+    public String getMessage() {
+        return this.getRespondent().getName() + " liked your post: " +  "\"" + this.getPost().getBody() + "\"";
+    }
 }

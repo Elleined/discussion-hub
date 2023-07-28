@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,43 +35,42 @@ public class LikeService {
     private final ReplyService replyService;
     private final BlockService blockService;
 
-    void like(Post post, int respondentId) {
+    Optional<Like> like(Post post, int respondentId) throws ResourceNotFoundException, BlockedException {
         if (postService.isDeleted(post)) throw new ResourceNotFoundException("Cannot like/unlike! The post with id of " + post.getId() + " you are trying to like/unlike might already been deleted or does not exists!");
         if (blockService.isBlockedBy(respondentId, post.getAuthor().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this post with id of !" + post.getAuthor().getId());
         if (blockService.isYouBeenBlockedBy(respondentId, post.getAuthor().getId())) throw  new BlockedException("Cannot like/unlike! The author of this post with id of " + post.getAuthor().getId() + " already blocked you");
 
         if (isUserAlreadyLiked(respondentId, post)) {
             unlike(respondentId, post);
-            return;
+            return Optional.empty();
         }
-        like(respondentId, post);
+        return Optional.of(like(respondentId, post));
     }
 
-    void like(Comment comment, int respondentId) {
+    Optional<Like> like(Comment comment, int respondentId) throws ResourceNotFoundException, BlockedException {
         if (commentService.isDeleted(comment)) throw new ResourceNotFoundException("Cannot like/unlike! The comment with id of " + comment.getId() + " you are trying to like/unlike might already been deleted or does not exists!");
         if (blockService.isBlockedBy(respondentId, comment.getCommenter().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this comment with id of !" + comment.getCommenter().getId());
-        if (blockService.isYouBeenBlockedBy(respondentId, comment.getCommenter().getId())) throw  new BlockedException("Cannot like/unlike! The author of this comment with id of " + comment.getCommenter().getId() + " already blocked you");
+        if (blockService.isYouBeenBlockedBy(respondentId, comment.getCommenter().getId())) throw new BlockedException("Cannot like/unlike! The author of this comment with id of " + comment.getCommenter().getId() + " already blocked you");
 
         if (isUserAlreadyLiked(respondentId, comment))  {
             unlike(respondentId, comment);
-            return;
+            return Optional.empty();
         }
-
-        like(respondentId, comment);
+        return Optional.of(like(respondentId, comment));
     }
 
-    void like(Reply reply, int respondentId) {
+    Optional<Like> like(Reply reply, int respondentId) throws ResourceNotFoundException, BlockedException {
         if (replyService.isDeleted(reply)) throw new ResourceNotFoundException("Cannot like/unlike! The reply with id of " + reply.getId() + " you are trying to like/unlike might already be deleted or does not exists!");
         if (blockService.isBlockedBy(respondentId, reply.getReplier().getId())) throw new BlockedException("Cannot like/unlike! You blocked the author of this reply with id of !" + reply.getReplier().getId());
         if (blockService.isYouBeenBlockedBy(respondentId, reply.getReplier().getId())) throw  new BlockedException("Cannot like/unlike! The author of this reply with id of " + reply.getReplier().getId() + " already blocked you");
         if (isUserAlreadyLiked(respondentId, reply)) {
             unlike(respondentId, reply);
-            return;
+            return Optional.empty();
         }
-        like(respondentId, reply);
+        return Optional.of(like(respondentId, reply));
     }
 
-    private void like(int respondentId, Post post) {
+    private Like like(int respondentId, Post post) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(post.getAuthor().getId(), post.getId(), ModalTracker.Type.POST)
                 ? NotificationStatus.READ
@@ -87,6 +87,7 @@ public class LikeService {
         post.getLikes().add(postLike);
         likeRepository.save(postLike);
         log.debug("User with id of {} liked post with id of {}", respondentId, post.getId());
+        return postLike;
     }
 
     public boolean isUserAlreadyLiked(int respondentId, Post post) {
@@ -109,7 +110,7 @@ public class LikeService {
         likeRepository.delete(postLike);
         log.debug("User with id of {} unlike post with id of {}", respondentId, post.getId());
     }
-    private void like(int respondentId, Comment comment) {
+    private Like like(int respondentId, Comment comment) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(comment.getCommenter().getId(), comment.getPost().getId(), ModalTracker.Type.COMMENT)
@@ -127,6 +128,7 @@ public class LikeService {
         comment.getLikes().add(commentLike);
         likeRepository.save(commentLike);
         log.debug("User with id of {} liked comment with id of {}", respondentId, comment.getId());
+        return commentLike;
     }
 
     public boolean isUserAlreadyLiked(int respondentId, Comment comment) {
@@ -149,7 +151,7 @@ public class LikeService {
         log.debug("User with id of {} unlike comment with id of {}", respondentId, comment.getId());
     }
 
-    private void like(int respondentId, Reply reply) {
+    private Like like(int respondentId, Reply reply) {
         User respondent = userRepository.findById(respondentId).orElseThrow(() -> new ResourceNotFoundException("User with id of " + respondentId +  " does not exists"));
 
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(reply.getReplier().getId(), reply.getComment().getId(), ModalTracker.Type.REPLY)
@@ -167,6 +169,7 @@ public class LikeService {
         reply.getLikes().add(replyLike);
         likeRepository.save(replyLike);
         log.debug("User with id of {} liked reply with id of {}", respondentId, reply.getId());
+        return replyLike;
     }
 
     public boolean isUserAlreadyLiked(int respondentId, Reply reply) {

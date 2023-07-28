@@ -52,4 +52,6 @@ public abstract class Mention {
             referencedColumnName = "user_id"
     )
     private User mentioningUser;
+
+    public abstract String getMessage();
 }

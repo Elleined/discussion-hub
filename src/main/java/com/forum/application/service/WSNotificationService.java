@@ -6,6 +6,10 @@ import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Reply;
+import com.forum.application.model.like.CommentLike;
+import com.forum.application.model.like.Like;
+import com.forum.application.model.like.PostLike;
+import com.forum.application.model.like.ReplyLike;
 import com.forum.application.model.mention.CommentMention;
 import com.forum.application.model.mention.Mention;
 import com.forum.application.model.mention.PostMention;
@@ -27,23 +31,43 @@ public class WSNotificationService {
     void broadcastCommentNotification(Comment comment) throws ResourceNotFoundException {
         if (comment.getNotificationStatus() == NotificationStatus.READ) return; // If the post author replied in his own post it will not generate a notification block
 
-        var commentNotificationResponse = notificationMapper.toCommentNotification(comment);
+        var commentNotificationResponse = notificationMapper.toNotification(comment);
         int authorId = comment.getPost().getAuthor().getId();
-        final String subscriberId = String.valueOf(authorId);
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/comments", commentNotificationResponse);
-
-        log.debug("Comment notification successfully sent to author with id of {}", subscriberId);
+        simpMessagingTemplate.convertAndSendToUser(String.valueOf(authorId), "/notification/comments", commentNotificationResponse);
+        log.debug("Comment notification successfully sent to author with id of {}", authorId);
     }
 
     void broadcastReplyNotification(Reply reply) throws ResourceNotFoundException {
         if (reply.getNotificationStatus() == NotificationStatus.READ) return;
 
-        var replyNotificationResponse = notificationMapper.toReplyNotification(reply);
+        var replyNotificationResponse = notificationMapper.toNotification(reply);
         int commenterId = reply.getComment().getCommenter().getId();
-        final String subscriberId = String.valueOf(commenterId);
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/replies", replyNotificationResponse);
+        simpMessagingTemplate.convertAndSendToUser(String.valueOf(commenterId), "/notification/replies", replyNotificationResponse);
 
-        log.debug("Reply notification successfully sent to commenter with id of {}", subscriberId);
+        log.debug("Reply notification successfully sent to commenter with id of {}", commenterId);
+    }
+
+    void broadcastMentions(Set<Mention> mentions) {
+        mentions.forEach(this::broadcastMention);
+    }
+
+    void broadcastLike(Like like) {
+        if (like.getNotificationStatus() == NotificationStatus.READ) return;
+
+        int subscriberId = switch (like) {
+            case PostLike postLike -> postLike.getPost().getAuthor().getId();
+            case CommentLike commentLike -> commentLike.getComment().getCommenter().getId();
+            case ReplyLike replyLike  -> replyLike.getReply().getReplier().getId();
+            default -> throw new IllegalStateException("Unexpected value: " + like);
+        };
+
+        NotificationResponse likeNotification = switch (like) {
+            case PostLike postLike -> notificationMapper.toLikeNotification(postLike);
+            case CommentLike commentLike -> notificationMapper.toLikeNotification(commentLike);
+            case ReplyLike replyLike  -> notificationMapper.toLikeNotification(replyLike);
+            default -> throw new IllegalStateException("Unexpected value: " + like);
+        };
+        simpMessagingTemplate.convertAndSendToUser(String.valueOf(subscriberId), "/notification/likes", likeNotification);
     }
 
     private void broadcastMention(Mention mention) {
@@ -57,11 +81,6 @@ public class WSNotificationService {
         };
 
         final int mentionedUserId = mention.getMentionedUser().getId();
-        final String subscriberId = String.valueOf(mentionedUserId);
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/mentions", mentionNotification);
-    }
-
-    void broadcastMentions(Set<Mention> mentions) {
-        mentions.forEach(this::broadcastMention);
+        simpMessagingTemplate.convertAndSendToUser(String.valueOf(mentionedUserId), "/notification/mentions", mentionNotification);
     }
 }

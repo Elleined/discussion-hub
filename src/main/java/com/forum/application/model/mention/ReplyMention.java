@@ -32,4 +32,9 @@ public final class ReplyMention extends Mention {
         super(id, createdAt, mentionedUser, notificationStatus, mentioningUser);
         this.reply = reply;
     }
+
+    @Override
+    public String getMessage() {
+        return this.getMentioningUser().getName() + " mentioned you in a reply: " + "\"" + this.getReply().getBody() + "\"";
+    }
 }
