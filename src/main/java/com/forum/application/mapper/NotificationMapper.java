@@ -117,7 +117,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "commentId", ignore = true),
             @Mapping(target = "count", ignore = true),
     })
-    public abstract NotificationResponse toPostMentionNotification(PostMention postMention);
+    public abstract NotificationResponse toMentionNotification(PostMention postMention);
 
     @Mappings({
             @Mapping(target = "id", source = "commentMention.id"),
@@ -132,7 +132,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "commentId", ignore = true),
             @Mapping(target = "count", ignore = true),
     })
-    public abstract NotificationResponse toCommentMentionNotification(CommentMention commentMention);
+    public abstract NotificationResponse toMentionNotification(CommentMention commentMention);
 
     @Mappings({
             @Mapping(target = "id", source = "replyMention.id"),
@@ -147,7 +147,7 @@ public abstract class NotificationMapper {
             @Mapping(target = "notificationStatus", source = "notificationStatus"),
             @Mapping(target = "count", ignore = true),
     })
-    public abstract NotificationResponse toReplyMentionNotification(ReplyMention replyMention);
+    public abstract NotificationResponse toMentionNotification(ReplyMention replyMention);
 
     protected String getCommentMessage(Comment comment) {
         return comment.getCommenter().getName() + " commented in your post: " + "\"" + comment.getPost().getBody() + "\"";

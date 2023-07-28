@@ -6,13 +6,16 @@ import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.Comment;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Reply;
-import com.forum.application.model.User;
+import com.forum.application.model.mention.CommentMention;
 import com.forum.application.model.mention.Mention;
 import com.forum.application.model.mention.PostMention;
+import com.forum.application.model.mention.ReplyMention;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -43,16 +46,22 @@ public class WSNotificationService {
         log.debug("Reply notification successfully sent to commenter with id of {}", subscriberId);
     }
 
-    void broadcastMention(Mention mention) {
+    private void broadcastMention(Mention mention) {
         if (mention.getNotificationStatus() == NotificationStatus.READ) return;
 
         NotificationResponse mentionNotification = switch (mention) {
-            case PostMention postMention -> notificationMapper.to
-
+            case PostMention postMention -> notificationMapper.toMentionNotification(postMention);
+            case CommentMention commentMention -> notificationMapper.toMentionNotification(commentMention);
+            case ReplyMention replyMention -> notificationMapper.toMentionNotification(replyMention);
+            default -> throw new IllegalStateException("Unexpected value: " + mention);
         };
 
         final int mentionedUserId = mention.getMentionedUser().getId();
         final String subscriberId = String.valueOf(mentionedUserId);
-        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/mentions", mentionNotification );
+        simpMessagingTemplate.convertAndSendToUser(subscriberId, "/notification/mentions", mentionNotification);
+    }
+
+    void broadcastMentions(Set<Mention> mentions) {
+        mentions.forEach(this::broadcastMention);
     }
 }

@@ -42,12 +42,16 @@ public class NotificationService {
                 .map(notificationMapper::toReplyLikeNotification)
                 .collect(Collectors.toSet());
 
+        Set<NotificationResponse> unreadPostMentions = mentionService.getUnreadPostMentions(currentUser).stream()
+                .map(notificationMapper::toMentionNotification)
+                .collect(Collectors.toSet());
+
         Set<NotificationResponse> unreadCommentMentions = mentionService.getUnreadCommentMentions(currentUser).stream()
-                .map(notificationMapper::toCommentMentionNotification)
+                .map(notificationMapper::toMentionNotification)
                 .collect(Collectors.toSet());
 
         Set<NotificationResponse> unreadReplyMentions = mentionService.getUnreadReplyMentions(currentUser).stream()
-                .map(notificationMapper::toReplyMentionNotification)
+                .map(notificationMapper::toMentionNotification)
                 .collect(Collectors.toSet());
 
         // mention notification here
@@ -56,6 +60,7 @@ public class NotificationService {
                         unreadPostLikes,
                         unreadCommentLikes,
                         unreadReplyLikes,
+                        unreadPostMentions,
                         unreadCommentMentions,
                         unreadReplyMentions
                 ).flatMap(Collection::stream)
@@ -68,6 +73,7 @@ public class NotificationService {
                 likeService.getUnreadPostLikes(currentUser).size() +
                 likeService.getUnreadCommentLikes(currentUser).size() +
                 likeService.getUnreadReplyLikes(currentUser).size() +
+                mentionService.getUnreadPostMentions(currentUser).size() +
                 mentionService.getUnreadCommentMentions(currentUser).size() +
                 mentionService.getUnreadReplyMentions(currentUser).size();
     }

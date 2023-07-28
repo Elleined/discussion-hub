@@ -1,5 +1,7 @@
 package com.forum.application.service;
 
+import com.forum.application.exception.BlockedException;
+import com.forum.application.exception.MentionException;
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
 import com.forum.application.model.mention.CommentMention;
@@ -26,11 +28,22 @@ public class MentionService {
     private final UserRepository userRepository;
     private final MentionRepository mentionRepository;
     private final ModalTrackerService modalTrackerService;
-
     private final MentionNotificationService mentionNotificationService;
     private final MentionNotificationReaderService mentionNotificationReaderService;
 
-    void addPostMention(User currentUser, int mentionedUserId, Post post) {
+    private final PostService postService;
+    private final CommentService commentService;
+    private final ReplyService replyService;
+    private final BlockService blockService;
+
+    private Mention addMention(User currentUser, int mentionedUserId, Post post) throws ResourceNotFoundException,
+            BlockedException,
+            MentionException {
+        if (postService.isDeleted(post)) throw new ResourceNotFoundException("Cannot mention! The post with id of " + post.getId() + " you are trying to mention might already been deleted or does not exists!");
+        if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned user with id of " + mentionedUserId + " already blocked you");
+        if (currentUser.getId() == mentionedUserId) throw new MentionException("Cannot mention! You are trying to mention yourself which is not possible!");
+
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, post.getId(), ModalTracker.Type.POST)
@@ -50,9 +63,18 @@ public class MentionService {
         post.getMentions().add(postMention);
         mentionRepository.save(postMention);
         log.debug("User with id of {} mentioned user with id of {} in post with id of {}", currentUser.getId(), mentionedUserId, post.getId());
+        return postMention;
     }
 
-    void addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
+    private Mention addMention(User currentUser, int mentionedUserId, Comment comment) throws ResourceNotFoundException,
+            BlockedException,
+            MentionException {
+
+        if (commentService.isDeleted(comment)) throw new ResourceNotFoundException("Cannot mention! The comment with id of " + comment.getId() + " you are trying to mention might already been deleted or does not exists!");
+        if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw  new BlockedException("Cannot mention! Mentioned user with id of " + mentionedUserId + " already blocked you");
+        if (currentUser.getId() == mentionedUserId) throw new MentionException("Cannot mention! You are trying to mention yourself which is not possible!");
+
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, comment.getPost().getId(), ModalTracker.Type.COMMENT)
@@ -72,9 +94,18 @@ public class MentionService {
         comment.getMentions().add(commentMention);
         mentionRepository.save(commentMention);
         log.debug("User with id of {} mentioned user with id of {} in comment with id of {}", currentUser.getId(), mentionedUserId, comment.getId());
+        return commentMention;
     }
 
-    void addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
+    private Mention addMention(User currentUser, int mentionedUserId, Reply reply) throws ResourceNotFoundException,
+            BlockedException,
+            MentionException {
+
+        if (replyService.isDeleted(reply)) throw new ResourceNotFoundException("Cannot mention! The reply with id of " + reply.getId() + " you are trying to mention might already be deleted or does not exists!");
+        if (blockService.isBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! You blocked the mentioned user with id of !" + mentionedUserId);
+        if (blockService.isYouBeenBlockedBy(currentUser.getId(), mentionedUserId)) throw new BlockedException("Cannot mention! Mentioned userwith id of " + mentionedUserId + " already blocked you");
+        if (currentUser.getId() == mentionedUserId) throw new MentionException("Cannot mention! You are trying to mention yourself which is not possible!");
+
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
         NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, reply.getComment().getId(), ModalTracker.Type.REPLY)
@@ -94,6 +125,34 @@ public class MentionService {
         reply.getMentions().add(replyMention);
         mentionRepository.save(replyMention);
         log.debug("User with id of {} mentioned user with id of {} in reply with id of {}", currentUser.getId(), mentionedUserId, reply.getId());
+        return replyMention;
+    }
+
+    Set<Mention> addAllMention(User currentUser, Set<Integer> mentionedUserIds, Post post) throws ResourceNotFoundException,
+            BlockedException,
+            MentionException {
+
+        return mentionedUserIds.stream()
+                .map(mentionedUserId -> addMention(currentUser, mentionedUserId, post))
+                .collect(Collectors.toSet());
+    }
+
+    Set<Mention> addAllMention(User currentUser, Set<Integer> mentionedUserIds, Comment comment) throws ResourceNotFoundException,
+            BlockedException,
+            MentionException {
+
+        return mentionedUserIds.stream()
+                .map(mentionedUserId -> addMention(currentUser, mentionedUserId, comment))
+                .collect(Collectors.toSet());
+    }
+
+    Set<Mention> addAllMention(User currentUser, Set<Integer> mentionedUserIds, Reply reply) throws ResourceNotFoundException,
+            BlockedException,
+            MentionException {
+
+        return mentionedUserIds.stream()
+                .map(mentionedUserId -> addMention(currentUser, mentionedUserId, reply))
+                .collect(Collectors.toSet());
     }
 
     Set<PostMention> getUnreadPostMentions(User currentUser) {
