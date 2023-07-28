@@ -32,8 +32,15 @@ public final class ReplyLike extends Like {
         this.reply = reply;
     }
 
+
     @Override
     public String getMessage() {
         return this.getRespondent().getName() + " liked your reply: " +  "\"" + this.getReply().getBody() + "\"";
     }
+
+    @Override
+    public int getSubscriberId() {
+        return reply.getReplier().getId();
+    }
+
 }

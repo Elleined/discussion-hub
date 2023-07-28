@@ -52,14 +52,9 @@ public class WSNotificationService {
     }
 
     void broadcastLike(Like like) {
-        if (like.getNotificationStatus() == NotificationStatus.READ) return;
 
-        int subscriberId = switch (like) {
-            case PostLike postLike -> postLike.getPost().getAuthor().getId();
-            case CommentLike commentLike -> commentLike.getComment().getCommenter().getId();
-            case ReplyLike replyLike  -> replyLike.getReply().getReplier().getId();
-            default -> throw new IllegalStateException("Unexpected value: " + like);
-        };
+        if (like.getNotificationStatus() == NotificationStatus.READ) return;
+        int subscriberId = like.getSubscriberId();
 
         NotificationResponse likeNotification = switch (like) {
             case PostLike postLike -> notificationMapper.toLikeNotification(postLike);

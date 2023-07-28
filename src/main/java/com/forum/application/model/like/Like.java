@@ -1,12 +1,12 @@
 package com.forum.application.model.like;
 
+import com.forum.application.dto.NotificationResponse;
+import com.forum.application.mapper.NotificationMapper;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 public abstract class Like {
 
     @Id
@@ -47,4 +47,5 @@ public abstract class Like {
     private NotificationStatus notificationStatus;
 
     public abstract String getMessage();
+    public abstract int getSubscriberId();
 }

@@ -1,5 +1,6 @@
 package com.forum.application.model.like;
 
+import com.forum.application.dto.NotificationResponse;
 import com.forum.application.model.Comment;
 import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.User;
@@ -36,4 +37,10 @@ public final class CommentLike extends Like {
     public String getMessage() {
         return this.getRespondent().getName() + " liked your comment: " +  "\"" + this.getComment().getBody() + "\"";
     }
+
+    @Override
+    public int getSubscriberId() {
+        return comment.getCommenter().getId();
+    }
+
 }
