@@ -219,9 +219,9 @@ function onConnected() {
    stompClient.subscribe("/user/notification/comments", function (notificationResponse) {
       const json = JSON.parse(notificationResponse.body);
       if (json.respondentId == currentUserId) return; // If the post author commented in his own post it will not generate a notification block
-      if (json.modalOpen) return; // If the post author modal is open this will not generate a notification block
+      if (json.notificationStatus === "READ") return; // If the post author modal is open this will not generate a notification block
 
-      updateTotalNotificationCount();
+      updateTotalNotificationCount(currentUserId);
       generateNotification(json, notificationContainer);
    });
 
@@ -230,7 +230,7 @@ function onConnected() {
       if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
       if (json.notificationStatus === "READ") return; // If the comment author modal is open this will not generate a notification block
 
-      updateTotalNotificationCount();
+      updateTotalNotificationCount(currentUserId);
       generateNotification(json, notificationContainer);
    });
 }

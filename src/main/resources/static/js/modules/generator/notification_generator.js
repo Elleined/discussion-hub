@@ -16,14 +16,14 @@ const generateNotification = (notificationResponse, container) => {
     if (notificationResponse.type === "REPLY") {
         getNotificationBlock(notificationResponse)
             .then(res => {
-                $("#notificationReplyItem_" + notificationResponse.respondentId + "_" + notificationResponse.commentId).remove();
+                $("#notificationReplyItem_" + notificationResponse.respondentId + "_" + notificationResponse.commentId + "_" + notificationResponse.id).remove();
                 container.append(res);
                 bindReplyButton(notificationResponse);
             }).catch(error => alert("Generating reply notification block failed! " + error));
     } else {
         getNotificationBlock(notificationResponse)
             .then(res => {
-                $("#notificationCommentItem_" + notificationResponse.respondentId + "_" + notificationResponse.postId).remove();
+                $("#notificationCommentItem_" + notificationResponse.respondentId + "_" + notificationResponse.postId + "_" + notificationResponse.id).remove();
                 container.append(res);
                 bindCommentButton(notificationResponse);
             }).catch(error => alert("Generating comment notification block failed! " + error));
@@ -41,7 +41,7 @@ const generateAllNotification = (currentUserId, container) => {
 
 const bindCommentButton = notificationResponse => {
     $("#commentNotificationButton_" + notificationResponse.respondentId + "_" + notificationResponse.postId).on("click", function(event) {
-        bindCommentBtn(notificationResponse.id);
+        bindCommentBtn(notificationResponse.postId);
         $(this).parent().parent().parent().remove();
         event.preventDefault();
     });
@@ -55,8 +55,7 @@ const bindReplyButton = notificationResponse => {
     });
 };
 
-const updateTotalNotificationCount = async () => {
-    const currentUserId = $("#currentUserId").val();
+const updateTotalNotificationCount = async (currentUserId) => {
     try {
         const totalNotificationCount = await getTotalNotificationCount(currentUserId);
         const totalNotificationElement = $("#totalNotificationCount");

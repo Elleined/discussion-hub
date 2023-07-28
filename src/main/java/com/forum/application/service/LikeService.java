@@ -2,14 +2,18 @@ package com.forum.application.service;
 
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
-import com.forum.application.model.like.*;
+import com.forum.application.model.like.CommentLike;
+import com.forum.application.model.like.Like;
+import com.forum.application.model.like.PostLike;
+import com.forum.application.model.like.ReplyLike;
 import com.forum.application.repository.LikeRepository;
 import com.forum.application.repository.UserRepository;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;

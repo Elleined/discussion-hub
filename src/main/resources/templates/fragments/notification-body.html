@@ -1,6 +1,6 @@
 <div th:fragment="notification-body-fragment">
     <li th:if="${#strings.containsIgnoreCase(notification.type.toString(), 'REPLY')}"
-        th:id="${'notificationReplyItem_' + notification.respondentId + '_' + notification.commentId}"
+        th:id="${'notificationReplyItem_' + notification.respondentId + '_' + notification.commentId + '_' + notification.id}"
         class="d-inline-flex position-relative ms-2 dropdown-item">
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
@@ -21,7 +21,7 @@
     </li>
 
     <li th:if="${#strings.containsIgnoreCase(notification.type.toString(), 'COMMENT')}"
-        th:id="${'notificationCommentItem_' + notification.respondentId + '_' + notification.postId}"
+        th:id="${'notificationCommentItem_' + notification.respondentId + '_' + notification.postId + '_' + notification.id}"
         class="d-inline-flex position-relative ms-2 dropdown-item">
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
@@ -41,5 +41,4 @@
         </div>
         <hr>
     </li>
-    <input type="hidden" id="currentUserId" name="currentUserId" th:value="${currentUserId}" />
 </div>
