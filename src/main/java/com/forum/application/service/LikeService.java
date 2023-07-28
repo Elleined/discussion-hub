@@ -2,10 +2,7 @@ package com.forum.application.service;
 
 import com.forum.application.exception.ResourceNotFoundException;
 import com.forum.application.model.*;
-import com.forum.application.model.like.CommentLike;
-import com.forum.application.model.like.Like;
-import com.forum.application.model.like.PostLike;
-import com.forum.application.model.like.ReplyLike;
+import com.forum.application.model.like.*;
 import com.forum.application.repository.LikeRepository;
 import com.forum.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

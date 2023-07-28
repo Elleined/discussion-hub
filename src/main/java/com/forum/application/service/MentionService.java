@@ -24,15 +24,21 @@ public class MentionService {
 
     private final UserRepository userRepository;
     private final MentionRepository mentionRepository;
+    private final ModalTrackerService modalTrackerService;
     private final MentionNotificationService mentionNotificationService;
 
     void addPostMention(User currentUser, int mentionedUserId, Post post) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, post.getId(), ModalTracker.Type.POST)
+                ? NotificationStatus.READ
+                : NotificationStatus.UNREAD;
+
         PostMention postMention = PostMention.postMentionBuilder()
                 .mentioningUser(currentUser)
                 .mentionedUser(mentionedUser)
                 .createdAt(LocalDateTime.now())
+                .notificationStatus(notificationStatus)
                 .post(post)
                 .build();
 
@@ -46,11 +52,16 @@ public class MentionService {
     void addCommentMention(User currentUser, int mentionedUserId, Comment comment) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, comment.getId(), ModalTracker.Type.COMMENT)
+                ? NotificationStatus.READ
+                : NotificationStatus.UNREAD;
+
         CommentMention commentMention = CommentMention.commentMentionBuilder()
                 .mentioningUser(currentUser)
                 .mentionedUser(mentionedUser)
                 .createdAt(LocalDateTime.now())
                 .comment(comment)
+                .notificationStatus(notificationStatus)
                 .build();
 
         currentUser.getSentCommentMentions().add(commentMention);
@@ -63,11 +74,16 @@ public class MentionService {
     void addReplyMention(User currentUser, int mentionedUserId, Reply reply) {
         User mentionedUser = userRepository.findById(mentionedUserId).orElseThrow(() -> new ResourceNotFoundException("Mentioned user with id of " + mentionedUserId + " doesn't exists!"));
 
+        NotificationStatus notificationStatus = modalTrackerService.isModalOpen(mentionedUserId, reply.getId(), ModalTracker.Type.REPLY)
+                ? NotificationStatus.READ
+                : NotificationStatus.UNREAD;
+
         ReplyMention replyMention = ReplyMention.replyMentionBuilder()
                 .mentioningUser(currentUser)
                 .mentionedUser(mentionedUser)
                 .createdAt(LocalDateTime.now())
                 .reply(reply)
+                .notificationStatus(notificationStatus)
                 .build();
 
         currentUser.getSentReplyMentions().add(replyMention);
@@ -96,7 +112,7 @@ public class MentionService {
                     .filter(mention -> !blockService.isBlockedBy(mention.getMentioningUser().getId(), mention.getMentioningUser().getId()))
                     .filter(mention -> !blockService.isYouBeenBlockedBy(mention.getMentioningUser().getId(), mention.getMentioningUser().getId()))
                     .filter(mention -> mention.getComment().getStatus() == Status.ACTIVE)
-                    .filter(mention -> mention.getComment().getNotificationStatus() == NotificationStatus.UNREAD)
+                    .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
                     .collect(Collectors.toSet());
         }
 
@@ -106,7 +122,7 @@ public class MentionService {
                     .filter(mention -> !blockService.isBlockedBy(mention.getMentioningUser().getId(), mention.getMentioningUser().getId()))
                     .filter(mention -> !blockService.isYouBeenBlockedBy(mention.getMentioningUser().getId(), mention.getMentioningUser().getId()))
                     .filter(mention -> mention.getReply().getStatus() == Status.ACTIVE)
-                    .filter(mention -> mention.getReply().getNotificationStatus() == NotificationStatus.UNREAD)
+                    .filter(mention -> mention.getNotificationStatus() == NotificationStatus.UNREAD)
                     .collect(Collectors.toSet());
         }
     }

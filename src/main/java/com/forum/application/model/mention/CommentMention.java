@@ -1,6 +1,7 @@
 package com.forum.application.model.mention;
 
 import com.forum.application.model.Comment;
+import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -26,8 +27,9 @@ public final class CommentMention extends Mention {
     private Comment comment;
 
     @Builder(builderMethodName = "commentMentionBuilder")
-    public CommentMention(int id, LocalDateTime createdAt, User mentionedUser, User mentioningUser, Comment comment) {
-        super(id, createdAt, mentionedUser, mentioningUser);
+
+    public CommentMention(int id, LocalDateTime createdAt, User mentionedUser, NotificationStatus notificationStatus, User mentioningUser, Comment comment) {
+        super(id, createdAt, mentionedUser, notificationStatus, mentioningUser);
         this.comment = comment;
     }
 }

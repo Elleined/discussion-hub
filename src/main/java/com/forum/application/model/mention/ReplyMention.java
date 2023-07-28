@@ -1,5 +1,6 @@
 package com.forum.application.model.mention;
 
+import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Reply;
 import com.forum.application.model.User;
 import jakarta.persistence.Entity;
@@ -27,8 +28,8 @@ public final class ReplyMention extends Mention {
 
     @Builder(builderMethodName = "replyMentionBuilder")
 
-    public ReplyMention(int id, LocalDateTime createdAt, User mentionedUser, User mentioningUser, Reply reply) {
-        super(id, createdAt, mentionedUser, mentioningUser);
+    public ReplyMention(int id, LocalDateTime createdAt, User mentionedUser, NotificationStatus notificationStatus, User mentioningUser, Reply reply) {
+        super(id, createdAt, mentionedUser, notificationStatus, mentioningUser);
         this.reply = reply;
     }
 }

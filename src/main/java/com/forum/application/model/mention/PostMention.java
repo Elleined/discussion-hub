@@ -1,5 +1,6 @@
 package com.forum.application.model.mention;
 
+import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.Post;
 import com.forum.application.model.User;
 import jakarta.persistence.Entity;
@@ -26,8 +27,9 @@ public final class PostMention extends Mention {
     private Post post;
 
     @Builder(builderMethodName = "postMentionBuilder")
-    public PostMention(int id, LocalDateTime createdAt, User mentionedUser, User mentioningUser, Post post) {
-        super(id, createdAt, mentionedUser, mentioningUser);
+
+    public PostMention(int id, LocalDateTime createdAt, User mentionedUser, NotificationStatus notificationStatus, User mentioningUser, Post post) {
+        super(id, createdAt, mentionedUser, notificationStatus, mentioningUser);
         this.post = post;
     }
 }

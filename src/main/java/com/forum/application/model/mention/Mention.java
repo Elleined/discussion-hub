@@ -1,5 +1,6 @@
 package com.forum.application.model.mention;
 
+import com.forum.application.model.NotificationStatus;
 import com.forum.application.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,10 @@ public abstract class Mention {
             referencedColumnName = "user_id"
     )
     private User mentionedUser;
+
+    @Column(name = "notification_status")
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus notificationStatus;
 
     @ManyToOne
     @JoinColumn(

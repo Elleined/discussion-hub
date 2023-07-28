@@ -44,12 +44,12 @@ public class ModalTrackerService {
         }
     }
 
-    public boolean isModalOpen(int userId, int associatedTypeId, ModalTracker.Type type) {
-        ModalTracker modalTracker = this.getTrackerOfUserById(userId);
+    public boolean isModalOpen(int receiverId, int associatedTypeId, ModalTracker.Type type) {
+        ModalTracker modalTracker = this.getTrackerOfUserById(receiverId);
         if (modalTracker == null) return false;
         return modalTracker.getType() == type &&
                 modalTracker.getAssociatedTypeIdOpened() == associatedTypeId &&
-                modalTracker.getReceiverId() == userId;
+                modalTracker.getReceiverId() == receiverId;
     }
 
     public void deleteAll() {
