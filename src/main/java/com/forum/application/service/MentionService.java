@@ -156,7 +156,6 @@ public class MentionService {
 
     @Service
     @RequiredArgsConstructor
-    @Transactional
     private static class MentionNotificationReaderService {
         private final MentionNotificationService mentionNotificationService;
         private final MentionRepository mentionRepository;
@@ -165,18 +164,21 @@ public class MentionService {
             Set<PostMention> receiveUnreadPostMentions = mentionNotificationService.getUnreadPostMentions(currentUser);
             receiveUnreadPostMentions.forEach(this::readMention);
             mentionRepository.saveAll(receiveUnreadPostMentions);
+            log.debug("Reading all post mentions for current user with id of {} success", currentUser.getId());
         }
 
         private void readCommentMentions(User currentUser) {
             Set<CommentMention> receiveUnreadCommentMentions = mentionNotificationService.getUnreadCommentMentions(currentUser);
             receiveUnreadCommentMentions.forEach(this::readMention);
             mentionRepository.saveAll(receiveUnreadCommentMentions);
+            log.debug("Reading all comment mentions for current user with id of {} success", currentUser.getId());
         }
 
         private void readReplyMentions(User currentUser) {
             Set<ReplyMention> receiveUnreadReplyMentions = mentionNotificationService.getUnreadReplyMentions(currentUser);
             receiveUnreadReplyMentions.forEach(this::readMention);
             mentionRepository.saveAll(receiveUnreadReplyMentions);
+            log.debug("Reading all reply mentions for current user with id of {} success", currentUser.getId());
         }
 
         private void readMention(Mention mention) {
