@@ -78,7 +78,7 @@ public class ForumService {
         }
 
         wsService.broadcastComment(comment);
-        WSNotificationService.broadcastCommentNotification(comment, currentUser);
+        WSNotificationService.broadcastCommentNotification(comment);
         return commentMapper.toDTO(comment);
     }
 
@@ -104,7 +104,7 @@ public class ForumService {
         }
 
         wsService.broadcastReply(reply);
-        WSNotificationService.broadcastReplyNotification(reply, currentUser);
+        WSNotificationService.broadcastReplyNotification(reply);
         return replyMapper.toDTO(reply);
     }
 

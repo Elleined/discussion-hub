@@ -213,23 +213,27 @@ export function subscribeToCommentReplies(commentId) {
 
 function onConnected() {
    console.log("Web Socket Connected!!!");
+   const currentUserId = $("#userId").val();
    const notificationContainer = $("#notificationContainer");
 
    stompClient.subscribe("/user/notification/comments", function (notificationResponse) {
       const json = JSON.parse(notificationResponse.body);
+      if (json.respondentId == currentUserId) return; // If the post author commented in his own post it will not generate a notification block
+
       updateTotalNotificationCount(currentUserId);
       generateNotification(json, notificationContainer);
    });
 
    stompClient.subscribe("/user/notification/replies", function (notificationResponse) {
       const json = JSON.parse(notificationResponse.body);
+      if (json.respondentId == currentUserId) return; // If the post author replied in his own post it will not generate a notification block
+
       updateTotalNotificationCount(currentUserId);
       generateNotification(json, notificationContainer);
    });
 
-   stompClient.subscribe("/user/notification/mentions", function (notificationResponse) {
-      const json = JSON.parse(notificationResponse.body);
-
+   stompClient.subscribe("/user/notification/mentions" function (notificationResponse) {
+        const json = JSON.parse(notificationResponse.body);
    });
 }
 
