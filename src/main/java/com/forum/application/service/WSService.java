@@ -21,15 +21,16 @@ public class WSService {
     private final ReplyMapper replyMapper;
 
     void broadcastComment(Comment comment) {
-        CommentDTO commentDTO = commentMapper.toDTO(comment);
+        final CommentDTO commentDTO = commentMapper.toDTO(comment);
         commentDTO.setBody(HtmlUtils.htmlEscape(commentDTO.getBody()));
 
         final String destination = "/discussion/posts/" + commentDTO.getPostId() + "/comments";
         simpMessagingTemplate.convertAndSend(destination, commentDTO);
         log.debug("Comment with id of {} and body of {} broadcast successfully to {}", comment.getId(), commentDTO.getBody(), destination);
     }
+
     void broadcastReply(Reply reply) {
-        ReplyDTO replyDTO = replyMapper.toDTO(reply);
+        final ReplyDTO replyDTO = replyMapper.toDTO(reply);
         replyDTO.setBody(HtmlUtils.htmlEscape(replyDTO.getBody()));
 
         final String destination = "/discussion/posts/comments/" + replyDTO.getCommentId() + "/replies";

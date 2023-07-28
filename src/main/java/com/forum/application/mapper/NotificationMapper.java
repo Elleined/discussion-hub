@@ -5,9 +5,12 @@ import com.forum.application.model.Comment;
 import com.forum.application.model.ModalTracker;
 import com.forum.application.model.Reply;
 import com.forum.application.model.like.CommentLike;
+import com.forum.application.model.like.Like;
 import com.forum.application.model.like.PostLike;
 import com.forum.application.model.like.ReplyLike;
 import com.forum.application.model.mention.CommentMention;
+import com.forum.application.model.mention.Mention;
+import com.forum.application.model.mention.PostMention;
 import com.forum.application.model.mention.ReplyMention;
 import com.forum.application.service.CommentService;
 import com.forum.application.service.Formatter;
@@ -58,7 +61,7 @@ public abstract class NotificationMapper {
 
     @Mappings(value = {
             @Mapping(target = "id", source = "postLike.id"),
-            @Mapping(target = "message", expression = "java(getPostLikeMessage(postLike))"),
+            @Mapping(target = "message", expression = "java(getLikeMessage(postLike))"),
             @Mapping(target = "respondentId", source = "postLike.respondent.id"),
             @Mapping(target = "respondentPicture", source = "postLike.respondent.picture"),
             @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(postLike.getCreatedAt()))"),
@@ -73,7 +76,7 @@ public abstract class NotificationMapper {
 
     @Mappings(value = {
             @Mapping(target = "id", source = "commentLike.id"),
-            @Mapping(target = "message", expression = "java(getCommentLikeMessage(commentLike))"),
+            @Mapping(target = "message", expression = "java(getLikeMessage(commentLike))"),
             @Mapping(target = "respondentId", source = "commentLike.respondent.id"),
             @Mapping(target = "respondentPicture", source = "commentLike.respondent.picture"),
             @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(commentLike.getCreatedAt()))"),
@@ -88,7 +91,7 @@ public abstract class NotificationMapper {
 
     @Mappings(value = {
             @Mapping(target = "id", source = "replyLike.id"),
-            @Mapping(target = "message", expression = "java(getReplyLikeMessage(replyLike))"),
+            @Mapping(target = "message", expression = "java(getLikeMessage(replyLike))"),
             @Mapping(target = "respondentId", source = "replyLike.respondent.id"),
             @Mapping(target = "respondentPicture", source = "replyLike.respondent.picture"),
             @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(replyLike.getCreatedAt()))"),
@@ -102,8 +105,23 @@ public abstract class NotificationMapper {
     public abstract NotificationResponse toReplyLikeNotification(ReplyLike replyLike);
 
     @Mappings({
+            @Mapping(target = "id", source = "postMention.id"),
+            @Mapping(target = "message", expression = "java(getMentionMessage(postMention))"),
+            @Mapping(target = "respondentId", source = "postMention.mentioningUser.id"),
+            @Mapping(target = "respondentPicture", source = "postMention.mentioningUser.picture"),
+            @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(postMention.getCreatedAt()))"),
+            @Mapping(target = "formattedTime", expression = "java(Formatter.formatTime(postMention.getCreatedAt()))"),
+            @Mapping(target = "type", expression = "java(Type.COMMENT)"),
+            @Mapping(target = "notificationStatus", source = "postMention.notificationStatus"),
+            @Mapping(target = "postId", source = "postMention.post.id"),
+            @Mapping(target = "commentId", ignore = true),
+            @Mapping(target = "count", ignore = true),
+    })
+    public abstract NotificationResponse toPostMentionNotification(PostMention postMention);
+
+    @Mappings({
             @Mapping(target = "id", source = "commentMention.id"),
-            @Mapping(target = "message", expression = "java(getCommentMentionMessage(commentMention))"),
+            @Mapping(target = "message", expression = "java(getMentionMessage(commentMention))"),
             @Mapping(target = "respondentId", source = "commentMention.mentioningUser.id"),
             @Mapping(target = "respondentPicture", source = "commentMention.mentioningUser.picture"),
             @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(commentMention.getCreatedAt()))"),
@@ -118,7 +136,7 @@ public abstract class NotificationMapper {
 
     @Mappings({
             @Mapping(target = "id", source = "replyMention.id"),
-            @Mapping(target = "message", expression = "java(getReplyMentionMessage(replyMention))"),
+            @Mapping(target = "message", expression = "java(getMentionMessage(replyMention))"),
             @Mapping(target = "respondentId", source = "replyMention.mentioningUser.id"),
             @Mapping(target = "respondentPicture", source = "replyMention.mentioningUser.picture"),
             @Mapping(target = "formattedDate", expression = "java(Formatter.formatDate(replyMention.getCreatedAt()))"),
@@ -139,25 +157,22 @@ public abstract class NotificationMapper {
         return reply.getReplier().getName() + " replied to your comment: " + "\"" + reply.getComment().getBody() + "\"";
     }
 
-    protected String getPostLikeMessage(PostLike postLike) {
-        return postLike.getRespondent().getName() + " liked your post: " +  "\"" + postLike.getPost().getBody() + "\"";
+    protected String getLikeMessage(Like like) {
+        return switch (like) {
+            case PostLike postLike-> postLike.getRespondent().getName() + " liked your post: " +  "\"" + postLike.getPost().getBody() + "\"";
+            case CommentLike commentLike-> commentLike.getRespondent().getName() + " liked your comment: " +  "\"" + commentLike.getComment().getBody() + "\"";
+            case ReplyLike replyLike -> replyLike.getRespondent().getName() + " liked your reply: " +  "\"" + replyLike.getReply().getBody() + "\"";
+            default -> throw new IllegalStateException("Unexpected value: " + like);
+        };
     }
 
-    protected String getCommentLikeMessage(CommentLike commentLike) {
-        return commentLike.getRespondent().getName() + " liked your comment: " +  "\"" + commentLike.getComment().getBody() + "\"";
-    }
-
-    protected String getReplyLikeMessage(ReplyLike replyLike) {
-        return replyLike.getRespondent().getName() + " liked your reply: " +  "\"" + replyLike.getReply().getBody() + "\"";
-    }
-
-    protected String getCommentMentionMessage(CommentMention commentMention) {
-        return commentMention.getMentioningUser().getName() + " mentioned you in a comment: " + "\"" + commentMention.getComment().getBody() + "\"";
-    }
-
-    protected String getReplyMentionMessage(ReplyMention replyMention) {
-        return replyMention.getMentioningUser().getName() + " mentioned you in a reply: " + "\"" + replyMention.getReply().getBody() + "\"";
-
+    protected String getMentionMessage(Mention mention) {
+        return switch (mention) {
+            case PostMention postMention -> postMention.getMentioningUser().getName() + " mentioned you in a post: " + "\"" + postMention.getPost().getBody() + "\"";
+            case CommentMention commentMention -> commentMention.getMentioningUser().getName() + " mentioned you in a comment: " + "\"" + commentMention.getComment().getBody() + "\"";
+            case ReplyMention replyMention -> replyMention.getMentioningUser().getName() + " mentioned you in a reply: " + "\"" + replyMention.getReply().getBody() + "\"";
+            default -> throw new IllegalStateException("Unexpected value: " + mention);
+        };
     }
 }
 
